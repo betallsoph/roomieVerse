@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>roomieVerse - Find Your Perfect Roommate</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1>🏠 roomieVerse</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <h1>Find Your Perfect Roommate</h1>
+                <p class="subtitle">A specialized platform built for one core purpose: connecting people who truly want to share housing</p>
+                <div class="hero-features">
+                    <div class="feature-badge">✓ Roommate-Seeking Only</div>
+                    <div class="feature-badge">✓ No Full-Unit Rentals</div>
+                    <div class="feature-badge">✓ 100% Broker-Free</div>
+                    <div class="feature-badge">✓ Lifestyle Matching</div>
+                </div>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary" onclick="showSection('register')">Get Started</button>
+                    <button class="btn btn-secondary" onclick="showSection('login')">Sign In</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="section">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Create Your Profile</h3>
+                        <p>Tell us about your lifestyle, preferences, and what you're looking for in a roommate</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Get Matched</h3>
+                        <p>Our algorithm finds compatible roommates based on lifestyle, budget, location, and timing</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Connect Directly</h3>
+                        <p>Message verified users directly - no brokers, no middlemen, just real people</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Find Your Home</h3>
+                        <p>Meet in person, discuss details, and find your perfect shared living situation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section features-section">
+            <div class="container">
+                <h2>What Makes Us Different</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Roommate-Seeking Only</h3>
+                        <p>We filter out the noise of 'full-unit' or 'single-room' listings. Focus exclusively on shared housing seekers.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🚫</div>
+                        <h3>Broker-Free Zone</h3>
+                        <p>Clean, broker-free ecosystem. Connect only with real people, never with agents or middlemen.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤝</div>
+                        <h3>Lifestyle Matching</h3>
+                        <p>Our smart algorithm matches you based on sleep schedules, cleanliness, social habits, and more.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✓</div>
+                        <h3>Verified Users</h3>
+                        <p>All users are verified to ensure you're connecting with real, genuine people looking for roommates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>Direct Communication</h3>
+                        <p>Message potential roommates directly. No platform fees, no hidden charges, completely transparent.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏘️</div>
+                        <h3>Community Focus</h3>
+                        <p>Find not just a space, but a compatible home and community that matches your lifestyle.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="section about-section">
+            <div class="container">
+                <h2>About roomieVerse</h2>
+                <div class="about-content">
+                    <p>roomieVerse is a specialized platform built for one core purpose: connecting people who truly want to share housing.</p>
+                    <p>This is not another traditional rental site. We filter out the noise of 'full-unit' or 'single-room' listings to focus exclusively on the community of users seeking roommates.</p>
+                    <p>Our mission is to provide a clean, broker-free ecosystem, ensuring you only connect with real people. By matching based on lifestyle, roomieVerse helps you find not just a space, but a compatible home and community.</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <h3>100%</h3>
+                            <p>Broker-Free</p>
+                        </div>
+                        <div class="stat">
+                            <h3>0</h3>
+                            <p>Hidden Fees</p>
+                        </div>
+                        <div class="stat">
+                            <h3>Real</h3>
+                            <p>People Only</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auth Sections (Hidden by default) -->
+        <section id="register" class="section auth-section" style="display: none;">
+            <div class="container">
+                <div class="auth-box">
+                    <h2>Create Your Account</h2>
+                    <p>Join the roomieVerse community</p>
+                    <form id="registerForm">
+                        <input type="text" id="reg-name" placeholder="Full Name" required>
+                        <input type="email" id="reg-email" placeholder="Email" required>
+                        <input type="password" id="reg-password" placeholder="Password (min 6 characters)" required>
+                        <input type="tel" id="reg-phone" placeholder="Phone (optional)">
+                        <label class="checkbox-label">
+                            <input type="checkbox" required>
+                            I confirm that I am NOT a broker or agent. I am looking for genuine roommate connections.
+                        </label>
+                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                    </form>
+                    <p class="auth-link">Already have an account? <a href="#" onclick="showSection('login')">Sign in</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="login" class="section auth-section" style="display: none;">
+            <div class="container">
+                <div class="auth-box">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to your roomieVerse account</p>
+                    <form id="loginForm">
+                        <input type="email" id="login-email" placeholder="Email" required>
+                        <input type="password" id="login-password" placeholder="Password" required>
+                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    </form>
+                    <p class="auth-link">Don't have an account? <a href="#" onclick="showSection('register')">Create one</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 roomieVerse. A broker-free platform for genuine roommate connections.</p>
+            <p class="footer-tagline">Find not just a space, but a compatible home and community.</p>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
