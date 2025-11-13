@@ -1,10 +1,24 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
 
 // Initialize express app
 const app = express();
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs for auth endpoints
+  message: 'Too many authentication attempts, please try again later.'
+});
 
 // Middleware
 app.use(cors());
@@ -12,8 +26,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
+// Apply rate limiting to all routes
+app.use('/api/', limiter);
+
+// Routes with specific rate limiting
+app.use('/api/auth', authLimiter, require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/listings', require('./routes/listings'));
 app.use('/api/matches', require('./routes/matches'));
@@ -96,13 +113,22 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
-    // Connect to database
-    await connectDB();
+    // Try to connect to database (but don't fail if unavailable)
+    const dbConnected = await connectDB();
+    
+    if (!dbConnected) {
+      console.log('\n⚠️  NOTE: Database not available - API will return demo responses');
+      console.log('📝 To enable full functionality:');
+      console.log('   1. Install MongoDB: https://www.mongodb.com/try/download/community');
+      console.log('   2. Start MongoDB: mongod');
+      console.log('   3. Restart this server\n');
+    }
     
     app.listen(PORT, () => {
       console.log(`\n🏠 roomieVerse server is running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 API: http://localhost:${PORT}/api`);
+      console.log(`🌐 Web: http://localhost:${PORT}`);
       console.log(`\n✨ Features:`);
       console.log(`   - Roommate-seeking listings only (no full-unit rentals)`);
       console.log(`   - Broker-free ecosystem`);

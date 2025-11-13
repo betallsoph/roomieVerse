@@ -25,8 +25,11 @@ exports.findMatches = async (req, res) => {
       'profile.lifestyle': { $exists: true }
     };
     
+    // Escape regex special characters to prevent regex injection
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
     if (city) {
-      query['profile.housingPreferences.location.city'] = new RegExp(city, 'i');
+      query['profile.housingPreferences.location.city'] = new RegExp(escapeRegex(city), 'i');
     }
     
     if (lookingFor) {

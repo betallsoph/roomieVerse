@@ -59,8 +59,11 @@ exports.getListings = async (req, res) => {
       isDirectListing: true // Filter out any non-direct listings
     };
     
-    if (city) query['location.city'] = new RegExp(city, 'i');
-    if (state) query['location.state'] = new RegExp(state, 'i');
+    // Escape regex special characters to prevent regex injection
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    if (city) query['location.city'] = new RegExp(escapeRegex(city), 'i');
+    if (state) query['location.state'] = new RegExp(escapeRegex(state), 'i');
     if (listingType) query.listingType = listingType;
     
     if (minRent || maxRent) {

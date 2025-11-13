@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
+const { sanitizeString, isValidEmail } = require('../utils/sanitization');
 
 /**
  * Register new user
@@ -7,7 +8,12 @@ const { generateToken } = require('../middleware/auth');
  */
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone, isBroker } = req.body;
+    let { name, email, password, phone, isBroker } = req.body;
+    
+    // Sanitize inputs
+    name = sanitizeString(name);
+    email = sanitizeString(email);
+    phone = sanitizeString(phone);
     
     // Validate required fields
     if (!name || !email || !password) {
@@ -17,8 +23,16 @@ exports.register = async (req, res) => {
       });
     }
     
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+    
     // Check if user already exists
-    const existingUser = await User.findOne({ email }).select('+password');
+    const existingUser = await User.findOne({ email: email.toLowerCase() }).select('+password');
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -73,7 +87,10 @@ exports.register = async (req, res) => {
  */
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+    
+    // Sanitize inputs
+    email = sanitizeString(email);
     
     // Validate
     if (!email || !password) {
@@ -83,8 +100,16 @@ exports.login = async (req, res) => {
       });
     }
     
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+    
     // Find user with password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     
     if (!user) {
       return res.status(401).json({
