@@ -59,7 +59,7 @@ const achievements = [
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-slate-50 to-white pb-16">
       <div className="mx-auto max-w-6xl px-6 pt-10 lg:px-12">
         {/* Header */}
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white/60 px-6 py-4 shadow-sm backdrop-blur">
@@ -80,14 +80,14 @@ export default function ProfilePage() {
         </header>
 
         {/* Profile Header */}
-        <section className="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-md">
+        <section className="mt-12 rounded-3xl border border-slate-200 bg-white/60 p-8 shadow-lg backdrop-blur-sm">
           <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-6">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-black bg-[#FFE951] text-4xl font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 text-4xl shadow-lg">
                 👤
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Nguyễn Văn A</h1>
+                <h1 className="text-3xl font-semibold text-slate-900">Nguyễn Văn A</h1>
                 <p className="text-slate-600">@nguyenvana • Thành viên từ tháng 11/2024</p>
                 <div className="mt-2 flex gap-2">
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -101,7 +101,7 @@ export default function ProfilePage() {
             </div>
             <Link
               href="/auth"
-              className="rounded-full border-3 border-black bg-[#4ECDC4] px-6 py-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              className="rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-emerald-600 hover:shadow-xl"
             >
               Chỉnh sửa hồ sơ
             </Link>
@@ -110,9 +110,14 @@ export default function ProfilePage() {
           {/* Stats Grid */}
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {profileStats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-md"
+              >
                 <p className="text-sm text-slate-600">{stat.label}</p>
-                <p className="mt-1 text-3xl font-black text-slate-900">{stat.value}</p>
+                <p className="mt-1 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-3xl font-bold text-transparent">
+                  {stat.value}
+                </p>
                 <p className="mt-1 text-xs text-emerald-600">{stat.trend}</p>
               </div>
             ))}
@@ -123,7 +128,7 @@ export default function ProfilePage() {
         <main className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.5fr]">
           {/* Left Column - Your Status */}
           <aside className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md">
+            <div className="rounded-3xl border border-slate-200 bg-white/60 p-6 shadow-lg backdrop-blur-sm">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Your status</p>
               <h2 className="mt-2 text-2xl font-semibold text-slate-900">87% hoàn tất</h2>
               <p className="mt-1 text-sm text-slate-600">
@@ -131,13 +136,16 @@ export default function ProfilePage() {
               </p>
 
               {/* Progress Bar */}
-              <div className="mt-4 h-3 w-full overflow-hidden rounded-full border-2 border-black bg-white">
-                <div className="h-full w-[87%] bg-[#4ECDC4]"></div>
+              <div className="mt-4 h-3 w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                <div className="h-full w-[87%] rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 shadow-sm"></div>
               </div>
 
               <div className="mt-6 space-y-4">
                 {tasks.map((task) => (
-                  <div key={task.title} className="rounded-2xl border border-slate-100 p-4">
+                  <div
+                    key={task.title}
+                    className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm backdrop-blur-sm"
+                  >
                     <div className="flex items-center justify-between">
                       <p className="text-base font-semibold text-slate-900">{task.title}</p>
                       <span className="text-xs text-slate-500">{task.status}</span>
@@ -152,16 +160,16 @@ export default function ProfilePage() {
             </div>
 
             {/* Achievements */}
-            <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-md">
+            <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 shadow-lg">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Thành tựu</p>
-              <h2 className="mt-2 text-2xl font-semibold">Huy hiệu của bạn</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Huy hiệu của bạn</h2>
               <div className="mt-4 space-y-3">
                 {achievements.map((achievement) => (
-                  <div key={achievement.title} className="rounded-2xl bg-white/10 p-4">
+                  <div key={achievement.title} className="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
                     <div className="flex items-start gap-3">
                       <span className="text-2xl">{achievement.icon}</span>
                       <div>
-                        <p className="text-base font-semibold">{achievement.title}</p>
+                        <p className="text-base font-semibold text-white">{achievement.title}</p>
                         <p className="text-sm text-slate-200">{achievement.description}</p>
                       </div>
                     </div>
@@ -173,9 +181,9 @@ export default function ProfilePage() {
 
           {/* Right Column - Profile Details */}
           <section className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md">
+            <div className="rounded-3xl border border-slate-200 bg-white/60 p-6 shadow-lg backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-900">Thông tin cá nhân</h2>
+                <h2 className="text-2xl font-semibold text-slate-900">Thông tin cá nhân</h2>
                 <button className="text-sm font-medium text-emerald-600">Chỉnh sửa</button>
               </div>
               <div className="mt-6 space-y-4">
@@ -200,14 +208,14 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-slate-900">Lối sống & Sở thích</h2>
+            <div className="rounded-3xl border border-slate-200 bg-white/60 p-6 shadow-lg backdrop-blur-sm">
+              <h2 className="text-2xl font-semibold text-slate-900">Lối sống & Sở thích</h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 {["Early bird", "Yêu thú cưng", "Ăn chay", "Gym", "Đọc sách", "Nấu ăn", "Không hút thuốc"].map(
                   (tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border-2 border-black bg-[#FFE951] px-4 py-2 text-sm font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                      className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm"
                     >
                       {tag}
                     </span>
@@ -216,8 +224,8 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-slate-900">Giới thiệu bản thân</h2>
+            <div className="rounded-3xl border border-slate-200 bg-white/60 p-6 shadow-lg backdrop-blur-sm">
+              <h2 className="text-2xl font-semibold text-slate-900">Giới thiệu bản thân</h2>
               <p className="mt-4 leading-relaxed text-slate-700">
                 Mình là UX Designer, làm việc remote 3 ngày/tuần. Thích không gian sạch sẽ, gọn gàng và tôn trọng
                 riêng tư của nhau. Thích nấu ăn và chia sẻ bữa tối cuối tuần. Mình có 1 chú mèo rất hiền và đã được
@@ -226,9 +234,9 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <div className="rounded-3xl border-3 border-black bg-[#87CEEB] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-2xl font-black">Tìm kiếm của bạn</h2>
-              <p className="mt-2 font-semibold text-slate-800">
+            <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-lg">
+              <h2 className="text-2xl font-semibold text-slate-900">Tìm kiếm của bạn</h2>
+              <p className="mt-2 font-medium text-slate-700">
                 Đang tìm: Phòng ở ghép tại Quận 1, Quận 3
                 <br />
                 Thời gian: Dọn vào từ 01/12/2024
@@ -237,7 +245,7 @@ export default function ProfilePage() {
               </p>
               <Link
                 href="/home"
-                className="mt-4 inline-block rounded-xl border-3 border-black bg-white px-6 py-3 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                className="mt-4 inline-block rounded-full bg-emerald-500 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-emerald-600 hover:shadow-xl"
               >
                 Xem gợi ý match
               </Link>
