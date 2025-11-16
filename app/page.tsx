@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroCarousel from "./components/HeroCarousel";
 
 export default function LandingPage() {
   return (
@@ -34,11 +35,30 @@ export default function LandingPage() {
         </div>
       </header>
 
+      {/* Hero Carousel */}
+      <section className="px-6 pt-12">
+        <HeroCarousel />
+      </section>
+
+      {/* Tagline Section - Apple/Chợ Tốt Style */}
+      <section className="px-6 py-16">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-4 text-3xl font-black leading-tight lg:text-5xl">
+            Không chỉ là tìm phòng.
+            <br />
+            <span className="text-[#FF6B6B]">Mà là tìm người đồng hành.</span>
+          </h2>
+          <p className="text-lg font-medium text-gray-600 lg:text-xl">
+            Thuật toán thông minh. Cộng đồng chất lượng. Miễn phí mãi mãi.
+          </p>
+        </div>
+      </section>
+
       {/* Hero Section */}
-      <section className="px-6 py-24 lg:py-32">
+      <section className="px-6 py-12 lg:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-8 inline-block border-4 border-black bg-[#FFE951] px-6 py-2 text-sm font-black uppercase shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            🏠 Tìm bạn cùng phòng
+            🏠 Bắt đầu hành trình của bạn
           </div>
 
           <h1 className="mb-8 text-5xl font-black leading-tight lg:text-7xl">
@@ -70,6 +90,49 @@ export default function LandingPage() {
             >
               Đăng tin miễn phí
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Props - Apple Style */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-12 lg:grid-cols-3">
+            <div className="text-center lg:text-left">
+              <div className="mb-6 text-6xl">🎯</div>
+              <h3 className="mb-3 text-2xl font-black">
+                Match chính xác.
+                <br />
+                Nhanh chóng.
+              </h3>
+              <p className="font-medium leading-relaxed text-gray-600">
+                Thuật toán phân tích lối sống, sở thích, thói quen. Chỉ giới thiệu những người thực sự phù hợp với bạn.
+              </p>
+            </div>
+
+            <div className="text-center lg:text-left">
+              <div className="mb-6 text-6xl">💎</div>
+              <h3 className="mb-3 text-2xl font-black">
+                Cộng đồng
+                <br />
+                được chọn lọc.
+              </h3>
+              <p className="font-medium leading-relaxed text-gray-600">
+                Mọi thành viên đều được xác minh. Không spam, không lừa đảo, không môi giới giả danh.
+              </p>
+            </div>
+
+            <div className="text-center lg:text-left">
+              <div className="mb-6 text-6xl">🚀</div>
+              <h3 className="mb-3 text-2xl font-black">
+                Đơn giản.
+                <br />
+                Miễn phí.
+              </h3>
+              <p className="font-medium leading-relaxed text-gray-600">
+                Tạo hồ sơ trong 5 phút. Nhận gợi ý trong 24 giờ. Kết nối trong 48 giờ. Zero đồng.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -162,7 +225,10 @@ export default function LandingPage() {
                 Đăng ký
               </Link>
               <Link href="/home" className="transition hover:text-[#FFE951]">
-                Về chúng tôi
+                Trang chủ
+              </Link>
+              <Link href="/profile" className="transition hover:text-[#FFE951]">
+                Hồ sơ
               </Link>
             </div>
           </div>

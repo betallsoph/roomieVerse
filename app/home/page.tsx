@@ -51,27 +51,6 @@ const communityUpdates = [
   },
 ];
 
-const tasks = [
-  {
-    title: "Hoàn thiện hồ sơ",
-    status: "Cần 15% nữa",
-    description: "Thêm video giới thiệu ngắn để tăng độ tin tưởng.",
-    action: "Tải video",
-  },
-  {
-    title: "Đặt lịch xem nhà",
-    status: "2 lời mời",
-    description: "Chọn một trong hai khung giờ mà nhóm Chi & Linh đã gửi.",
-    action: "Xem lịch",
-  },
-  {
-    title: "Xác minh giấy tờ",
-    status: "Đã tải CMND",
-    description: "Chờ kiểm duyệt (ETA < 12h).",
-    action: "Theo dõi",
-  },
-];
-
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -84,19 +63,16 @@ export default function HomePage() {
             <Link href="/welcome" className="text-slate-500 transition hover:text-slate-900">
               Welcome tour
             </Link>
+            <Link href="/profile" className="text-slate-500 transition hover:text-slate-900">
+              Hồ sơ
+            </Link>
             <Link href="/auth" className="text-slate-500 transition hover:text-slate-900">
               Đăng xuất
-            </Link>
-            <Link
-              href="/auth"
-              className="rounded-full bg-slate-900 px-4 py-2 text-white transition hover:bg-slate-800"
-            >
-              Cập nhật hồ sơ
             </Link>
           </div>
         </header>
 
-        <main className="mt-12 grid gap-8 lg:grid-cols-[2fr_1fr]">
+        <main className="mt-12">
           <section className="space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -143,33 +119,12 @@ export default function HomePage() {
                 </article>
               ))}
             </div>
-          </section>
 
-          <aside className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Your status</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">87% hoàn tất</h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Hoàn thành 3 tác vụ cuối để đẩy hồ sơ lên đầu danh sách tìm roommate.
-              </p>
-              <div className="mt-4 space-y-4">
-                {tasks.map((task) => (
-                  <div key={task.title} className="rounded-2xl border border-slate-100 p-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-base font-semibold text-slate-900">{task.title}</p>
-                      <span className="text-xs text-slate-500">{task.status}</span>
-                    </div>
-                    <p className="text-sm text-slate-600">{task.description}</p>
-                    <button className="mt-3 text-sm font-medium text-emerald-600">{task.action}</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-md">
+            {/* Community Updates - Moved from sidebar */}
+            <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-900 p-6 text-white shadow-md">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Cộng đồng</p>
               <h2 className="mt-2 text-2xl font-semibold">Tín hiệu mới</h2>
-              <div className="mt-4 space-y-4">
+              <div className="mt-4 grid gap-4 md:grid-cols-3">
                 {communityUpdates.map((update) => (
                   <div key={update.title} className="rounded-2xl bg-white/10 p-4">
                     <p className="text-base font-semibold">{update.title}</p>
@@ -182,7 +137,7 @@ export default function HomePage() {
                 {"Xem tất cả update ->"}
               </Link>
             </div>
-          </aside>
+          </section>
         </main>
       </div>
     </div>
