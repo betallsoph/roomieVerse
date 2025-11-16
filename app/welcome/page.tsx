@@ -39,7 +39,10 @@ export default function WelcomePage() {
                 Landing page
               </Link>
               <Link href="/home" className="text-slate-500 hover:text-slate-900">
-                Trang chủ prototype
+                Trang chủ
+              </Link>
+              <Link href="/profile" className="text-slate-500 hover:text-slate-900">
+                Hồ sơ
               </Link>
               <Link
                 href="/auth"
