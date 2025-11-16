@@ -59,7 +59,7 @@ const achievements = [
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-slate-50 to-white pb-16">
+    <div className="min-h-screen bg-white pb-16">
       <div className="mx-auto max-w-6xl px-6 pt-10 lg:px-12">
         {/* Header */}
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white/60 px-6 py-4 shadow-sm backdrop-blur">
