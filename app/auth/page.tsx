@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import AuthForm from "./auth-form";
 import InteractiveGrid from "../components/InteractiveGrid";
+import AnimatedLogo from "../components/AnimatedLogo";
 
 export const metadata: Metadata = {
   title: "Đăng nhập | roomieVerse - Tìm Roommate Uy Tín",
@@ -35,16 +35,7 @@ export default function AuthPage() {
       <div className="wrapper mx-auto flex max-w-5xl flex-col gap-8 lg:flex-row">
         <section className="card flex flex-1 flex-col justify-between bg-white p-8 lg:p-10">
           <div>
-            <Link href="/" className="flex items-center justify-center">
-              <Image
-                src="/roomieverselogowpic.png"
-                alt="roomieVerse"
-                width={1000}
-                height={250}
-                className="h-64 w-auto transition-transform duration-200 hover:scale-105"
-                priority
-              />
-            </Link>
+            <AnimatedLogo />
             <p className="mt-6 text-center text-base font-medium leading-relaxed text-zinc-600">
               Nền tảng kết nối roommate đáng tin cậy. Không môi giới, không tin rác - chỉ có người thật tìm phòng thật.
             </p>

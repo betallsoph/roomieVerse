@@ -151,12 +151,6 @@ a {
   border-radius: var(--radius-xl);
   border: 2px solid var(--border-color);
   box-shadow: var(--shadow-secondary);
-  transition: all 0.2s ease;
-}
-
-.card:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px -1px var(--border-color);
 }
 
 /* ===== Modern Layout ===== */
