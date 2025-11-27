@@ -2,12 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 
 type AuthMode = "login" | "signup";
 
-export default function AuthForm() {
+interface AuthFormProps {
+  bounceKey?: number;
+  onModeChange?: () => void;
+}
+
+export default function AuthForm({ bounceKey = 0, onModeChange }: AuthFormProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const router = useRouter();
+
+  function handleModeChange(newMode: AuthMode) {
+    setMode(newMode);
+    onModeChange?.(); // Trigger bounce animation on parent
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,12 +36,22 @@ export default function AuthForm() {
   }
 
   return (
-    <section className="card flex flex-1 flex-col justify-center bg-white p-8 lg:p-10">
+    <motion.section 
+      key={bounceKey}
+      className="card flex flex-1 flex-col justify-center bg-white p-8 lg:p-10"
+      initial={{ scale: 0.95 }}
+      animate={{ scale: 1 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 15
+      }}
+    >
       {/* Login/Signup Toggle */}
       <div className="flex rounded-xl border-2 border-black bg-blue-100 p-1 text-sm font-bold tracking-wide">
         <button
           type="button"
-          onClick={() => setMode("login")}
+          onClick={() => handleModeChange("login")}
           className={`flex-1 rounded-lg px-6 py-3 transition-all duration-200 ${
             mode === "login" 
               ? "bg-blue-300 text-black border-2 border-black" 
@@ -41,7 +62,7 @@ export default function AuthForm() {
         </button>
         <button
           type="button"
-          onClick={() => setMode("signup")}
+          onClick={() => handleModeChange("signup")}
           className={`flex-1 rounded-lg px-6 py-3 transition-all duration-200 ${
             mode === "signup" 
               ? "bg-blue-300 text-black border-2 border-black" 
@@ -155,6 +176,6 @@ export default function AuthForm() {
           Bằng việc tiếp tục, bạn đồng ý với <span className="font-bold text-blue-400">Terms</span> và <span className="font-bold text-blue-400">Privacy</span> của roomieVerse.
         </p>
       )}
-    </section>
+    </motion.section>
   );
 }
