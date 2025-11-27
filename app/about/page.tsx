@@ -79,11 +79,6 @@ const whyChooseUs = [
 
 const values = [
   {
-    emoji: "🎯",
-    title: "Roommate Only",
-    description: "Chúng tôi loại bỏ toàn bộ tin môi giới để giữ cộng đồng trong sạch. Chỉ có người thật tìm phòng thật.",
-  },
-  {
     emoji: "💎",
     title: "Chất lượng",
     description: "Mỗi tin đăng và hồ sơ đều được kiểm duyệt kỹ càng. Không spam, không lừa đảo.",
@@ -92,11 +87,6 @@ const values = [
     emoji: "🤝",
     title: "Kết nối thật",
     description: "Thuật toán thông minh giúp bạn tìm được người phù hợp với lối sống và thói quen của mình.",
-  },
-  {
-    emoji: "🚀",
-    title: "Miễn phí mãi mãi",
-    description: "Tạo hồ sơ, đăng tin, kết nối - tất cả hoàn toàn miễn phí. Zero đồng.",
   },
 ];
 
