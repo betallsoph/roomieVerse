@@ -14,6 +14,7 @@
   --background: #ffffff;
   --background-sky: rgb(224, 242, 254); /* bg-sky-100 */
   --background-blue: rgb(219, 234, 254); /* bg-blue-100 */
+  --background-pink-lighter: rgb(254, 248, 252); /* Custom lighter pink for roomshare sections */
   
   /* Text Colors */
   --text-primary: #000000;
@@ -96,6 +97,10 @@ a {
   background: linear-gradient(to bottom right, rgb(240, 249, 255), rgb(219, 234, 254));
 }
 
+.bg-pink-lighter {
+  background-color: var(--background-pink-lighter);
+}
+
 /* ===== Neobrutalism Button Styles ===== */
 .btn-primary {
   background: var(--primary-blue);
@@ -142,6 +147,153 @@ a {
   transform: translate(3px, 3px);
   box-shadow: none;
   background: rgb(249, 250, 251);
+}
+
+.btn-pink {
+  background: rgb(251, 207, 232); /* bg-pink-300 - keep this for button contrast */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-pink:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-purple {
+  background: rgb(216, 180, 254); /* bg-purple-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-purple:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-yellow {
+  background: rgb(253, 224, 71); /* bg-yellow-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-yellow:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-green {
+  background: rgb(134, 239, 172); /* bg-green-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-green:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-orange {
+  background: rgb(253, 186, 116); /* bg-orange-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-orange:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-gray {
+  background: rgb(212, 212, 216); /* bg-zinc-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-gray:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-red {
+  background: rgb(252, 165, 165); /* bg-red-300 */
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-red:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
 /* ===== Modern Card Component ===== */

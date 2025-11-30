@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import { mockListings, RoommateType } from "../data/mockListings";
-import ShareHeader from "../components/ShareHeader";
+import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import FilterButtons from "../components/FilterButtons";
 import PostForm from "../components/PostForm";
@@ -66,10 +66,10 @@ export default function RoommatePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <ShareHeader variant="blue" />
+      <MainHeader />
 
       {/* Hero Section */}
-      <section className="border-b-2 border-black bg-white py-16 sm:py-24">
+      <section className="border-b-2 border-black bg-blue-50 py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6">
           <h1 className="mb-6 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             Tìm Roommate

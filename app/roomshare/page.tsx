@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import { mockListings, PropertyType } from "../data/mockListings";
-import ShareHeader from "../components/ShareHeader";
+import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import FilterTabs from "../components/FilterTabs";
 import PostForm from "../components/PostForm";
@@ -41,10 +41,10 @@ export default function RoomSharePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <ShareHeader variant="pink" />
+      <MainHeader />
 
       {/* Hero Section */}
-      <section className="border-b-2 border-black bg-white py-16 sm:py-24">
+      <section className="border-b-2 border-black bg-pink-lighter py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6">
           <h1 className="mb-6 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             Tìm Phòng Share
@@ -61,14 +61,14 @@ export default function RoomSharePage() {
           {isAuthenticated ? (
             <button
               onClick={() => setShowForm(!showForm)}
-              className="btn-primary text-base"
+              className="btn-pink text-base"
             >
               {showForm ? "Đóng form" : "Đăng tin ngay"}
             </button>
           ) : (
             <Link
               href="/auth?returnUrl=/roomshare"
-              className="btn-primary text-base"
+              className="btn-pink text-base"
             >
               Đăng nhập để đăng tin
             </Link>

@@ -15,10 +15,10 @@ export default function ShareFooter() {
           />
           <div className="flex flex-wrap justify-center gap-4 text-sm font-bold sm:gap-6">
             <Link
-              href="/roomshare"
-              className="transition-all duration-200 hover:scale-110 hover:text-pink-400"
+              href="/home"
+              className="transition-all duration-200 hover:scale-110 hover:text-yellow-300"
             >
-              Tìm phòng share
+              Trang chủ
             </Link>
             <Link
               href="/roommate"
@@ -27,22 +27,22 @@ export default function ShareFooter() {
               Tìm bạn ở chung
             </Link>
             <Link
-              href="/auth"
+              href="/roomshare"
+              className="transition-all duration-200 hover:scale-110 hover:text-pink-400"
+            >
+              Tìm phòng share
+            </Link>
+            <Link
+              href="/blog"
               className="transition-all duration-200 hover:scale-110 hover:text-purple-400"
             >
-              Đăng ký
+              Blog
             </Link>
             <Link
-              href="/home"
-              className="transition-all duration-200 hover:scale-110 hover:text-yellow-300"
-            >
-              Trang chủ
-            </Link>
-            <Link
-              href="/profile"
+              href="/about"
               className="transition-all duration-200 hover:scale-110 hover:text-green-300"
             >
-              Hồ sơ
+              Về chúng tôi
             </Link>
           </div>
         </div>

@@ -1,57 +1,47 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="border-b-2 border-black bg-blue-300">
-        <div className="wrapper py-6">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo/logo1.png"
-              alt="roomieVerse"
-              width={480}
-              height={120}
-              className="h-24 w-auto transition-transform duration-200 hover:scale-105"
-              priority
-            />
-          </Link>
-        </div>
-      </header>
+      <MainHeader />
 
       {/* 404 Content */}
       <main className="flex-1 flex items-center justify-center px-6 py-20">
-        <div className="max-w-2xl text-center">
-          <div className="mb-8">
-            <h1 className="text-9xl font-black text-black mb-4">404</h1>
-            <div className="inline-block rounded-xl border-2 border-black bg-yellow-300 px-6 py-3 text-2xl font-bold shadow-[var(--shadow-primary)]">
-              Trang không tồn tại
+        <div className="max-w-5xl w-full">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left side - Text content */}
+            <div className="text-center md:text-left order-2 md:order-1">
+              <h1 className="text-[180px] md:text-[220px] font-black text-blue-300 leading-none mb-6" style={{ fontFamily: 'var(--font-google-sans)', borderRadius: '24px' }}>404</h1>
+              <h2 className="text-4xl font-black text-black mb-4">
+                Lạc đường rồi!
+              </h2>
+              <p className="text-lg text-zinc-700 font-medium mb-8">
+                Bạn đang ở một nơi vắng vẻ. Hãy quay lại hoặc tìm kiếm người đồng hành mới.
+              </p>
+              <Link
+                href="/"
+                className="btn-primary text-base sm:text-lg px-8 py-4"
+              >
+                Quay lại trang chủ
+              </Link>
             </div>
-          </div>
 
-          <p className="mb-8 text-lg text-zinc-700 font-medium">
-            Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
-            <br />
-            Hãy thử quay lại trang chủ hoặc tìm roommate của bạn!
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/" className="btn-primary text-base sm:text-lg px-8 py-4">
-              Về trang chủ
-            </Link>
-            <Link
-              href="/roommate"
-              className="btn-secondary text-base sm:text-lg px-8 py-4"
-            >
-              Tìm roommate
-            </Link>
-          </div>
-
-          {/* Fun illustration */}
-          <div className="mt-12 text-6xl opacity-50">
-            🏠❓
+            {/* Right side - Illustration */}
+            <div className="flex justify-center order-1 md:order-2">
+              <Image
+                src="/assets/error/404.png"
+                alt="Lost person with map"
+                width={400}
+                height={400}
+                className="w-full max-w-md h-auto"
+                priority
+              />
+            </div>
           </div>
         </div>
       </main>

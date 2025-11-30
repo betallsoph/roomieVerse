@@ -3,95 +3,49 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SparklesText } from "./components/sparkles-text";
-import HeaderLogo from "./components/HeaderLogo";
+import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
 import { useAuth } from "./contexts/AuthContext";
-import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
-  const { isAuthenticated, logout } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/auth");
-  };
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b-2 border-black bg-white backdrop-blur-md">
-        <div className="wrapper py-4 md:py-5">
-          <div className="flex items-center justify-between">
-            <HeaderLogo className="h-28" />
-
-            <div className="flex items-center gap-3 sm:gap-4">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    href="/home"
-                    className="hidden text-sm font-medium text-zinc-600 hover:text-black sm:block sm:text-base"
-                  >
-                    Trang chủ
-                  </Link>
-                  <Link
-                    href="/profile"
-                    className="hidden text-sm font-medium text-zinc-600 hover:text-black sm:block sm:text-base"
-                  >
-                    Hồ sơ
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="btn-primary text-sm sm:text-base"
-                  >
-                    Đăng xuất
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/roommate"
-                    className="btn-secondary hidden text-sm sm:block sm:text-base"
-                  >
-                    Tìm phòng
-                  </Link>
-                  <Link
-                    href="/auth"
-                    className="btn-primary text-sm sm:text-base"
-                  >
-                    Bắt đầu
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <MainHeader />
 
       {/* Hero Section */}
-      <section className="section py-16 sm:py-24 md:py-32">
+      <section className="section bg-blue-50 py-16 sm:py-24 md:py-32">
         <div className="wrapper text-center">
           <h1 className="mb-8 text-4xl font-bold leading-tight text-black sm:text-5xl md:text-6xl lg:text-7xl">
-            Không chỉ là tìm phòng.
+            Không chỉ là tìm phòng...
             <br />
+            Mà còn là{" "}
             <SparklesText
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
               sparklesCount={15}
               colors={{ first: "#9E7AFF", second: "#FE8BBB" }}
             >
-              Tìm người đồng hành.
+              tìm người đồng hành.
             </SparklesText>
           </h1>
 
           <p className="mb-10 text-lg font-medium text-zinc-600 sm:text-xl md:text-2xl max-w-3xl mx-auto">
-            Thuật toán thông minh. Cộng đồng chất lượng. Miễn phí mãi mãi.
+            Nơi lý tưởng để tìm người ở ghép, tìm phòng share...
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/roommate" className="btn-primary text-base sm:text-lg px-8 py-4">
-              Tìm phòng ngay
-            </Link>
-            <Link href="/auth" className="btn-secondary text-base sm:text-lg px-8 py-4">
+            <a
+              href="#cta-section"
+              className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Tìm ngay
+            </a>
+            <Link href="/pages/login-required" className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center">
               Đăng tin miễn phí
             </Link>
           </div>
@@ -99,14 +53,11 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works Section */}
-      <section className="section border-t-2 border-black bg-blue-50 py-16 md:py-20">
+      <section className="section border-t-2 border-black bg-white py-16 md:py-20">
         <div className="wrapper">
-          <h2 className="mb-4 text-center text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
+          <h2 className="mb-12 text-center text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
             Cách hoạt động
           </h2>
-          <p className="mb-12 text-center text-lg text-zinc-600">
-            Chỉ 3 bước đơn giản để tìm roommate!
-          </p>
 
           <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
             <div className="card group bg-pink-200">
@@ -117,7 +68,7 @@ export default function LandingPage() {
                 Đăng ký tài khoản
               </h3>
               <p className="mb-4 text-sm font-medium leading-relaxed text-zinc-700 sm:text-base">
-                Tạo tài khoản miễn phí chỉ với email và số điện thoại.
+                Tạo tài khoản miễn phí chỉ với email. Hoặc đăng nhập dễ dàng bằng Google và số điện thoại.
               </p>
               <div className="inline-block rounded-lg border-2 border-black bg-white px-3 py-1.5 text-sm font-bold">
                 ⏱ 1 phút
@@ -125,14 +76,14 @@ export default function LandingPage() {
             </div>
 
             <div className="card group bg-pink-200">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-black bg-pink-400 text-2xl font-bold">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-black bg-pink-300 text-2xl font-bold">
                 02
               </span>
               <h3 className="mb-3 mt-4 text-xl font-bold sm:text-2xl">
-                Đăng bài tìm roommate
+                Tìm phòng hoặc bạn ghép
               </h3>
               <p className="mb-4 text-sm font-medium leading-relaxed text-zinc-700 sm:text-base">
-                Điền thông tin phòng, giá, khu vực và ngày dọn vào mong muốn.
+                Đa dạng lựa chọn từ tin đăng có sẵn từ các bạn khác, hoặc đăng bài tìm nếu chưa có ai phù hợp.
               </p>
               <div className="inline-block rounded-lg border-2 border-black bg-white px-3 py-1.5 text-sm font-bold">
                 ⏱ 5 phút
@@ -144,10 +95,10 @@ export default function LandingPage() {
                 03
               </span>
               <h3 className="mb-3 mt-4 text-xl font-bold sm:text-2xl">
-                Nhận liên hệ từ người quan tâm
+                Liên hệ người quan tâm
               </h3>
               <p className="mb-4 text-sm font-medium leading-relaxed text-zinc-700 sm:text-base">
-                Người khác xem bài của bạn và gọi điện trực tiếp để trao đổi.
+                Nhận liên hệ từ người quan tâm hoặc ngược lại. Trao đổi trực tiếp.
               </p>
               <div className="inline-block rounded-lg border-2 border-black bg-white px-3 py-1.5 text-sm font-bold">
                 ⏱ Ngay lập tức
@@ -158,7 +109,7 @@ export default function LandingPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="section py-16 md:py-20">
+      <section className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
         <div className="wrapper">
           <h2 className="mb-10 text-center text-3xl font-bold uppercase sm:mb-12 sm:text-4xl md:mb-16 md:text-5xl">
             Tại sao chọn chúng tôi?
@@ -166,8 +117,14 @@ export default function LandingPage() {
 
           <div className="grid gap-6 sm:gap-8 md:grid-cols-3">
             <div className="card group bg-white">
-              <div className="mb-4 text-5xl transition-transform duration-300 group-hover:scale-110">
-                🎯
+              <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
+                <Image
+                  src="/assets/easymatch.png"
+                  alt="Match chính xác"
+                  width={100}
+                  height={100}
+                  className="h-25 w-25"
+                />
               </div>
               <h3 className="mb-3 text-xl font-bold sm:text-2xl">
                 Match chính xác.
@@ -175,13 +132,19 @@ export default function LandingPage() {
                 <span className="text-blue-400">Nhanh chóng.</span>
               </h3>
               <p className="text-sm font-medium leading-relaxed text-zinc-600 sm:text-base">
-                Thuật toán phân tích lối sống, sở thích, thói quen. Chỉ giới thiệu những người thực sự phù hợp với bạn.
+                Dễ dàng kiếm được người thật sự phù hợp với bạn thông qua các thông tin về lối sống, thói quen...
               </p>
             </div>
 
             <div className="card group bg-white">
-              <div className="mb-4 text-5xl transition-transform duration-300 group-hover:scale-110">
-                💎
+              <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
+                <Image
+                  src="/assets/verify.png"
+                  alt="Cộng đồng được chọn lọc"
+                  width={100}
+                  height={100}
+                  className="h-25 w-25"
+                />
               </div>
               <h3 className="mb-3 text-xl font-bold sm:text-2xl">
                 Cộng đồng
@@ -189,21 +152,27 @@ export default function LandingPage() {
                 <span className="text-purple-500">được chọn lọc.</span>
               </h3>
               <p className="text-sm font-medium leading-relaxed text-zinc-600 sm:text-base">
-                Mọi thành viên đều được xác minh. Không spam, không lừa đảo, không môi giới giả danh.
+                Mọi thành viên đều được xác minh, ưu tiên chính chủ. Kết nối trực tiếp - không trung gian.
               </p>
             </div>
 
             <div className="card group bg-white">
-              <div className="mb-4 text-5xl transition-transform duration-300 group-hover:scale-110">
-                🚀
+              <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
+                <Image
+                  src="/assets/simple.png"
+                  alt="Đơn giản dễ dàng"
+                  width={100}
+                  height={100}
+                  className="h-25 w-25"
+                />
               </div>
               <h3 className="mb-3 text-xl font-bold sm:text-2xl">
                 Đơn giản.
                 <br />
-                <span className="text-pink-500">Miễn phí.</span>
+                <span className="text-pink-500">Dễ dàng.</span>
               </h3>
               <p className="text-sm font-medium leading-relaxed text-zinc-600 sm:text-base">
-                Tạo hồ sơ trong 5 phút. Nhận gợi ý trong 24 giờ. Kết nối trong 48 giờ. Zero đồng.
+                Tạo hồ sơ trong 5 phút. Kết nối trong 24-48 giờ. Zero đồng cho 2 bài đăng đầu tiên.
               </p>
             </div>
           </div>
@@ -211,7 +180,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="section py-16 md:py-20">
+      <section id="cta-section" className="section border-t-2 border-black py-16 md:py-20">
         <div className="wrapper">
           <div className="card bg-gradient-to-br from-blue-300 to-blue-400 p-8 text-center sm:p-12 lg:p-16">
             <h2 className="mb-4 text-3xl font-black uppercase sm:mb-6 sm:text-4xl md:text-5xl">
@@ -222,14 +191,14 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href="/roommate"
+                href={isAuthenticated ? "/roommate" : "/pages/login-required"}
                 className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
                 Tìm roommate
               </Link>
               <Link
-                href="/roomshare"
-                className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px]"
+                href={isAuthenticated ? "/roomshare" : "/pages/login-required"}
+                className="btn-pink text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
                 Tìm phòng share
               </Link>

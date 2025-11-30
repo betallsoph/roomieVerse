@@ -32,18 +32,18 @@ export default function SplitCTASection({
   const { isAuthenticated } = useAuth();
 
   // Define colors based on variant
-  const leftBgGradient = variant === "blue"
-    ? "bg-gradient-to-br from-blue-100 to-blue-200"
-    : "bg-gradient-to-br from-pink-100 to-pink-200";
+  const leftBgColor = variant === "blue"
+    ? "bg-blue-200"
+    : "bg-pink-200";
 
-  const rightBgGradient = variant === "blue"
-    ? "bg-gradient-to-br from-pink-100 to-purple-100"
-    : "bg-gradient-to-br from-blue-100 to-blue-200";
+  const rightBgColor = variant === "blue"
+    ? "bg-pink-200"
+    : "bg-blue-200";
 
   return (
     <div className="mt-20 grid gap-6 md:grid-cols-2">
       {/* Left side - Post */}
-      <div className={`rounded-xl border-2 border-black ${leftBgGradient} p-8 text-center shadow-[var(--shadow-primary)]`}>
+      <div className={`rounded-xl border-2 border-black ${leftBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{leftHeading}</h2>
         <p className="mb-6 text-base text-zinc-700">
           Đăng tin của bạn ngay - MIỄN PHÍ mãi mãi!
@@ -69,7 +69,7 @@ export default function SplitCTASection({
       </div>
 
       {/* Right side - Switch */}
-      <div className={`rounded-xl border-2 border-black ${rightBgGradient} p-8 text-center shadow-[var(--shadow-primary)]`}>
+      <div className={`rounded-xl border-2 border-black ${rightBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{rightHeading}</h2>
         <p className="mb-6 text-base text-zinc-700">
           Khám phá thêm nhiều lựa chọn khác!
