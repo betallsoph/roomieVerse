@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import ShareFooter from "../components/ShareFooter";
+import ShareFooter from "../../components/ShareFooter";
 
 export default function MaintenancePage() {
   return (
