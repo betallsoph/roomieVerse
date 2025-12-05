@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function ShareFooter() {
   return (
-    <footer className="border-t-2 border-black bg-gradient-to-br from-black to-gray-900 py-4 text-white md:py-5">
+    <footer className="border-t-2 border-black bg-black py-4 text-white md:py-5">
       <div className="wrapper">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:gap-5">
           <Image
