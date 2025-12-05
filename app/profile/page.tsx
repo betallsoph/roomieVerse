@@ -12,22 +12,22 @@ import { useRouter } from "next/navigation";
 const myListings = [
   {
     id: 1,
-    title: "Tìm bạn ở ghép loft Quận 3",
-    price: "11.5 triệu",
-    location: "Quận 3, TP.HCM",
-    moveInDate: "15/12/2024",
-    description: "Không gian có phòng làm việc riêng, ưu tiên người đi làm văn phòng nhưng thoải mái remote 2 ngày/tuần.",
+    title: "Có căn 2PN Bình Thạnh - tìm bạn nữ ở ghép",
+    price: "4.5 triệu",
+    location: "Bình Thạnh, gần Điện Biên Phủ",
+    moveInDate: "01/12/2024",
+    description: "Phòng mới sạch sẽ, có máy lạnh, tủ lạnh chung. Mình làm remote nên thường ở nhà, thích người sạch sẽ, không ồn.",
     postedDate: "2 ngày trước",
     status: "Đang hiển thị",
   },
   {
     id: 2,
-    title: "Cần người share căn studio Q.2",
-    price: "9 triệu",
-    location: "Quận 2, TP.HCM",
-    moveInDate: "01/01/2025",
-    description: "Studio rộng 45m2, view sông, có gym và hồ bơi. Tìm 1 bạn sạch sẽ, không hút thuốc.",
-    postedDate: "1 tuần trước",
+    title: "Share studio Thảo Điền - cần 1 bạn nam",
+    price: "6 triệu",
+    location: "Thảo Điền, Q.2",
+    moveInDate: "15/12/2024",
+    description: "Studio 40m2, view đẹp. Mình designer làm việc tại nhà. Tìm bạn ngăn nắp, có thu nhập ổn định.",
+    postedDate: "5 ngày trước",
     status: "Đang hiển thị",
   },
 ];
@@ -170,7 +170,12 @@ export default function ProfilePage() {
                   <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="mb-2 flex items-center gap-2">
-                        <h3 className="text-xl font-bold">{listing.title}</h3>
+                        <Link 
+                          href={`/listing/${listing.id}`}
+                          className="text-xl font-bold hover:text-blue-600 transition-colors"
+                        >
+                          {listing.title}
+                        </Link>
                         <span className="rounded-md border-2 border-black bg-green-200 px-2 py-1 text-xs font-bold">
                           {listing.status}
                         </span>
@@ -181,17 +186,30 @@ export default function ProfilePage() {
                         <span>{listing.postedDate}</span>
                       </div>
                     </div>
-                    <div className="rounded-lg border-2 border-black bg-blue-300 px-4 py-2 font-bold">
+                    <Link 
+                      href={`/listing/${listing.id}`}
+                      className="rounded-lg border-2 border-black bg-blue-300 px-4 py-2 font-bold hover:shadow-[var(--shadow-secondary)] transition-all"
+                    >
                       {listing.price}
-                    </div>
+                    </Link>
                   </div>
 
-                  <p className="mb-4 text-sm text-zinc-700">{listing.description}</p>
+                  <Link href={`/listing/${listing.id}`}>
+                    <p className="mb-4 text-sm text-zinc-700 hover:text-zinc-900 transition-colors cursor-pointer">
+                      {listing.description}
+                    </p>
+                  </Link>
 
                   <div className="flex flex-wrap gap-3">
                     <button className="btn-primary text-sm px-4 py-2">
                       Chỉnh sửa
                     </button>
+                    <Link 
+                      href={`/listing/${listing.id}`}
+                      className="btn-secondary text-sm px-4 py-2"
+                    >
+                      Xem chi tiết
+                    </Link>
                     <button className="btn-secondary text-sm px-4 py-2">
                       Tạm ẩn
                     </button>
