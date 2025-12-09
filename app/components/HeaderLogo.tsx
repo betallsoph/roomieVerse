@@ -21,13 +21,13 @@ const SparkleIcon = ({ id, x, y, color, delay, scale }: Sparkle) => {
       className="pointer-events-none absolute z-20"
       initial={{ opacity: 0, left: x, top: y }}
       animate={{
-        opacity: [0, 0.8, 0],
+        opacity: [0, 1, 0],
         scale: [0, scale, 0],
-        rotate: [75, 100, 120],
+        rotate: [75, 120, 150],
       }}
-      transition={{ duration: 2.5, repeat: Infinity, delay }}
-      width="18"
-      height="18"
+      transition={{ duration: 1.5, repeat: Infinity, delay }}
+      width="21"
+      height="21"
       viewBox="0 0 21 21"
     >
       <path
@@ -43,18 +43,11 @@ interface HeaderLogoProps {
 }
 
 export default function HeaderLogo({ className = "h-28" }: HeaderLogoProps) {
+  const [rotation, setRotation] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
 
   const colors = { first: "#60A5FA", second: "#A78BFA" }; // blue-400 and purple-400
-
-  // Fixed corner positions: top-left, top-right, bottom-left, bottom-right
-  const cornerPositions = [
-    { x: "5%", y: "10%" },
-    { x: "90%", y: "10%" },
-    { x: "5%", y: "80%" },
-    { x: "90%", y: "80%" },
-  ];
 
   useEffect(() => {
     if (!isHovered) {
@@ -62,25 +55,47 @@ export default function HeaderLogo({ className = "h-28" }: HeaderLogoProps) {
       return;
     }
 
-    // Generate 4 sparkles at corners
-    const cornerSparkles: Sparkle[] = cornerPositions.map((pos, index) => ({
-      id: `corner-${index}-${Date.now()}`,
-      x: pos.x,
-      y: pos.y,
-      color: index % 2 === 0 ? colors.first : colors.second,
-      delay: index * 0.4, // Staggered delay for chill effect
-      scale: 0.8,
-    }));
-    
-    setSparkles(cornerSparkles);
+    const generateSparkle = (): Sparkle => {
+      return {
+        id: `${Math.random()}-${Date.now()}`,
+        x: `${Math.random() * 100}%`,
+        y: `${Math.random() * 100}%`,
+        color: Math.random() > 0.5 ? colors.first : colors.second,
+        delay: Math.random() * 0.5,
+        scale: Math.random() * 1 + 0.5,
+      };
+    };
+
+    // Generate initial sparkles
+    const initialSparkles = Array.from({ length: 12 }, generateSparkle);
+    setSparkles(initialSparkles);
+
+    // Regenerate sparkles periodically
+    const interval = setInterval(() => {
+      setSparkles(Array.from({ length: 12 }, generateSparkle));
+    }, 1500);
+
+    return () => clearInterval(interval);
   }, [isHovered]);
+
+  const handleMouseEnter = () => {
+    // Random rotation between -5 and 5 degrees
+    const randomRotation = Math.random() * 10 - 5;
+    setRotation(randomRotation);
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setRotation(0);
+    setIsHovered(false);
+  };
 
   return (
     <Link href="/" className="relative">
       <div
         className="relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {isHovered && sparkles.map((sparkle) => (
           <SparkleIcon key={sparkle.id} {...sparkle} />
@@ -91,6 +106,7 @@ export default function HeaderLogo({ className = "h-28" }: HeaderLogoProps) {
           width={1000}
           height={250}
           className={`${className} w-auto transition-all duration-300 ${isHovered ? 'scale-125' : ''}`}
+          style={{ transform: `rotate(${rotation}deg)` }}
           priority
         />
       </div>

@@ -1,48 +1,48 @@
 "use client";
 
-type RoommateType = "have-room" | "need-partner" | "need-host";
+type FilterMode = "have-room" | "find-partner";
 
 interface FilterButtonsProps {
-  activeType: RoommateType;
-  onTypeChange: (type: RoommateType) => void;
+  mode: FilterMode;
+  onModeChange: (mode: FilterMode) => void;
 }
 
 export default function FilterButtons({
-  activeType,
-  onTypeChange,
+  mode,
+  onModeChange,
 }: FilterButtonsProps) {
   return (
-    <div className="mb-8 flex flex-col sm:flex-row gap-3 max-w-3xl">
-      <button
-        onClick={() => onTypeChange("have-room")}
-        className={`flex-1 rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all duration-200 ${
-          activeType === "have-room"
-            ? "bg-blue-300 text-black shadow-[4px_4px_0_#000]"
-            : "bg-white text-black hover:shadow-[2px_2px_0_#000]"
-        }`}
-      >
-        Có phòng
-      </button>
-      <button
-        onClick={() => onTypeChange("need-partner")}
-        className={`flex-1 rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all duration-200 ${
-          activeType === "need-partner"
-            ? "bg-blue-300 text-black shadow-[4px_4px_0_#000]"
-            : "bg-white text-black hover:shadow-[2px_2px_0_#000]"
-        }`}
-      >
-        Tìm bạn thuê
-      </button>
-      <button
-        onClick={() => onTypeChange("need-host")}
-        className={`flex-1 rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all duration-200 ${
-          activeType === "need-host"
-            ? "bg-blue-300 text-black shadow-[4px_4px_0_#000]"
-            : "bg-white text-black hover:shadow-[2px_2px_0_#000]"
-        }`}
-      >
-        Tìm người có phòng
-      </button>
+    <div className="space-y-6">
+      {/* Mode Tabs */}
+      <div className="flex gap-6 border-b-2 border-black">
+        <button
+          onClick={() => onModeChange("have-room")}
+          className={`pb-3 text-sm font-bold transition-all ${
+            mode === "have-room"
+              ? "border-b-4 border-blue-500 text-black"
+              : "text-zinc-600 hover:text-black"
+          }`}
+        >
+          Đã có phòng
+        </button>
+        <button
+          onClick={() => onModeChange("find-partner")}
+          className={`pb-3 text-sm font-bold transition-all ${
+            mode === "find-partner"
+              ? "border-b-4 border-blue-500 text-black"
+              : "text-zinc-600 hover:text-black"
+          }`}
+        >
+          Chưa có phòng
+        </button>
+      </div>
+
+      {/* Mode Description */}
+      <p className="text-sm text-zinc-600">
+        {mode === "have-room"
+          ? "Bạn có phòng/căn hộ sẵn, tìm người ở cùng"
+          : "Bạn chưa có phòng, tìm bạn cùng đi thuê"}
+      </p>
     </div>
   );
 }

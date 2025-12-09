@@ -61,7 +61,7 @@ export default function SplitCTASection({
         ) : (
           <Link
             href={`/auth?returnUrl=${leftReturnUrl}`}
-            className="btn-primary text-base block"
+            className="btn-secondary text-base block"
           >
             Đăng nhập để đăng tin
           </Link>
@@ -74,7 +74,10 @@ export default function SplitCTASection({
         <p className="mb-6 text-base text-zinc-700">
           Khám phá thêm nhiều lựa chọn khác!
         </p>
-        <Link href={rightLink} className="btn-secondary text-base block">
+        <Link
+          href={rightLink}
+          className="btn-secondary text-base block"
+        >
           {rightButton}
         </Link>
       </div>

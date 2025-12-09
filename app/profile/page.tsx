@@ -58,7 +58,12 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     logout();
-    router.push("/auth");
+    // Quay về trang trước hoặc về trang chủ
+    if (window.history.length > 2) {
+      router.back();
+    } else {
+      router.push("/");
+    }
   };
 
   const handleCompleteProfileSubmit = (data: { gender: string; birthYear: string; occupation: string }) => {
@@ -149,6 +154,26 @@ export default function ProfilePage() {
                   <p className="text-base font-medium">{profileData.occupation || 'Chưa cập nhật'}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
+              <Link
+                href="/favorites"
+                className="card bg-pink-100 p-6 hover:bg-pink-200 transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl">❤️</div>
+                  <div>
+                    <h3 className="text-lg font-bold group-hover:text-pink-600 transition-colors">
+                      Yêu thích của tôi
+                    </h3>
+                    <p className="text-sm text-zinc-600">
+                      Xem các bài đăng đã lưu
+                    </p>
+                  </div>
+                </div>
+              </Link>
             </div>
           </div>
         </section>

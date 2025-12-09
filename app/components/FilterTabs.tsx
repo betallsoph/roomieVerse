@@ -21,7 +21,7 @@ export default function FilterTabs({
             : "text-zinc-600 hover:text-black"
         }`}
       >
-        Nhà trọ / Nhà mặt đất
+        Nhà mặt đất
       </button>
       <button
         onClick={() => onTypeChange("apartment")}

@@ -146,7 +146,11 @@ a {
 .btn-secondary:hover {
   transform: translate(3px, 3px);
   box-shadow: none;
-  background: rgb(249, 250, 251);
+}
+
+.btn-secondary:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
 .btn-pink {
@@ -166,6 +170,11 @@ a {
 }
 
 .btn-pink:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-pink:active {
   transform: translate(3px, 3px);
   box-shadow: none;
 }
@@ -191,6 +200,11 @@ a {
   box-shadow: none;
 }
 
+.btn-purple:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
 .btn-yellow {
   background: rgb(253, 224, 71); /* bg-yellow-300 */
   color: var(--text-primary);
@@ -208,6 +222,11 @@ a {
 }
 
 .btn-yellow:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-yellow:active {
   transform: translate(3px, 3px);
   box-shadow: none;
 }
@@ -233,6 +252,11 @@ a {
   box-shadow: none;
 }
 
+.btn-green:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
 .btn-orange {
   background: rgb(253, 186, 116); /* bg-orange-300 */
   color: var(--text-primary);
@@ -250,6 +274,11 @@ a {
 }
 
 .btn-orange:hover {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.btn-orange:active {
   transform: translate(3px, 3px);
   box-shadow: none;
 }
@@ -275,6 +304,11 @@ a {
   box-shadow: none;
 }
 
+.btn-gray:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
 .btn-red {
   background: rgb(252, 165, 165); /* bg-red-300 */
   color: var(--text-primary);
@@ -296,6 +330,38 @@ a {
   box-shadow: none;
 }
 
+.btn-red:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+/* ===== Special Button: Start Button (No hover sink, only click sink) ===== */
+.btn-start {
+  background: #e5e5e5;
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-start:hover {
+  /* No transform on hover - stays elevated */
+}
+
+.btn-start:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+  transition: all 0.1s ease;
+}
+
 /* ===== Modern Card Component ===== */
 .card {
   background: white;
@@ -303,6 +369,21 @@ a {
   border-radius: var(--radius-xl);
   border: 2px solid var(--border-color);
   box-shadow: var(--shadow-secondary);
+}
+
+/* Card with bounce effect on click (like btn-start) */
+.card-bounce {
+  transition: all 0.4s cubic-bezier(0.18, 2.2, 0.4, 1);
+}
+
+.card-bounce:hover {
+  /* No transform on hover - stays elevated */
+}
+
+.card-bounce:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+  transition: all 0.08s ease;
 }
 
 /* ===== Modern Layout ===== */
@@ -374,6 +455,27 @@ a {
   100% {
     transform: scale(0.7) translateY(0) rotate(360deg);
     opacity: 1;
+  }
+}
+
+/* ===== Dropdown Slide Down Animation ===== */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  40% {
+    transform: translateY(4px) scale(1.03);
+  }
+  65% {
+    transform: translateY(-2px) scale(0.99);
+  }
+  85% {
+    transform: translateY(1px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
