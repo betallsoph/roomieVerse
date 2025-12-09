@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import HeaderLogo from "./HeaderLogo";
 
 export default function MainHeader() {
   const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     logout();
@@ -33,8 +34,14 @@ export default function MainHeader() {
             ) : (
               <>
                 <Link
-                  href="/auth"
-                  className="btn-primary text-base sm:text-lg px-8 py-3"
+                  href={`/auth?returnUrl=${pathname}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => {
+                      window.location.href = `/auth?returnUrl=${pathname}`;
+                    }, 250);
+                  }}
+                  className="btn-start text-base sm:text-lg px-8 py-3"
                 >
                   Bắt đầu
                 </Link>

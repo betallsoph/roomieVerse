@@ -1,21 +1,44 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import {
+  Flag,
+  MapPin,
+  Calendar,
+  Clock,
+  Home,
+  Phone,
+  MessageCircle,
+  Lock,
+  Heart,
+  Share2,
+  Link as LinkIcon,
+  ArrowLeft,
+  User,
+  Lightbulb,
+  AlertTriangle,
+  Check,
+  Search
+} from "lucide-react";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
+import ReportModal from "../../components/ReportModal";
 import { mockListings, RoomListing } from "../../data/mockListings";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Helper function to get category badge
 function getCategoryBadge(listing: RoomListing) {
   if (listing.category === "roommate") {
-    if (listing.roommateType === "have-room") return { text: "Có phòng", color: "bg-blue-300" };
-    if (listing.roommateType === "need-partner") return { text: "Tìm bạn thuê", color: "bg-purple-300" };
-    return { text: "Tìm người có phòng", color: "bg-pink-300" };
+    if (listing.roommateType === "have-room") {
+      return { text: "Có phòng sẵn", color: "bg-blue-300" };
+    }
+    return { text: "Tìm bạn cùng thuê", color: "bg-blue-200" };
   }
-  // roomshare
-  if (listing.propertyType === "house") return { text: "Nhà trọ", color: "bg-green-300" };
-  return { text: "Chung cư", color: "bg-yellow-300" };
+  // Pink tones for roomshare category
+  if (listing.propertyType === "house") return { text: "Nhà trọ", color: "bg-pink-300" };
+  return { text: "Chung cư", color: "bg-pink-200" };
 }
 
 // Generate mock amenities based on description
@@ -44,9 +67,38 @@ function getAmenities(listing: RoomListing): string[] {
 export default function ListingDetailPage() {
   const params = useParams();
   const id = Number(params.id);
-  
+  const { isAuthenticated } = useAuth();
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+
   // Find listing from mockListings
   const listing = mockListings.find((l) => l.id === id);
+
+  // Check if listing is favorited
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      const favoriteIds = JSON.parse(savedFavorites) as number[];
+      setIsFavorited(favoriteIds.includes(id));
+    }
+  }, [id]);
+
+  // Toggle favorite
+  const toggleFavorite = () => {
+    const savedFavorites = localStorage.getItem('favorites');
+    let favoriteIds: number[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+
+    if (isFavorited) {
+      // Remove from favorites
+      favoriteIds = favoriteIds.filter(fid => fid !== id);
+    } else {
+      // Add to favorites
+      favoriteIds.push(id);
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favoriteIds));
+    setIsFavorited(!isFavorited);
+  };
 
   if (!listing) {
     return (
@@ -54,7 +106,7 @@ export default function ListingDetailPage() {
         <MainHeader />
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="rounded-xl border-2 border-black bg-white p-16 text-center shadow-[var(--shadow-primary)]">
-            <div className="mb-6 text-6xl">🔍</div>
+            <Search className="mx-auto mb-6 h-16 w-16 text-zinc-400" />
             <h1 className="mb-4 text-3xl font-bold">Không tìm thấy bài đăng</h1>
             <p className="mb-8 text-zinc-600">Bài đăng này có thể đã bị xóa hoặc không tồn tại.</p>
             <Link href="/roommate" className="btn-primary">
@@ -69,14 +121,21 @@ export default function ListingDetailPage() {
 
   const badge = getCategoryBadge(listing);
   const amenities = getAmenities(listing);
-  const backLink = listing.category === "roommate" ? "/roommate" : "/roomshare";
+  const backLink = listing.category === "roomshare" ? "/roomshare" : "/roommate";
+
+  // Màu theo category: roommate = xanh, roomshare = hồng
+  const isBlueTheme = listing.category === "roommate";
+  const heroBg = isBlueTheme ? "bg-blue-50" : "bg-pink-50";
+  const contactBg = isBlueTheme ? "bg-blue-50" : "bg-pink-50";
+  const priceBg = isBlueTheme ? "bg-blue-50" : "bg-pink-50";
+  const amenityBg = isBlueTheme ? "bg-blue-100" : "bg-pink-100";
 
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
 
       {/* Hero Section */}
-      <section className="border-b-2 border-black bg-blue-50 py-12 sm:py-16">
+      <section className={`border-b-2 border-black ${heroBg} py-12 sm:py-16`}>
         <div className="mx-auto max-w-7xl px-6">
           {/* Breadcrumb */}
           <div className="mb-6 flex items-center gap-2 text-sm text-zinc-600">
@@ -89,12 +148,13 @@ export default function ListingDetailPage() {
             <span className="text-black font-medium">Chi tiết</span>
           </div>
 
-          {/* Title & Badge */}
-          <div className="flex flex-wrap items-start gap-4 mb-6">
-            <span className={`rounded-lg border-2 border-black ${badge.color} px-4 py-2 text-sm font-bold shadow-[var(--shadow-secondary)]`}>
-              {badge.text}
-            </span>
-          </div>
+          {/* Back Button */}
+          <Link
+            href={backLink}
+            className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2 mb-6"
+          >
+            <ArrowLeft className="h-4 w-4" /> Quay lại
+          </Link>
           
           <h1 className="mb-6 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
             {listing.title}
@@ -102,13 +162,13 @@ export default function ListingDetailPage() {
 
           <div className="flex flex-wrap gap-6 text-sm sm:text-base text-zinc-700">
             <span className="flex items-center gap-2">
-              📍 {listing.location}
+              <MapPin className="h-4 w-4" /> {listing.location}
             </span>
             <span className="flex items-center gap-2">
-              📅 Dọn vào: {listing.moveInDate}
+              <Calendar className="h-4 w-4" /> Dọn vào: {listing.moveInDate}
             </span>
             <span className="flex items-center gap-2">
-              ⏰ Đăng {listing.postedDate}
+              <Clock className="h-4 w-4" /> Đăng {listing.postedDate}
             </span>
           </div>
         </div>
@@ -121,112 +181,142 @@ export default function ListingDetailPage() {
           {/* Left Column - Details */}
           <div className="space-y-8">
             {/* Image Placeholder */}
-            <div className="overflow-hidden rounded-xl border-2 border-black bg-blue-100 shadow-[var(--shadow-secondary)]">
-              <div className="flex h-72 sm:h-96 w-full items-center justify-center text-8xl sm:text-9xl">
-                🏠
+            <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)]">
+              <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
+                <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
               </div>
             </div>
 
-            {/* Price Card */}
-            <div className="rounded-xl border-2 border-black bg-pink-200 p-6 sm:p-8 shadow-[var(--shadow-primary)]">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-medium text-zinc-700 mb-1">Giá thuê/tháng</p>
-                  <p className="text-3xl sm:text-4xl font-extrabold">{listing.price}</p>
+            {/* Main Info Card - Gộp Price + Description + Amenities */}
+            <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
+              {/* Price Header */}
+              <div className={`${priceBg} p-6 border-b-2 border-black`}>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-zinc-700 mb-1">Giá thuê/tháng</p>
+                    <p className="text-3xl sm:text-4xl font-extrabold">{listing.price}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-zinc-700 mb-1">Đăng bởi</p>
+                    <p className="text-xl font-bold flex items-center justify-end gap-2">
+                      <User className="h-5 w-5" /> {listing.author}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-zinc-700 mb-1">Đăng bởi</p>
-                  <p className="text-xl font-bold">✍️ {listing.author}</p>
+              </div>
+
+              {/* Description */}
+              <div className="p-6 border-b-2 border-black">
+                <h2 className="mb-4 text-xl font-bold">Mô tả chi tiết</h2>
+                <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
+                  {listing.description}
+                </p>
+              </div>
+
+              {/* Amenities */}
+              <div className="p-6">
+                <h2 className="mb-4 text-xl font-bold">Tiện nghi</h2>
+                <div className="flex flex-wrap gap-2">
+                  {amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className={`rounded-lg border-2 border-black ${amenityBg} px-3 py-1.5 text-sm font-medium flex items-center gap-1`}
+                    >
+                      <Check className="h-4 w-4" /> {amenity}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Description */}
-            <div className="rounded-xl border-2 border-black bg-white p-6 sm:p-8 shadow-[var(--shadow-secondary)]">
-              <h2 className="mb-6 text-2xl font-bold">Mô tả chi tiết</h2>
-              <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
-                {listing.description}
-              </p>
-            </div>
-
-            {/* Amenities */}
-            <div className="rounded-xl border-2 border-black bg-white p-6 sm:p-8 shadow-[var(--shadow-secondary)]">
-              <h2 className="mb-6 text-2xl font-bold">Tiện nghi</h2>
-              <div className="flex flex-wrap gap-3">
-                {amenities.map((amenity) => (
-                  <span
-                    key={amenity}
-                    className="rounded-lg border-2 border-black bg-blue-300 px-4 py-2 text-sm font-bold"
-                  >
-                    ✓ {amenity}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Tips */}
-            <div className="rounded-xl border-2 border-black bg-yellow-100 p-6 sm:p-8 shadow-[var(--shadow-secondary)]">
-              <h2 className="mb-4 text-xl font-bold">💡 Lưu ý khi liên hệ</h2>
-              <ul className="space-y-2 text-sm text-zinc-700">
-                <li>• Hãy xem phòng trực tiếp trước khi quyết định</li>
+            {/* Tips - nhỏ gọn hơn */}
+            <div className="rounded-xl border-2 border-black bg-red-50 p-5 shadow-[var(--shadow-secondary)]">
+              <h2 className="mb-3 text-lg font-bold flex items-center gap-2">
+                <Lightbulb className="h-5 w-5" /> Lưu ý khi liên hệ
+              </h2>
+              <ul className="space-y-1.5 text-sm text-zinc-700">
+                <li>• Xem phòng trực tiếp trước khi quyết định</li>
                 <li>• Không chuyển tiền cọc khi chưa ký hợp đồng</li>
-                <li>• Hỏi rõ về các chi phí phát sinh (điện, nước, internet...)</li>
-                <li>• Xác nhận rõ thời hạn hợp đồng và điều khoản</li>
+                <li>• Hỏi rõ các chi phí phát sinh</li>
               </ul>
             </div>
           </div>
 
-          {/* Right Column - Contact (Sticky) + Share (Fixed) */}
-          <div className="space-y-6">
-            {/* Contact Card - STICKY */}
-            <div className="lg:sticky lg:top-40 rounded-xl border-2 border-black bg-gradient-to-br from-blue-200 to-blue-300 p-6 sm:p-8 shadow-[var(--shadow-primary)]">
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-zinc-700">
+          {/* Right Column - Contact & Actions */}
+          <div className="space-y-4">
+            {/* Contact Card - Sticky */}
+            <div className={`lg:sticky lg:top-32 rounded-xl border-2 border-black ${contactBg} p-6 shadow-[var(--shadow-secondary)]`}>
+              <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-zinc-600">
                 Liên hệ ngay
               </h3>
-              <p className="mb-6 text-2xl font-bold">{listing.author}</p>
+              <p className="mb-5 text-xl font-bold">{listing.author}</p>
 
-              {/* Phone Button */}
-              <a
-                href={`tel:${listing.phone.replace(/\s/g, "")}`}
-                className="mb-4 flex w-full items-center justify-center gap-3 rounded-xl border-2 border-black bg-white px-6 py-4 text-xl font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-              >
-                📞 {listing.phone}
-              </a>
+              {isAuthenticated ? (
+                <a
+                  href={`tel:${listing.phone.replace(/\s/g, "")}`}
+                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 text-lg font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                >
+                  <Phone className="h-5 w-5" /> {listing.phone}
+                </a>
+              ) : (
+                <Link
+                  href={`/auth?returnUrl=/listing/${listing.id}`}
+                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                >
+                  <Lock className="h-5 w-5" /> Đăng nhập để xem SĐT
+                </Link>
+              )}
 
-              {/* Message Button */}
-              <button className="mb-6 w-full rounded-xl border-2 border-black bg-pink-300 px-6 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
-                💬 Nhắn tin Zalo
-              </button>
-
-              {/* Warning */}
-              <p className="text-xs leading-relaxed text-zinc-700">
-                ⚠️ roomieVerse không chịu trách nhiệm cho các giao dịch giữa người dùng. Hãy cẩn thận!
+              <p className="text-xs leading-relaxed text-zinc-600 flex items-start gap-1">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                roomieVerse không chịu trách nhiệm cho các giao dịch giữa người dùng.
               </p>
             </div>
 
-            {/* Share Card - NOT STICKY */}
-            <div className="rounded-xl border-2 border-black bg-white p-6 shadow-[var(--shadow-secondary)]">
-              <h3 className="mb-4 text-lg font-bold">Chia sẻ bài đăng</h3>
-              <div className="flex gap-3">
-                <button className="flex-1 rounded-lg border-2 border-black bg-blue-100 px-4 py-3 text-sm font-bold transition-all hover:bg-blue-200">
-                  Facebook
-                </button>
-                <button className="flex-1 rounded-lg border-2 border-black bg-zinc-100 px-4 py-3 text-sm font-bold transition-all hover:bg-zinc-200">
-                  Copy link
-                </button>
-              </div>
+            {/* Actions */}
+            <div className="flex gap-2">
+              <button
+                onClick={toggleFavorite}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
+                  ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
+              >
+                <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+                {isFavorited ? 'Đã lưu' : 'Lưu'}
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
+                <Share2 className="h-4 w-4" /> Chia sẻ
+              </button>
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+              >
+                <Flag className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Back Button - NOT STICKY */}
+            {/* View More Button */}
             <Link
-              href={backLink}
-              className="block w-full rounded-xl border-2 border-black bg-white px-6 py-4 text-center font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+              href={listing.category === "roomshare" ? "/roomshare/all" : "/roommate/all"}
+              className="flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
             >
-              ← Quay lại danh sách
+              Xem thêm tin khác
             </Link>
           </div>
         </div>
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportModal
+          listingId={listing.id}
+          listingTitle={listing.title}
+          onClose={() => setShowReportModal(false)}
+          onSubmit={(data) => {
+            console.log("Report submitted:", data);
+            // TODO: Send to backend API
+          }}
+        />
+      )}
 
       <ShareFooter />
     </div>

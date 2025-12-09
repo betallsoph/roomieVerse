@@ -191,13 +191,13 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href={isAuthenticated ? "/roommate" : "/pages/login-required"}
+                href="/roommate"
                 className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
                 Tìm roommate
               </Link>
               <Link
-                href={isAuthenticated ? "/roomshare" : "/pages/login-required"}
+                href="/roomshare"
                 className="btn-pink text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
                 Tìm phòng share
