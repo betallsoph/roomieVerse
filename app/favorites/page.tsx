@@ -147,7 +147,7 @@ function FavoriteCard({
   listing: RoomListing;
   onRemove: (id: number) => void;
 }) {
-  const imageBg = listing.category === "pink" ? "bg-pink-50" : "bg-blue-50";
+  const imageBg = listing.category === "roomshare" ? "bg-pink-50" : "bg-blue-50";
   const priceBadgeBg = listing.category === "roomshare" ? "bg-pink-300" : "bg-blue-300";
 
   return (

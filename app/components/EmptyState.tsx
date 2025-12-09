@@ -61,8 +61,8 @@ export default function EmptyState({
   actionLink,
 }: EmptyStateProps) {
   const config = EMPTY_STATE_CONFIG[type];
-  const finalActionLabel = actionLabel || config.actionLabel;
-  const finalActionLink = actionLink || config.actionLink;
+  const finalActionLabel = actionLabel || ("actionLabel" in config ? config.actionLabel : undefined);
+  const finalActionLink = actionLink || ("actionLink" in config ? config.actionLink : undefined);
   const IconComponent = config.icon;
 
   return (
