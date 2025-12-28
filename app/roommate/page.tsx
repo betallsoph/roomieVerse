@@ -1,22 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { mockListings } from "../data/mockListings";
+import { getListingsByCategory } from "../data/listings";
+import { RoomListing } from "../data/types";
 import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import FilterButtons from "../components/FilterButtons";
 import ListingCard from "../components/ListingCard";
 import SplitCTASection from "../components/SplitCTASection";
+import ProfileReminderModal from "../components/ProfileReminderModal";
+import PostTypeModal from "../components/PostTypeModal";
+import { useProfileReminder } from "../hooks/useProfileReminder";
 
 type FilterMode = "have-room" | "find-partner";
 
 export default function RoommatePage() {
   const [mode, setMode] = useState<FilterMode>("have-room");
+  const [listings, setListings] = useState<RoomListing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPostTypeModal, setShowPostTypeModal] = useState(false);
+  const { showReminder, dismissReminder } = useProfileReminder();
+
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      const data = await getListingsByCategory("roommate");
+      setListings(data);
+      setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   // Filter listings based on mode
-  const allFilteredListings = mockListings.filter((listing) => {
-    return listing.category === "roommate" && listing.roommateType === mode;
+  const allFilteredListings = listings.filter((listing) => {
+    return listing.roommateType === mode;
   });
 
   // Limit to 9 cards
@@ -38,6 +56,9 @@ export default function RoommatePage() {
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
+
+      {/* Profile Reminder Modal */}
+      <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
       <section className="bg-blue-50 py-16 sm:py-24">
@@ -70,15 +91,22 @@ export default function RoommatePage() {
         </div>
 
         {/* Listings Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {displayedListings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              variant="blue"
-            />
-          ))}
-        </div>
+        {displayedListings.length > 0 ? (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {displayedListings.map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                variant="blue"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="py-16 text-center">
+            <p className="text-lg text-zinc-500">Chưa có tin đăng nào trong mục này</p>
+            <p className="mt-2 text-sm text-zinc-400">Hãy là người đầu tiên đăng tin!</p>
+          </div>
+        )}
 
         {/* View All Button */}
         {hasMore && (
@@ -101,12 +129,19 @@ export default function RoommatePage() {
           leftHeading={getCTAHeading()}
           leftButton="Đăng tin ngay"
           leftReturnUrl="/roommate"
+          onPostClick={() => setShowPostTypeModal(true)}
           rightHeading="Hoặc bạn đang tìm phòng?"
-          rightButton="Tìm phòng share"
+          rightButton="Tìm phòng"
           rightLink="/roomshare"
           variant="blue"
         />
       </div>
+
+      {/* Post Type Modal */}
+      <PostTypeModal
+        isOpen={showPostTypeModal}
+        onClose={() => setShowPostTypeModal(false)}
+      />
 
       <ShareFooter />
     </div>

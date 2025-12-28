@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUp } from "lucide-react";
-import { mockListings, PropertyType } from "../../data/mockListings";
+import { getListingsByCategory } from "../../data/listings";
+import { RoomListing, PropertyType } from "../../data/types";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import FilterTabs from "../../components/FilterTabs";
@@ -18,6 +19,16 @@ export default function RoomshareAllPage() {
   const initialType = (searchParams.get("type") as PropertyType) || "house";
   const [propertyType, setPropertyType] = useState<PropertyType>(initialType);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [listings, setListings] = useState<RoomListing[]>([]);
+
+  // Fetch data
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getListingsByCategory("roomshare");
+      setListings(data);
+    }
+    fetchData();
+  }, []);
 
   // Update type when URL changes
   useEffect(() => {
@@ -33,9 +44,8 @@ export default function RoomshareAllPage() {
   }, [propertyType]);
 
   // Filter listings
-  const filteredListings = mockListings.filter(
-    (listing) =>
-      listing.category === "roomshare" && listing.propertyType === propertyType
+  const filteredListings = listings.filter(
+    (listing) => listing.propertyType === propertyType
   );
 
   // Get visible listings

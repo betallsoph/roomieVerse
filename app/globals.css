@@ -362,6 +362,41 @@ a {
   transition: all 0.1s ease;
 }
 
+/* ===== Button Modifier: Click-only sink (like btn-start) ===== */
+.btn-click-sink {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.btn-click-sink:hover {
+  transform: none !important;
+  box-shadow: var(--shadow-secondary) !important;
+}
+
+.btn-click-sink:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: none !important;
+  transition: all 0.1s ease !important;
+}
+
+/* ===== Button Modifier: Modal buttons (shadow stays same on hover, sink on click) ===== */
+.btn-modal-flat {
+  box-shadow: var(--shadow-secondary);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.btn-modal-flat:hover {
+  /* Shadow stays the same - no change */
+  box-shadow: var(--shadow-secondary);
+  transform: none;
+}
+
+.btn-modal-flat:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+  transition: all 0.1s ease;
+}
+
 /* ===== Modern Card Component ===== */
 .card {
   background: white;

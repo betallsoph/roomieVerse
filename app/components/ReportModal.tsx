@@ -4,14 +4,14 @@ import { useState } from "react";
 import { X, Flag, AlertTriangle, Megaphone, ShieldAlert, Ban, Copy, XCircle, MessageSquare, CheckCircle } from "lucide-react";
 
 interface ReportModalProps {
-  listingId: number;
+  listingId: number | string;
   listingTitle: string;
   onClose: () => void;
   onSubmit?: (data: ReportData) => void;
 }
 
 export interface ReportData {
-  listingId: number;
+  listingId: number | string;
   reason: string;
   details: string;
   reporterEmail?: string;

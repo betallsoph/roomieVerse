@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUp } from "lucide-react";
-import { mockListings } from "../../data/mockListings";
+import { getListingsByCategory } from "../../data/listings";
+import { RoomListing } from "../../data/types";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import FilterButtons from "../../components/FilterButtons";
@@ -20,6 +21,16 @@ export default function RoommateAllPage() {
   const initialMode = (searchParams.get("mode") as FilterMode) || "have-room";
   const [mode, setMode] = useState<FilterMode>(initialMode);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [listings, setListings] = useState<RoomListing[]>([]);
+
+  // Fetch data
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getListingsByCategory("roommate");
+      setListings(data);
+    }
+    fetchData();
+  }, []);
 
   // Update mode when URL changes
   useEffect(() => {
@@ -35,8 +46,8 @@ export default function RoommateAllPage() {
   }, [mode]);
 
   // Filter listings based on mode
-  const filteredListings = mockListings.filter((listing) => {
-    return listing.category === "roommate" && listing.roommateType === mode;
+  const filteredListings = listings.filter((listing) => {
+    return listing.roommateType === mode;
   });
 
   // Get visible listings

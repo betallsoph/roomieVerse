@@ -4,7 +4,7 @@ import { Home, MapPin, Calendar, User } from "lucide-react";
 
 interface ListingCardProps {
   listing: {
-    id: number;
+    id: number | string;
     title: string;
     author: string;
     price: string;

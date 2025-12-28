@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
 interface ProfileData {
   gender: string;
@@ -8,32 +9,33 @@ interface ProfileData {
   occupation: string;
 }
 
-interface CompleteProfileModalProps {
+interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onComplete: (data: ProfileData) => void;
-  initialData?: ProfileData;
+  onSave: (data: ProfileData) => void;
+  initialData: ProfileData;
 }
 
-export default function CompleteProfileModal({ isOpen, onClose, onComplete, initialData }: CompleteProfileModalProps) {
+export default function EditProfileModal({ isOpen, onClose, onSave, initialData }: EditProfileModalProps) {
   const [formData, setFormData] = useState<ProfileData>({
     gender: '',
     birthYear: '',
     occupation: ''
   });
 
+  const [errors, setErrors] = useState<Partial<ProfileData>>({});
+
   // Update form when modal opens with initial data
   useEffect(() => {
-    if (isOpen && initialData) {
+    if (isOpen) {
       setFormData({
         gender: initialData.gender || '',
         birthYear: initialData.birthYear || '',
         occupation: initialData.occupation || ''
       });
+      setErrors({});
     }
   }, [isOpen, initialData]);
-
-  const [errors, setErrors] = useState<Partial<ProfileData>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,13 +51,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
       return;
     }
 
-    onComplete(formData);
-  };
-
-  const handleSkip = () => {
-    onClose();
-    // TODO: Save to localStorage that user skipped
-    localStorage.setItem('profileIncomplete', 'true');
+    onSave(formData);
   };
 
   if (!isOpen) return null;
@@ -63,10 +59,18 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div className="relative w-full max-w-md rounded-xl border-4 border-black bg-white p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Hoàn thiện hồ sơ</h2>
+          <h2 className="text-2xl font-bold mb-2">Chỉnh sửa hồ sơ</h2>
           <p className="text-sm text-zinc-600">
-            Điền thông tin để người khác biết bạn phù hợp với họ
+            Cập nhật thông tin cá nhân của bạn
           </p>
         </div>
 
@@ -147,19 +151,19 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col gap-3 pt-4">
-            <button
-              type="submit"
-              className="btn-primary btn-click-sink text-base px-6 py-3 w-full"
-            >
-              Hoàn thành
-            </button>
+          <div className="flex gap-3 pt-4">
             <button
               type="button"
-              onClick={handleSkip}
-              className="btn-secondary btn-click-sink text-base px-6 py-3 w-full"
+              onClick={onClose}
+              className="btn-secondary btn-click-sink text-base px-6 py-3 flex-1"
             >
-              Để sau
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="btn-primary btn-click-sink text-base px-6 py-3 flex-1"
+            >
+              Lưu thay đổi
             </button>
           </div>
         </form>

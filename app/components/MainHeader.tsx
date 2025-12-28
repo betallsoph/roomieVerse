@@ -26,7 +26,7 @@ export default function MainHeader() {
               <>
                 <Link
                   href="/profile"
-                  className="btn-primary text-base sm:text-lg px-8 py-3"
+                  className="btn-start text-base sm:text-lg px-8 py-3"
                 >
                   Hồ sơ của bạn
                 </Link>

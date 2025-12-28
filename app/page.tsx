@@ -5,14 +5,20 @@ import Image from "next/image";
 import { SparklesText } from "./components/sparkles-text";
 import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
+import ProfileReminderModal from "./components/ProfileReminderModal";
 import { useAuth } from "./contexts/AuthContext";
+import { useProfileReminder } from "./hooks/useProfileReminder";
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
+  const { showReminder, dismissReminder } = useProfileReminder();
 
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
+
+      {/* Profile Reminder Modal */}
+      <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
       <section className="section bg-blue-50 py-16 sm:py-24 md:py-32">
@@ -31,7 +37,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="mb-10 text-lg font-medium text-zinc-600 sm:text-xl md:text-2xl max-w-3xl mx-auto">
-            Nơi lý tưởng để tìm người ở ghép, tìm phòng share...
+            Nơi lý tưởng để tìm người ở ghép, tìm phòng trống...
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -45,7 +51,10 @@ export default function LandingPage() {
             >
               Tìm ngay
             </a>
-            <Link href="/pages/login-required" className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center">
+            <Link
+              href={isAuthenticated ? "/roommate" : "/pages/login-required"}
+              className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center"
+            >
               Đăng tin miễn phí
             </Link>
           </div>
@@ -200,7 +209,7 @@ export default function LandingPage() {
                 href="/roomshare"
                 className="btn-pink text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
-                Tìm phòng share
+                Tìm phòng
               </Link>
             </div>
           </div>

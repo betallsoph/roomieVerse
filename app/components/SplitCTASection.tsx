@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 interface SplitCTASectionProps {
   // Left side - current page
   leftHeading: string;
+  leftSubheading?: string;
   leftButton: string;
   leftReturnUrl: string;
   onPostClick?: () => void;
@@ -21,6 +22,7 @@ interface SplitCTASectionProps {
 
 export default function SplitCTASection({
   leftHeading,
+  leftSubheading = "Đăng tin tìm bạn ngay!",
   leftButton,
   leftReturnUrl,
   onPostClick,
@@ -46,7 +48,7 @@ export default function SplitCTASection({
       <div className={`rounded-xl border-2 border-black ${leftBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{leftHeading}</h2>
         <p className="mb-6 text-base text-zinc-700">
-          Đăng tin của bạn ngay - MIỄN PHÍ mãi mãi!
+          {leftSubheading}
         </p>
         {isAuthenticated ? (
           <button

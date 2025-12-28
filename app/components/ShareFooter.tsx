@@ -30,7 +30,7 @@ export default function ShareFooter() {
               href="/roomshare"
               className="transition-all duration-200 hover:scale-110 hover:text-pink-400"
             >
-              Tìm phòng share
+              Tìm phòng
             </Link>
             <Link
               href="/blog"

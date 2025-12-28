@@ -69,7 +69,7 @@ export default function PostForm({
               onChange={(e) =>
                 setFormData({ ...formData, price: e.target.value })
               }
-              placeholder="VD: 4.5tr"
+              placeholder="4.5tr"
               className="w-full rounded-lg border-2 border-black p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
@@ -83,7 +83,7 @@ export default function PostForm({
               onChange={(e) =>
                 setFormData({ ...formData, location: e.target.value })
               }
-              placeholder="VD: Q1, gần Lê Lợi"
+              placeholder="Q1, gần Lê Lợi"
               className="w-full rounded-lg border-2 border-black p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
@@ -101,7 +101,7 @@ export default function PostForm({
               onChange={(e) =>
                 setFormData({ ...formData, moveInDate: e.target.value })
               }
-              placeholder="VD: 01/12/2024"
+              placeholder="01/12/2024"
               className="w-full rounded-lg border-2 border-black p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>
@@ -117,7 +117,7 @@ export default function PostForm({
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              placeholder="VD: 0901 234 567"
+              placeholder="0901 234 567"
               className="w-full rounded-lg border-2 border-black p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </div>

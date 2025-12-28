@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -10,22 +10,22 @@ import {
   Clock,
   Home,
   Phone,
-  MessageCircle,
   Lock,
   Heart,
   Share2,
-  Link as LinkIcon,
   ArrowLeft,
   User,
   Lightbulb,
   AlertTriangle,
   Check,
-  Search
+  Search,
+  Loader2
 } from "lucide-react";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import ReportModal from "../../components/ReportModal";
-import { mockListings, RoomListing } from "../../data/mockListings";
+import { getListingById } from "../../data/listings";
+import { RoomListing } from "../../data/types";
 import { useAuth } from "../../contexts/AuthContext";
 
 // Helper function to get category badge
@@ -66,13 +66,24 @@ function getAmenities(listing: RoomListing): string[] {
 
 export default function ListingDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = Number(params.id);
   const { isAuthenticated } = useAuth();
+  const [listing, setListing] = useState<RoomListing | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  // Find listing from mockListings
-  const listing = mockListings.find((l) => l.id === id);
+  // Fetch listing data
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      const data = await getListingById(id);
+      setListing(data);
+      setIsLoading(false);
+    }
+    fetchData();
+  }, [id]);
 
   // Check if listing is favorited
   useEffect(() => {
@@ -99,6 +110,18 @@ export default function ListingDetailPage() {
     localStorage.setItem('favorites', JSON.stringify(favoriteIds));
     setIsFavorited(!isFavorited);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <MainHeader />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-zinc-400" />
+        </div>
+        <ShareFooter />
+      </div>
+    );
+  }
 
   if (!listing) {
     return (
@@ -142,19 +165,19 @@ export default function ListingDetailPage() {
             <Link href="/" className="hover:text-black">Trang chủ</Link>
             <span>/</span>
             <Link href={backLink} className="hover:text-black">
-              {listing.category === "roommate" ? "Tìm Roommate" : "Tìm Phòng Share"}
+              {listing.category === "roommate" ? "Tìm Roommate" : "Tìm Phòng"}
             </Link>
             <span>/</span>
             <span className="text-black font-medium">Chi tiết</span>
           </div>
 
           {/* Back Button */}
-          <Link
-            href={backLink}
+          <button
+            onClick={() => router.back()}
             className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2 mb-6"
           >
             <ArrowLeft className="h-4 w-4" /> Quay lại
-          </Link>
+          </button>
           
           <h1 className="mb-6 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
             {listing.title}

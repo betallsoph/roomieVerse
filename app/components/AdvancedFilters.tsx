@@ -111,7 +111,7 @@ export default function AdvancedFilters({
             type="text"
             value={localFilters.keywords}
             onChange={(e) => updateFilter("keywords", e.target.value)}
-            placeholder="VD: có ban công, gần chợ..."
+            placeholder="có ban công, gần chợ..."
             className="w-full rounded-xl border-2 border-black px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>

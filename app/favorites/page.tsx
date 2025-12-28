@@ -5,7 +5,9 @@ import Link from "next/link";
 import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { mockListings, RoomListing } from "../data/mockListings";
+import { getListings } from "../data/listings";
+import { RoomListing } from "../data/types";
+import { Heart, MapPin, Calendar, Home, HeartOff, Users } from "lucide-react";
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<RoomListing[]>([]);
@@ -13,21 +15,25 @@ export default function FavoritesPage() {
 
   // Load favorites from localStorage
   useEffect(() => {
-    const savedFavorites = localStorage.getItem('favorites');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as number[];
-      const favoritedListings = mockListings.filter(listing =>
-        favoriteIds.includes(listing.id)
-      );
-      setFavorites(favoritedListings);
+    async function loadFavorites() {
+      const savedFavorites = localStorage.getItem('favorites');
+      if (savedFavorites) {
+        const favoriteIds = JSON.parse(savedFavorites) as (number | string)[];
+        const allListings = await getListings();
+        const favoritedListings = allListings.filter(listing =>
+          favoriteIds.includes(listing.id as number) || favoriteIds.includes(listing.id as string)
+        );
+        setFavorites(favoritedListings);
+      }
     }
+    loadFavorites();
   }, []);
 
   // Remove from favorites
-  const handleRemoveFavorite = (id: number) => {
+  const handleRemoveFavorite = (id: number | string) => {
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as number[];
+      const favoriteIds = JSON.parse(savedFavorites) as (number | string)[];
       const updatedIds = favoriteIds.filter(fid => fid !== id);
       localStorage.setItem('favorites', JSON.stringify(updatedIds));
 
@@ -49,32 +55,53 @@ export default function FavoritesPage() {
         {/* Hero Section */}
         <section className="bg-pink-50 py-16 sm:py-24 relative before:absolute before:bottom-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-transparent before:to-white before:pointer-events-none">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="text-center mb-8">
+            <div className="mb-8">
               <h1 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
-                Yêu thích của tôi ❤️
+                Yêu thích của tôi
               </h1>
-              <p className="max-w-2xl mx-auto text-base sm:text-lg text-zinc-700">
+              <p className="max-w-2xl text-base sm:text-lg text-zinc-700">
                 Những bài đăng bạn đã lưu để xem sau
               </p>
             </div>
 
             {/* Stats */}
-            <div className="flex justify-center gap-6 flex-wrap">
-              <div className="card bg-white px-8 py-4 text-center">
-                <p className="text-3xl font-bold text-pink-600">{favorites.length}</p>
-                <p className="text-sm text-zinc-600">Tổng số đã lưu</p>
+            <div className="grid grid-cols-3 gap-4 max-w-2xl">
+              <div className="card bg-white !p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Heart className="h-5 w-5 fill-current text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{favorites.length}</p>
+                    <p className="text-xs text-zinc-600 whitespace-nowrap">Tổng số đã lưu</p>
+                  </div>
+                </div>
               </div>
-              <div className="card bg-white px-8 py-4 text-center">
-                <p className="text-3xl font-bold text-blue-600">
-                  {favorites.filter(f => f.category === "roommate").length}
-                </p>
-                <p className="text-sm text-zinc-600">Tìm bạn cùng phòng</p>
+              <div className="card bg-white !p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {favorites.filter(f => f.category === "roommate").length}
+                    </p>
+                    <p className="text-xs text-zinc-600 whitespace-nowrap">Tìm bạn cùng phòng</p>
+                  </div>
+                </div>
               </div>
-              <div className="card bg-white px-8 py-4 text-center">
-                <p className="text-3xl font-bold text-pink-600">
-                  {favorites.filter(f => f.category === "roomshare").length}
-                </p>
-                <p className="text-sm text-zinc-600">Phòng chia sẻ</p>
+              <div className="card bg-white !p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Home className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {favorites.filter(f => f.category === "roomshare").length}
+                    </p>
+                    <p className="text-xs text-zinc-600 whitespace-nowrap">Phòng trống</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -93,7 +120,7 @@ export default function FavoritesPage() {
                     : 'bg-white hover:bg-purple-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
                   }`}
               >
-                Tất cả ({favorites.length})
+                Tất cả
               </button>
               <button
                 onClick={() => setActiveTab("roommate")}
@@ -103,7 +130,7 @@ export default function FavoritesPage() {
                     : 'bg-white hover:bg-blue-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
                   }`}
               >
-                Tìm bạn ({favorites.filter(f => f.category === "roommate").length})
+                Tìm bạn
               </button>
               <button
                 onClick={() => setActiveTab("roomshare")}
@@ -113,7 +140,7 @@ export default function FavoritesPage() {
                     : 'bg-white hover:bg-pink-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
                   }`}
               >
-                Phòng chia sẻ ({favorites.filter(f => f.category === "roomshare").length})
+                Phòng trống
               </button>
             </div>
 
@@ -145,24 +172,24 @@ function FavoriteCard({
   onRemove
 }: {
   listing: RoomListing;
-  onRemove: (id: number) => void;
+  onRemove: (id: number | string) => void;
 }) {
-  const imageBg = listing.category === "roomshare" ? "bg-pink-50" : "bg-blue-50";
+  const imageBg = listing.category === "roomshare" ? "bg-pink-100" : "bg-blue-100";
   const priceBadgeBg = listing.category === "roomshare" ? "bg-pink-300" : "bg-blue-300";
 
   return (
-    <div className="group rounded-xl border-2 border-black bg-white p-6 shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
+    <div className="card bg-white p-6">
       {/* Image Section */}
       <Link href={`/listing/${listing.id}`}>
         <div className={`mb-6 h-48 w-full overflow-hidden rounded-lg border-2 border-black ${imageBg}`}>
-          <div className="flex h-full w-full items-center justify-center text-6xl">
-            🏡
+          <div className="flex h-full w-full items-center justify-center">
+            <Home className="h-16 w-16 text-zinc-400" />
           </div>
         </div>
       </Link>
 
       <div className="mb-4 flex items-start justify-between gap-3">
-        <span className={`rounded-lg border-2 border-black ${priceBadgeBg} px-4 py-2 text-sm font-bold shadow-[var(--shadow-secondary)]`}>
+        <span className={`rounded-lg border-2 border-black ${priceBadgeBg} px-4 py-2 text-sm font-bold`}>
           {listing.price}
         </span>
         <span className="text-xs text-zinc-500">{listing.postedDate}</span>
@@ -174,9 +201,15 @@ function FavoriteCard({
         </h3>
       </Link>
 
-      <div className="mb-4 space-y-1 text-sm text-zinc-600">
-        <p>📍 {listing.location}</p>
-        <p>📅 Dọn vào: {listing.moveInDate}</p>
+      <div className="mb-4 space-y-2 text-sm text-zinc-600">
+        <p className="flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          {listing.location}
+        </p>
+        <p className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          Dọn vào: {listing.moveInDate}
+        </p>
       </div>
 
       <p className="mb-5 line-clamp-2 text-sm leading-relaxed text-zinc-700">
@@ -192,10 +225,11 @@ function FavoriteCard({
         </Link>
         <button
           onClick={() => onRemove(listing.id)}
-          className="btn-red text-xs px-4 py-2"
+          className="btn-red text-xs px-4 py-2 flex items-center gap-1"
           title="Xóa khỏi yêu thích"
         >
-          ❤️ Bỏ lưu
+          <HeartOff className="h-4 w-4" />
+          Bỏ lưu
         </button>
       </div>
     </div>
@@ -205,13 +239,17 @@ function FavoriteCard({
 function EmptyState({ activeTab }: { activeTab: string }) {
   return (
     <div className="card bg-white p-12 text-center">
-      <div className="mb-6 text-8xl">💔</div>
+      <div className="mb-6 flex justify-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-pink-100 border-2 border-black">
+          <HeartOff className="h-10 w-10 text-pink-400" />
+        </div>
+      </div>
       <h3 className="mb-4 text-2xl font-bold">
         {activeTab === "all"
           ? "Chưa có bài đăng nào được lưu"
           : activeTab === "roommate"
           ? "Chưa lưu bài tìm bạn nào"
-          : "Chưa lưu phòng chia sẻ nào"
+          : "Chưa lưu phòng trống nào"
         }
       </h3>
       <p className="mb-6 text-base text-zinc-600">
@@ -220,7 +258,7 @@ function EmptyState({ activeTab }: { activeTab: string }) {
           : "Hãy xem thêm các bài đăng và lưu những cái bạn quan tâm!"
         }
       </p>
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center flex-wrap">
         <Link
           href="/roommate"
           className="btn-primary text-base px-8 py-4"
@@ -231,7 +269,7 @@ function EmptyState({ activeTab }: { activeTab: string }) {
           href="/roomshare"
           className="btn-pink text-base px-8 py-4"
         >
-          Tìm phòng chia sẻ
+          Tìm phòng
         </Link>
       </div>
     </div>

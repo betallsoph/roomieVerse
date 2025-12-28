@@ -33,7 +33,7 @@ const Sparkle = ({ id, x, y, color, delay, scale }: SparkleProps) => {
         scale: [0, scale, 0],
         rotate: [75, 120, 150],
       }}
-      transition={{ duration: 0.8, repeat: Infinity, delay }}
+      transition={{ duration: 2, repeat: Infinity, delay }}
       width="21"
       height="21"
       viewBox="0 0 21 21"
