@@ -67,12 +67,12 @@ export default function HeaderLogo({ className = "h-28" }: HeaderLogoProps) {
     };
 
     // Generate initial sparkles
-    const initialSparkles = Array.from({ length: 12 }, generateSparkle);
+    const initialSparkles = Array.from({ length: 6 }, generateSparkle);
     setSparkles(initialSparkles);
 
     // Regenerate sparkles periodically
     const interval = setInterval(() => {
-      setSparkles(Array.from({ length: 12 }, generateSparkle));
+      setSparkles(Array.from({ length: 6 }, generateSparkle));
     }, 1500);
 
     return () => clearInterval(interval);

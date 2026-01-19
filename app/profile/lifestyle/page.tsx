@@ -18,7 +18,7 @@ export default function LifestylePage() {
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
   // Lifestyle form state
-  const [schedule, setSchedule] = useState<string[]>([]);
+  const [schedule, setSchedule] = useState<string>("");
   const [cleanlinessLevel, setCleanlinessLevel] = useState<number>(2); // 0: Bừa bộn, 1: Thoải mái, 2: Bình thường, 3: Siêu sạch sẽ
   const [habits, setHabits] = useState<string[]>([]);
   const [otherHabits, setOtherHabits] = useState("");
@@ -42,7 +42,7 @@ export default function LifestylePage() {
           setProfileData(profile);
           // Load lifestyle data if exists
           if (profile.lifestyle) {
-            setSchedule(profile.lifestyle.schedule || []);
+            setSchedule(profile.lifestyle.schedule?.[0] || "");
             // Convert cleanliness array to level
             const cleanVal = profile.lifestyle.cleanliness?.[0];
             if (cleanVal === "messy") setCleanlinessLevel(0);
@@ -83,7 +83,7 @@ export default function LifestylePage() {
     const updatedProfile: UserProfile = {
       ...profileData,
       lifestyle: {
-        schedule,
+        schedule: schedule ? [schedule] : [],
         cleanliness: [cleanlinessValues[cleanlinessLevel]],
         habits,
         otherHabits,
@@ -175,11 +175,10 @@ export default function LifestylePage() {
                           key={label}
                           type="button"
                           onClick={() => setCleanlinessLevel(index)}
-                          className={`text-sm cursor-pointer transition-all text-center w-24 whitespace-nowrap ${
-                            cleanlinessLevel === index
-                              ? "font-bold text-blue-600"
-                              : "text-zinc-500 hover:text-zinc-700"
-                          }`}
+                          className={`text-sm cursor-pointer transition-all text-center w-24 whitespace-nowrap ${cleanlinessLevel === index
+                            ? "font-bold text-blue-600"
+                            : "text-zinc-500 hover:text-zinc-700"
+                            }`}
                         >
                           {label}
                         </button>
@@ -201,15 +200,17 @@ export default function LifestylePage() {
                     ].map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black bg-white cursor-pointer hover:bg-zinc-50 transition-colors"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-colors ${schedule === option.value
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-black bg-white hover:bg-zinc-50"
+                          }`}
                       >
                         <input
-                          type="checkbox"
-                          checked={schedule.includes(option.value)}
-                          onChange={() =>
-                            toggleOption(option.value, schedule, setSchedule)
-                          }
-                          className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
+                          type="radio"
+                          name="schedule"
+                          checked={schedule === option.value}
+                          onChange={() => setSchedule(option.value)}
+                          className="w-4 h-4 appearance-none border-2 border-black rounded-full checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
                         />
                         <span className="text-sm">{option.label}</span>
                       </label>
@@ -224,14 +225,56 @@ export default function LifestylePage() {
                   </label>
                   <div className="flex flex-wrap gap-3">
                     {[
-                      { value: "no-smoke", label: "Không hút thuốc" },
-                      { value: "no-alcohol", label: "Không uống rượu bia" },
-                      { value: "no-pet", label: "Không nuôi thú cưng" },
-                      { value: "pet-ok", label: "Có thể nuôi thú cưng" },
+                      { value: "smoke", label: "Hút thuốc" },
+                      { value: "drink", label: "Uống rượu bia" },
+                      { value: "loud", label: "Ồn ào, hay mở nhạc" },
+                      { value: "quiet", label: "Yên lặng" },
+                      { value: "gamer", label: "Hay chơi game" },
+                      { value: "long-shower", label: "Tắm lâu" },
+                      { value: "cook", label: "Hay nấu ăn" },
+                      { value: "wfh", label: "Làm việc tại nhà" },
+                      { value: "invite-friends", label: "Hay mời bạn về chơi" },
+                      { value: "introvert", label: "Thích ở một mình" },
                     ].map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black bg-white cursor-pointer hover:bg-zinc-50 transition-colors"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-colors ${habits.includes(option.value)
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-black bg-white hover:bg-zinc-50"
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={habits.includes(option.value)}
+                          onChange={() =>
+                            toggleOption(option.value, habits, setHabits)
+                          }
+                          className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
+                        />
+                        <span className="text-sm">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pet */}
+                <div>
+                  <label className="block text-sm font-bold mb-3">
+                    Thú cưng
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { value: "has-pet", label: "Đang nuôi thú cưng" },
+                      { value: "want-pet", label: "Muốn nuôi thú cưng" },
+                      { value: "no-pet", label: "Không nuôi thú cưng" },
+                      { value: "pet-allergy", label: "Dị ứng lông thú cưng" },
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-colors ${habits.includes(option.value)
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-black bg-white hover:bg-zinc-50"
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -271,15 +314,13 @@ export default function LifestylePage() {
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="btn-primary flex-1 flex items-center justify-center gap-2"
+                    className="btn-primary flex-1 flex items-center justify-center gap-2 min-w-[140px] relative"
                   >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        Đang lưu...
-                      </>
-                    ) : (
-                      "Lưu thay đổi"
+                    <span className={isSaving ? "opacity-0" : ""}>Lưu thay đổi</span>
+                    {isSaving && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      </div>
                     )}
                   </button>
                 </div>

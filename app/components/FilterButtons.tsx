@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 type FilterMode = "have-room" | "find-partner";
 
 interface FilterButtonsProps {
@@ -14,28 +16,36 @@ export default function FilterButtons({
   return (
     <div className="space-y-6">
       {/* Mode Tabs */}
-      <div className="flex gap-6 border-b-2 border-black">
-        <button
+      <motion.div
+        className="inline-flex rounded-xl border-2 border-black bg-white p-1 sm:p-1.5 text-sm sm:text-base font-bold tracking-wide shadow-[3px_3px_0_0_#000]"
+        whileTap={{ scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      >
+        <motion.button
+          type="button"
           onClick={() => onModeChange("have-room")}
-          className={`pb-3 text-sm font-bold transition-all ${
-            mode === "have-room"
-              ? "border-b-4 border-blue-500 text-black"
-              : "text-zinc-600 hover:text-black"
-          }`}
+          whileTap={{ scale: 0.90 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className={`rounded-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 transition-colors duration-200 cursor-pointer ${mode === "have-room"
+            ? "bg-blue-300 text-black border-2 border-black"
+            : "text-black border-2 border-transparent hover:bg-zinc-100"
+            }`}
         >
           Đã có phòng
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          type="button"
           onClick={() => onModeChange("find-partner")}
-          className={`pb-3 text-sm font-bold transition-all ${
-            mode === "find-partner"
-              ? "border-b-4 border-blue-500 text-black"
-              : "text-zinc-600 hover:text-black"
-          }`}
+          whileTap={{ scale: 0.90 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className={`rounded-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 transition-colors duration-200 cursor-pointer ${mode === "find-partner"
+            ? "bg-blue-300 text-black border-2 border-black"
+            : "text-black border-2 border-transparent hover:bg-zinc-100"
+            }`}
         >
           Chưa có phòng
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Mode Description */}
       <p className="text-sm text-zinc-600">

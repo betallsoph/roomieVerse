@@ -6,11 +6,9 @@ import { SparklesText } from "./components/sparkles-text";
 import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
 import ProfileReminderModal from "./components/ProfileReminderModal";
-import { useAuth } from "./contexts/AuthContext";
 import { useProfileReminder } from "./hooks/useProfileReminder";
 
 export default function LandingPage() {
-  const { isAuthenticated } = useAuth();
   const { showReminder, dismissReminder } = useProfileReminder();
 
   return (
@@ -23,12 +21,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="section bg-blue-50 py-16 sm:py-24 md:py-32">
         <div className="wrapper text-center">
-          <h1 className="mb-8 text-4xl font-bold leading-tight text-black sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-8 font-bold leading-tight text-black">
             Không chỉ là tìm phòng...
-            <br />
+            <br className="hidden min-[500px]:block" />
             Mà còn là{" "}
             <SparklesText
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+              className="font-bold"
               sparklesCount={15}
               colors={{ first: "#9E7AFF", second: "#FE8BBB" }}
             >
@@ -43,26 +41,30 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="#cta-section"
-              className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center"
+              className="btn-primary text-center sm:w-[200px]"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              Tìm ngay
+              Bắt đầu tìm ngay
             </a>
-            <Link
-              href={isAuthenticated ? "/roommate" : "/pages/login-required"}
-              className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center"
+            <a
+              href="#how-it-works"
+              className="btn-secondary text-center sm:w-[200px]"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              Đăng tin miễn phí
-            </Link>
+              Khám phá thêm
+            </a>
           </div>
         </div>
       </section>
 
       {/* How it Works Section */}
-      <section className="section border-t-2 border-black bg-white py-16 md:py-20">
+      <section id="how-it-works" className="section border-t-2 border-black bg-white py-16 md:py-20">
         <div className="wrapper">
           <h2 className="mb-12 text-center text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
             Cách hoạt động
@@ -118,7 +120,7 @@ export default function LandingPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
+      <section id="why-choose-us" className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
         <div className="wrapper">
           <h2 className="mb-10 text-center text-3xl font-bold uppercase sm:mb-12 sm:text-4xl md:mb-16 md:text-5xl">
             Tại sao chọn chúng tôi?
@@ -184,6 +186,16 @@ export default function LandingPage() {
                 Tạo hồ sơ trong 5 phút. Kết nối trong 24-48 giờ. Zero đồng cho 2 bài đăng đầu tiên.
               </p>
             </div>
+          </div>
+
+          {/* Learn more button */}
+          <div className="mt-10 text-center">
+            <Link
+              href="/about"
+              className="btn-secondary"
+            >
+              Tìm hiểu thêm về roomieVerse
+            </Link>
           </div>
         </div>
       </section>

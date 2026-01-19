@@ -20,9 +20,10 @@ interface SparkleProps {
   color: string;
   delay: number;
   scale: number;
+  size: number;
 }
 
-const Sparkle = ({ id, x, y, color, delay, scale }: SparkleProps) => {
+const Sparkle = ({ id, x, y, color, delay, scale, size }: SparkleProps) => {
   return (
     <motion.svg
       key={id}
@@ -34,8 +35,8 @@ const Sparkle = ({ id, x, y, color, delay, scale }: SparkleProps) => {
         rotate: [75, 120, 150],
       }}
       transition={{ duration: 2, repeat: Infinity, delay }}
-      width="21"
-      height="21"
+      width={size}
+      height={size}
       viewBox="0 0 21 21"
     >
       <path
@@ -60,6 +61,35 @@ export const SparklesText = ({
   sparklesCount = 10,
 }: SparklesTextProps) => {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sparkleSize, setSparkleSize] = useState(21);
+
+  // Detect mobile and adjust sparkle settings
+  useEffect(() => {
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      if (width < 380) {
+        setIsMobile(true);
+        setSparkleSize(15);
+      } else if (width < 430) {
+        setIsMobile(true);
+        setSparkleSize(17);
+      } else if (width < 640) {
+        setIsMobile(true);
+        setSparkleSize(19);
+      } else {
+        setIsMobile(false);
+        setSparkleSize(21);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Calculate actual sparkle count based on screen size
+  const actualSparklesCount = isMobile ? Math.max(3, Math.floor(sparklesCount / 2)) : sparklesCount;
 
   useEffect(() => {
     const generateStar = (): Sparkle => {
@@ -67,14 +97,16 @@ export const SparklesText = ({
       const starY = `${Math.random() * 100}%`;
       const color = Math.random() > 0.5 ? colors.first : colors.second;
       const delay = Math.random() * 2;
-      const scale = Math.random() * 1 + 0.3;
+      // Smaller scale on mobile
+      const baseScale = isMobile ? 0.5 : 1;
+      const scale = Math.random() * baseScale + 0.2;
       const lifespan = Math.random() * 10 + 5;
       const id = `${starX}-${starY}-${Date.now()}`;
       return { id, x: starX, y: starY, color, delay, scale, lifespan };
     };
 
     const initializeStars = () => {
-      const newSparkles = Array.from({ length: sparklesCount }, generateStar);
+      const newSparkles = Array.from({ length: actualSparklesCount }, generateStar);
       setSparkles(newSparkles);
     };
 
@@ -94,14 +126,15 @@ export const SparklesText = ({
     const interval = setInterval(updateStars, 100);
 
     return () => clearInterval(interval);
-  }, [colors.first, colors.second, sparklesCount]);
+  }, [colors.first, colors.second, actualSparklesCount, isMobile]);
 
   return (
-    <span className={`relative inline-block ${className}`}>
+    <span className={`relative inline-block ${className}`} style={{ padding: '10px 5px', margin: '-10px -5px' }}>
       {sparkles.map((sparkle) => (
-        <Sparkle key={sparkle.id} {...sparkle} />
+        <Sparkle key={sparkle.id} {...sparkle} size={sparkleSize} />
       ))}
       <strong className="text-blue-400">{children}</strong>
     </span>
   );
 };
+

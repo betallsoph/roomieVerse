@@ -297,7 +297,7 @@ export default function ProfilePage() {
                 className="card bg-pink-100 p-6 hover:bg-pink-200 transition-all group shadow-[4px_4px_0_0_#000] btn-click-sink cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-300 border-2 border-black">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-300 border-2 border-black transition-transform group-hover:scale-110">
                     <Heart className="h-6 w-6 fill-current text-pink-600" />
                   </div>
                   <div>
@@ -316,7 +316,7 @@ export default function ProfilePage() {
                 className="card bg-blue-100 p-6 hover:bg-blue-200 transition-all group shadow-[4px_4px_0_0_#000] btn-click-sink cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-300 border-2 border-black">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-300 border-2 border-black transition-transform group-hover:scale-110">
                     <Sparkles className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>

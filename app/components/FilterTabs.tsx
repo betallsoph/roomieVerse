@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 type PropertyType = "house" | "apartment";
 
 interface FilterTabsProps {
@@ -12,27 +14,45 @@ export default function FilterTabs({
   onTypeChange,
 }: FilterTabsProps) {
   return (
-    <div className="mb-8 flex gap-6 border-b-2 border-black">
-      <button
-        onClick={() => onTypeChange("house")}
-        className={`pb-3 text-sm font-bold transition-all ${
-          activeType === "house"
-            ? "border-b-4 border-pink-500 text-black"
-            : "text-zinc-600 hover:text-black"
-        }`}
+    <div className="space-y-6">
+      {/* Pill-style Tabs */}
+      <motion.div
+        className="inline-flex rounded-xl border-2 border-black bg-white p-1 sm:p-1.5 text-sm sm:text-base font-bold tracking-wide shadow-[3px_3px_0_0_#000]"
+        whileTap={{ scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        Nhà mặt đất
-      </button>
-      <button
-        onClick={() => onTypeChange("apartment")}
-        className={`pb-3 text-sm font-bold transition-all ${
-          activeType === "apartment"
-            ? "border-b-4 border-pink-500 text-black"
-            : "text-zinc-600 hover:text-black"
-        }`}
-      >
-        Chung cư
-      </button>
+        <motion.button
+          type="button"
+          onClick={() => onTypeChange("house")}
+          whileTap={{ scale: 0.90 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className={`rounded-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 transition-colors duration-200 cursor-pointer ${activeType === "house"
+              ? "bg-pink-300 text-black border-2 border-black"
+              : "text-black border-2 border-transparent hover:bg-zinc-100"
+            }`}
+        >
+          Nhà mặt đất
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={() => onTypeChange("apartment")}
+          whileTap={{ scale: 0.90 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className={`rounded-lg px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 transition-colors duration-200 cursor-pointer ${activeType === "apartment"
+              ? "bg-pink-300 text-black border-2 border-black"
+              : "text-black border-2 border-transparent hover:bg-zinc-100"
+            }`}
+        >
+          Chung cư
+        </motion.button>
+      </motion.div>
+
+      {/* Tab Description */}
+      <p className="text-sm text-zinc-600">
+        {activeType === "house"
+          ? "Tìm phòng trống trong nhà mặt đất"
+          : "Tìm phòng trống trong chung cư"}
+      </p>
     </div>
   );
 }

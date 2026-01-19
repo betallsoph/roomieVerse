@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import NavLink from "./NavLink";
 
 export default function ShareFooter() {
   return (
@@ -14,36 +14,21 @@ export default function ShareFooter() {
             className="h-32 w-auto -my-4"
           />
           <div className="flex flex-wrap justify-center gap-4 text-sm font-bold sm:gap-6">
-            <Link
-              href="/home"
-              className="transition-all duration-200 hover:scale-110 hover:text-yellow-300"
-            >
+            <NavLink href="/">
               Trang chủ
-            </Link>
-            <Link
-              href="/roommate"
-              className="transition-all duration-200 hover:scale-110 hover:text-blue-300"
-            >
+            </NavLink>
+            <NavLink href="/roommate">
               Tìm bạn ở chung
-            </Link>
-            <Link
-              href="/roomshare"
-              className="transition-all duration-200 hover:scale-110 hover:text-pink-400"
-            >
+            </NavLink>
+            <NavLink href="/roomshare">
               Tìm phòng
-            </Link>
-            <Link
-              href="/blog"
-              className="transition-all duration-200 hover:scale-110 hover:text-purple-400"
-            >
+            </NavLink>
+            <NavLink href="/blog">
               Blog
-            </Link>
-            <Link
-              href="/about"
-              className="transition-all duration-200 hover:scale-110 hover:text-green-300"
-            >
+            </NavLink>
+            <NavLink href="/about">
               Về chúng tôi
-            </Link>
+            </NavLink>
           </div>
         </div>
       </div>
