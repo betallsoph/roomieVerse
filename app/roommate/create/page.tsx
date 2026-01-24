@@ -26,6 +26,8 @@ function CreateRoommateContent() {
   }, [isAuthenticated, type, router]);
 
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showAmenities, setShowAmenities] = useState(false); // NEW STEP
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const [locationNegotiable, setLocationNegotiable] = useState(false);
   const [timeNegotiable, setTimeNegotiable] = useState(false);
   const [showStatusOther, setShowStatusOther] = useState(false);
@@ -61,6 +63,16 @@ function CreateRoommateContent() {
   const [prefHabits, setPrefHabits] = useState<string[]>([]);
   const [prefPets, setPrefPets] = useState<string[]>([]);
   const [prefOther, setPrefOther] = useState("");
+
+  // Form state - Contact Info
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactZalo, setContactZalo] = useState("");
+  const [contactFacebook, setContactFacebook] = useState("");
+  const [contactInstagram, setContactInstagram] = useState("");
+
+  // Form state - Images & Amenities
+  const [images, setImages] = useState<string[]>([]); // Base64 preview
+  const [amenities, setAmenities] = useState<string[]>([]);
 
   if (!type) return null;
 
@@ -181,7 +193,7 @@ function CreateRoommateContent() {
                   const listings = JSON.parse(localStorage.getItem('roommate_listings') || '[]');
                   const lastListing = listings[listings.length - 1];
                   if (lastListing) {
-                    router.push(`/listing/${lastListing.id}`);
+                    router.push(`/roommate/listing/${lastListing.id}`);
                   }
                 }}
                 className="btn-primary flex-1"
@@ -217,8 +229,8 @@ function CreateRoommateContent() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Basic Info Card - hide when showing preferences */}
-              {!showPreferences && (
+              {/* Basic Info Card - hide when showing other steps */}
+              {!showAmenities && !showPreferences && !showContactInfo && (
                 <div className="card bg-white">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">Thông tin cơ bản</h2>
@@ -591,30 +603,176 @@ function CreateRoommateContent() {
 
                   {/* Continue Button - shows when preferences not visible */}
                   <div className="pt-4">
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="btn-secondary flex-1"
+                      >
+                        Huỷ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isBasicInfoComplete) {
+                            // Auto-fill empty cost fields with "0" for have-room
+                            if (isHaveRoom) {
+                              if (costDeposit.trim() === "") setCostDeposit("0");
+                              if (costElectricity.trim() === "") setCostElectricity("0");
+                              if (costWater.trim() === "") setCostWater("0");
+                              if (costInternet.trim() === "") setCostInternet("0");
+                              if (costService.trim() === "") setCostService("0");
+                              if (costParking.trim() === "") setCostParking("0");
+                              if (costManagement.trim() === "") setCostManagement("0");
+                              if (costOther.trim() === "") setCostOther("0");
+                            }
+                            setShowAmenities(true);
+                          } else {
+                            setShowValidationMessage(true);
+                          }
+                        }}
+                        className={`flex-1 ${isBasicInfoComplete
+                          ? 'btn-primary'
+                          : 'btn-start opacity-50'
+                          }`}
+                      >
+                        Tiếp tục
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Upload Images & Amenities */}
+              {showAmenities && !showPreferences && !showContactInfo && (
+                <div className="card bg-white">
+                  <h2 className="text-xl font-bold mb-6">Hình ảnh & Tiện nghi</h2>
+
+                  <div className="space-y-6">
+                    {/* Upload Images */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Hình ảnh phòng/nhà (Tối đa 5 ảnh)
+                      </label>
+                      <div className="space-y-3">
+                        {/* Image Preview */}
+                        {images.length > 0 && (
+                          <div className="grid grid-cols-3 gap-3">
+                            {images.map((img, idx) => (
+                              <div key={idx} className="relative group">
+                                <img
+                                  src={img}
+                                  alt={`Preview ${idx + 1}`}
+                                  className="w-full h-32 object-cover rounded-lg border-2 border-black"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Upload Button */}
+                        {images.length < 5 && (
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-black rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <svg className="w-8 h-8 mb-2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                              </svg>
+                              <p className="text-sm text-zinc-500">
+                                Click để chọn ảnh ({images.length}/5)
+                              </p>
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file && images.length < 5) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setImages([...images, reader.result as string]);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
+                      <p className="text-xs text-zinc-500 mt-2">
+                        Hình ảnh thật sẽ giúp bài đăng của bạn thu hút hơn
+                      </p>
+                    </div>
+
+                    {/* Amenities */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Tiện nghi
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {[
+                          { value: 'ac', label: 'Điều hòa' },
+                          { value: 'wifi', label: 'Wifi' },
+                          { value: 'washing', label: 'Máy giặt' },
+                          { value: 'fridge', label: 'Tủ lạnh' },
+                          { value: 'kitchen', label: 'Bếp' },
+                          { value: 'parking', label: 'Chỗ đậu xe' },
+                          { value: 'pool', label: 'Hồ bơi' },
+                          { value: 'gym', label: 'Gym' },
+                          { value: 'elevator', label: 'Thang máy' },
+                          { value: 'security', label: 'Bảo vệ 24/7' },
+                          { value: 'balcony', label: 'Ban công' },
+                          { value: 'furnished', label: 'Nội thất' },
+                        ].map((amenity) => (
+                          <label
+                            key={amenity.value}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${amenities.includes(amenity.value)
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-black bg-white hover:bg-zinc-50'
+                              }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={amenities.includes(amenity.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setAmenities([...amenities, amenity.value]);
+                                } else {
+                                  setAmenities(amenities.filter(a => a !== amenity.value));
+                                }
+                              }}
+                              className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
+                            />
+                            <span className="text-sm">{amenity.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex gap-4 mt-8">
+                    <button
+                      type="button"
+                      onClick={() => setShowAmenities(false)}
+                      className="flex-1 btn-secondary"
+                    >
+                      Quay lại
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
-                        if (isBasicInfoComplete) {
-                          // Auto-fill empty cost fields with "0" for have-room
-                          if (isHaveRoom) {
-                            if (costDeposit.trim() === "") setCostDeposit("0");
-                            if (costElectricity.trim() === "") setCostElectricity("0");
-                            if (costWater.trim() === "") setCostWater("0");
-                            if (costInternet.trim() === "") setCostInternet("0");
-                            if (costService.trim() === "") setCostService("0");
-                            if (costParking.trim() === "") setCostParking("0");
-                            if (costManagement.trim() === "") setCostManagement("0");
-                            if (costOther.trim() === "") setCostOther("0");
-                          }
-                          setShowPreferences(true);
-                        } else {
-                          setShowValidationMessage(true);
-                        }
+                        setShowAmenities(false);
+                        setShowPreferences(true);
                       }}
-                      className={`w-full ${isBasicInfoComplete
-                        ? 'btn-primary'
-                        : 'btn-start opacity-50'
-                        }`}
+                      className="flex-1 btn-primary"
                     >
                       Tiếp tục
                     </button>
@@ -623,7 +781,7 @@ function CreateRoommateContent() {
               )}
 
               {/* Roommate Preferences Card - only show after clicking Continue */}
-              {showPreferences && (
+              {showPreferences && !showContactInfo && (
                 <div className="card bg-white">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">Mong muốn đối với bạn ở cùng</h2>
@@ -884,33 +1042,138 @@ function CreateRoommateContent() {
                         className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />
                     </div>
+
+                    {/* Continue button for preferences */}
+                    {!showContactInfo && (
+                      <div className="pt-4">
+                        <div className="flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowPreferences(false);
+                              setShowAmenities(true);
+                            }}
+                            className="btn-secondary flex-1"
+                          >
+                            Quay lại
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!arePreferencesComplete) {
+                                setShowPreferencesValidation(true);
+                              } else {
+                                setShowPreferencesValidation(false);
+                                setShowContactInfo(true);
+                              }
+                            }}
+                            className={`flex-1 ${arePreferencesComplete ? 'btn-primary' : 'btn-start opacity-50'}`}
+                          >
+                            Tiếp tục
+                          </button>
+                        </div>
+                        {/* Validation message for preferences */}
+                        {showPreferencesValidation && !arePreferencesComplete && (
+                          <div className="mt-4 p-4 bg-pink-50 border-2 border-pink-300 rounded-lg">
+                            <p className="text-sm font-semibold text-pink-600">
+                              ⚠️ Bạn chưa điền đủ thông tin!
+                            </p>
+                            <p className="text-xs text-pink-600 mt-1">
+                              Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, và Thú cưng.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Submit Buttons - only show after preferences visible */}
-              {showPreferences && (
+              {/* Contact Information Card - show after preferences completed */}
+              {showContactInfo && (
+                <div className="card bg-white">
+                  <h2 className="text-xl font-bold mb-6">Thông tin liên lạc</h2>
+                  <div className="space-y-6">
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Số điện thoại <span className="text-pink-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={contactPhone}
+                        onChange={(e) => setContactPhone(e.target.value)}
+                        placeholder="0123456789"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+
+                    {/* Zalo */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Zalo
+                      </label>
+                      <input
+                        type="text"
+                        value={contactZalo}
+                        onChange={(e) => setContactZalo(e.target.value)}
+                        placeholder="Số Zalo (nếu khác SĐT)"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+
+                    {/* Facebook */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Facebook
+                      </label>
+                      <input
+                        type="text"
+                        value={contactFacebook}
+                        onChange={(e) => setContactFacebook(e.target.value)}
+                        placeholder="Link Facebook hoặc tên Facebook"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+
+                    {/* Instagram */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">
+                        Instagram
+                      </label>
+                      <input
+                        type="text"
+                        value={contactInstagram}
+                        onChange={(e) => setContactInstagram(e.target.value)}
+                        placeholder="Username hoặc link Instagram"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Buttons - always show when on contact info page */}
+              {showContactInfo && (
                 <>
                   <div className="flex gap-4">
                     <button
                       type="button"
-                      onClick={() => router.back()}
+                      onClick={() => {
+                        setShowContactInfo(false);
+                        setShowPreferences(true);
+                      }}
                       className="btn-secondary flex-1"
                     >
-                      Huỷ
+                      Trở lại
                     </button>
                     <button
                       type="button"
+                      disabled={contactPhone.trim() === ""}
                       onClick={() => {
-                        // Check if all required preferences are filled
-                        if (!arePreferencesComplete) {
-                          setShowPreferencesValidation(true);
-                          return;
-                        }
-
                         // Save to localStorage for testing
                         const listingData = {
-                          id: `listing-${Date.now()}`,
+                          id: `rm-${Date.now()}`,
                           type,
                           title,
                           introduction,
@@ -944,6 +1207,12 @@ function CreateRoommateContent() {
                             pets: prefPets,
                             other: prefOther,
                           },
+                          contact: {
+                            phone: contactPhone,
+                            zalo: contactZalo,
+                            facebook: contactFacebook,
+                            instagram: contactInstagram,
+                          },
                           createdAt: new Date().toISOString(),
                           userId: user?.uid,
                         };
@@ -955,23 +1224,11 @@ function CreateRoommateContent() {
 
                         setShowSuccessModal(true);
                       }}
-                      className={`btn-primary flex-1 ${!arePreferencesComplete ? 'opacity-75' : ''}`}
+                      className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-primary'}`}
                     >
                       Đăng tin
                     </button>
                   </div>
-
-                  {/* Validation message for preferences */}
-                  {showPreferencesValidation && !arePreferencesComplete && (
-                    <div className="mt-4 p-4 bg-pink-50 border-2 border-pink-300 rounded-lg">
-                      <p className="text-sm font-semibold text-pink-600">
-                        ⚠️ Bạn chưa điền đủ thông tin!
-                      </p>
-                      <p className="text-xs text-pink-600 mt-1">
-                        Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, và Thú cưng.
-                      </p>
-                    </div>
-                  )}
                 </>
               )}
 

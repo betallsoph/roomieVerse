@@ -47,7 +47,7 @@ export default function MainHeader() {
           {/* Right side: What's Hot, Community, User icon */}
           <div className="flex items-center gap-4 sm:gap-6">
             <NavLink
-              href="/blog"
+              href="/whats-hot"
               className="text-white text-sm font-bold hidden sm:block"
             >
               What's Hot

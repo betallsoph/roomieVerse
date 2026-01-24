@@ -13,19 +13,39 @@ interface ListingCardProps {
     description: string;
     phone: string;
     postedDate: string;
+    category?: "roommate" | "roomshare";
   };
   variant?: "blue" | "pink";
   layout?: "grid" | "list";
 }
 
+// Helper to get correct route based on listing id prefix or category
+function getListingRoute(listing: ListingCardProps["listing"]): string {
+  const id = String(listing.id);
+  // Check prefix first
+  if (id.startsWith("rm-")) {
+    return `/roommate/listing/${id}`;
+  }
+  if (id.startsWith("rs-")) {
+    return `/roomshare/listing/${id}`;
+  }
+  // Fall back to category
+  if (listing.category === "roomshare") {
+    return `/roomshare/listing/${id}`;
+  }
+  // Default to roommate
+  return `/roommate/listing/${id}`;
+}
+
 export default function ListingCard({ listing, variant = "blue", layout = "grid" }: ListingCardProps) {
   const cardBg = variant === "pink" ? "bg-pink-50" : "bg-blue-50";
   const priceBadgeBg = variant === "pink" ? "bg-pink-300" : "bg-blue-300";
+  const listingRoute = getListingRoute(listing);
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setTimeout(() => {
-      window.location.href = `/listing/${listing.id}`;
+      window.location.href = listingRoute;
     }, 150);
   };
 
@@ -33,7 +53,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
   if (layout === "list") {
     return (
       <a
-        href={`/listing/${listing.id}`}
+        href={listingRoute}
         onClick={handleCardClick}
         className={`group flex gap-5 rounded-xl border-2 border-black ${cardBg} p-4 shadow-[var(--shadow-secondary)] card-bounce`}
       >
@@ -83,7 +103,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
   // Grid layout (default)
   return (
     <a
-      href={`/listing/${listing.id}`}
+      href={listingRoute}
       onClick={handleCardClick}
       className={`group block rounded-xl border-2 border-black ${cardBg} p-6 shadow-[var(--shadow-secondary)] card-bounce`}
     >

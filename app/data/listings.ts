@@ -4,7 +4,7 @@ import { mockListings } from "./mockListings";
 import { RoomListing } from "./types";
 
 // Toggle between mock data and real Firestore data
-export const USE_MOCK_DATA = false;
+export const USE_MOCK_DATA = true;
 
 const COLLECTION_NAME = "listings";
 
@@ -20,6 +20,9 @@ function docToListing(docSnap: { id: string; data: () => Record<string, unknown>
     moveInDate: data.moveInDate as string,
     description: data.description as string,
     phone: data.phone as string,
+    zalo: data.zalo as string | undefined,
+    facebook: data.facebook as string | undefined,
+    instagram: data.instagram as string | undefined,
     postedDate: data.postedDate as string,
     category: data.category as "roommate" | "roomshare",
     roommateType: data.roommateType as RoomListing["roommateType"],
@@ -40,22 +43,40 @@ export async function getListings(): Promise<RoomListing[]> {
   return querySnapshot.docs.map(docToListing);
 }
 
+// Helper: Get category from ID prefix
+function getCategoryFromId(id: string): "roommate" | "roomshare" | null {
+  if (id.startsWith("rm-")) return "roommate";
+  if (id.startsWith("rs-")) return "roomshare";
+  return null;
+}
+
 // Get listing by ID
 export async function getListingById(id: number | string): Promise<RoomListing | null> {
+  const idStr = String(id);
+
+  // Always check localStorage first (for newly created listings)
+  const prefixCategory = getCategoryFromId(idStr);
+  if (prefixCategory) {
+    const localListings = getLocalStorageListings(prefixCategory);
+    const found = localListings.find(l => l.id === idStr);
+    if (found) return found;
+  } else {
+    // No prefix, check both localStorage stores
+    const localRoommateListings = getLocalStorageListings("roommate");
+    const localRoomshareListings = getLocalStorageListings("roomshare");
+    const localListing = [...localRoommateListings, ...localRoomshareListings].find(l => l.id === idStr);
+    if (localListing) {
+      return localListing;
+    }
+  }
+
+  // Then check mock data if enabled
   if (USE_MOCK_DATA) {
-    return mockListings.find(listing => listing.id === id) || null;
+    return mockListings.find(listing => String(listing.id) === idStr) || null;
   }
 
-  // Check localStorage first (for dev/testing)
-  const localRoommateListings = getLocalStorageListings("roommate");
-  const localRoomshareListings = getLocalStorageListings("roomshare");
-  const localListing = [...localRoommateListings, ...localRoomshareListings].find(l => l.id === id);
-  if (localListing) {
-    return localListing;
-  }
-
-  // Then check Firestore
-  const docRef = doc(db, COLLECTION_NAME, String(id));
+  // Finally check Firestore
+  const docRef = doc(db, COLLECTION_NAME, idStr);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
@@ -99,6 +120,12 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
       location: string;
       budget?: string;
       moveInTime?: string;
+      contact?: {
+        phone?: string;
+        zalo?: string;
+        facebook?: string;
+        instagram?: string;
+      };
       createdAt: string;
       userId?: string;
     }>;
@@ -112,7 +139,10 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
       location: item.location,
       moveInDate: item.moveInTime || "Linh hoạt",
       description: item.introduction || "",
-      phone: "",
+      phone: item.contact?.phone || "",
+      zalo: item.contact?.zalo,
+      facebook: item.contact?.facebook,
+      instagram: item.contact?.instagram,
       postedDate: new Date(item.createdAt).toLocaleDateString("vi-VN"),
       category: category,
       roommateType: item.type === "have-room" ? "have-room" : "find-partner",
@@ -128,8 +158,8 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
 // Get listings by user ID
 export async function getListingsByUserId(userId: string): Promise<RoomListing[]> {
   if (USE_MOCK_DATA) {
-    // Mock: return empty for now since mock data doesn't have userId
-    return [];
+    // Filter mock listings by userId
+    return mockListings.filter(listing => listing.userId === userId);
   }
 
   // Get from Firestore
