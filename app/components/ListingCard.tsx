@@ -127,8 +127,8 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
         </div>
       </div>
 
-      {/* Title */}
-      <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight">{listing.title}</h3>
+      {/* Title - Fixed 2 lines */}
+      <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight line-clamp-2 min-h-[3.5rem]">{listing.title}</h3>
 
       {/* Location & Move-in date */}
       <div className="mb-4 space-y-1.5 text-sm text-zinc-600">

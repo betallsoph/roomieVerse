@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Flag,
   MapPin,
@@ -22,7 +23,13 @@ import {
   Loader2,
   MessageCircle,
   Facebook,
-  Instagram
+  Instagram,
+  DollarSign,
+  Users,
+  Sparkles,
+  BedDouble,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import MainHeader from "../../../components/MainHeader";
 import ShareFooter from "../../../components/ShareFooter";
@@ -39,28 +46,32 @@ function getCategoryBadge(listing: RoomListing) {
   return { text: "Tìm bạn cùng thuê", color: "bg-blue-200" };
 }
 
-// Generate mock amenities based on description
-function getAmenities(listing: RoomListing): string[] {
-  const amenities: string[] = [];
-  const desc = listing.description.toLowerCase();
+// Helper to map amenity value to label
+const amenityLabels: Record<string, string> = {
+  ac: "Điều hòa",
+  wifi: "Wifi",
+  washing: "Máy giặt",
+  fridge: "Tủ lạnh",
+  kitchen: "Bếp",
+  parking: "Chỗ đậu xe",
+  pool: "Hồ bơi",
+  gym: "Gym",
+  elevator: "Thang máy",
+  security: "Bảo vệ 24/7",
+  balcony: "Ban công",
+  furnished: "Nội thất",
+};
 
-  if (desc.includes("máy lạnh") || desc.includes("điều hòa")) amenities.push("Máy lạnh");
-  if (desc.includes("tủ lạnh")) amenities.push("Tủ lạnh");
-  if (desc.includes("máy giặt")) amenities.push("Máy giặt");
-  if (desc.includes("wifi") || desc.includes("internet")) amenities.push("Wifi");
-  if (desc.includes("bếp") || desc.includes("nấu ăn")) amenities.push("Bếp");
-  if (desc.includes("ban công")) amenities.push("Ban công");
-  if (desc.includes("view")) amenities.push("View đẹp");
-  if (desc.includes("nội thất")) amenities.push("Full nội thất");
-  if (desc.includes("gym") || desc.includes("hồ bơi")) amenities.push("Tiện ích cao cấp");
-
-  // Default amenities if none found
-  if (amenities.length === 0) {
-    amenities.push("Wifi", "Máy lạnh");
-  }
-
-  return amenities;
-}
+// Helper to map preference values to labels
+const preferenceLabels: Record<string, Record<string, string>> = {
+  gender: { male: "Nam", female: "Nữ", any: "Không quan trọng" },
+  status: { student: "Sinh viên", working: "Đã đi làm", both: "Vừa học vừa làm", other: "Khác" },
+  schedule: { early: "Ngủ sớm, dậy sớm", late: "Cú đêm", flexible: "Linh hoạt" },
+  cleanliness: { "very-clean": "Rất sạch sẽ", normal: "Bình thường", relaxed: "Thoải mái" },
+  habits: { "no-smoke": "Không hút thuốc", "no-alcohol": "Không uống rượu bia", flexible: "Linh hoạt" },
+  pets: { "no-pet": "Không nuôi thú cưng", "pet-ok": "Có thể nuôi thú cưng", any: "Không quan trọng" },
+  moveInTime: { "early-month": "Đầu tháng", "end-month": "Cuối tháng", any: "Thời gian bất kỳ", asap: "Càng sớm càng tốt" },
+};
 
 export default function RoommateListingDetailPage() {
   const params = useParams();
@@ -71,6 +82,7 @@ export default function RoommateListingDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch listing data
   useEffect(() => {
@@ -145,7 +157,36 @@ export default function RoommateListingDetailPage() {
   }
 
   const badge = getCategoryBadge(listing);
-  const amenities = getAmenities(listing);
+  const isHaveRoom = listing.roommateType === "have-room";
+
+  // Get amenities from listing data or fallback to description-based
+  const getDisplayAmenities = () => {
+    if (listing.amenities && listing.amenities.length > 0) {
+      return listing.amenities
+        .filter(a => a !== 'other')
+        .map(a => amenityLabels[a] || a);
+    }
+    // Fallback for old listings
+    const amenities: string[] = [];
+    const desc = listing.description.toLowerCase();
+    if (desc.includes("máy lạnh") || desc.includes("điều hòa")) amenities.push("Máy lạnh");
+    if (desc.includes("wifi")) amenities.push("Wifi");
+    return amenities.length > 0 ? amenities : ["Wifi", "Điều hòa"];
+  };
+
+  const displayAmenities = getDisplayAmenities();
+
+  // Image navigation
+  const images = listing.images && listing.images.length > 0 ? listing.images : [];
+  const hasImages = images.length > 0;
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -163,29 +204,22 @@ export default function RoommateListingDetailPage() {
             <span className="text-black font-medium">Chi tiết</span>
           </div>
 
-          {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2 mb-6"
-          >
-            <ArrowLeft className="h-4 w-4" /> Quay lại
-          </button>
-
-          <h1 className="mb-6 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            {listing.title}
-          </h1>
-
-          <div className="flex flex-wrap gap-6 text-sm sm:text-base text-zinc-700">
-            <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> {listing.location}
-            </span>
-            <span className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> Dọn vào: {listing.moveInDate}
-            </span>
-            <span className="flex items-center gap-2">
+          {/* Back Button + Posted Date */}
+          <div className="flex items-center gap-4 mb-6">
+            <button
+              onClick={() => router.back()}
+              className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" /> Quay lại
+            </button>
+            <span className="flex items-center gap-2 text-sm text-zinc-600">
               <Clock className="h-4 w-4" /> Đăng {listing.postedDate}
             </span>
           </div>
+
+          <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+            {listing.title}
+          </h1>
         </div>
       </section>
 
@@ -195,11 +229,49 @@ export default function RoommateListingDetailPage() {
 
           {/* Left Column - Details */}
           <div className="space-y-8">
-            {/* Image Placeholder */}
+            {/* Image Gallery */}
             <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)]">
-              <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
-                <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
-              </div>
+              {hasImages ? (
+                <div className="relative">
+                  <div className="h-72 sm:h-96 w-full">
+                    <Image
+                      src={images[currentImageIndex]}
+                      alt={`Hình ${currentImageIndex + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {images.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentImageIndex(idx)}
+                            className={`w-3 h-3 rounded-full border-2 border-black ${idx === currentImageIndex ? 'bg-blue-400' : 'bg-white'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
+                  <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
+                </div>
+              )}
             </div>
 
             {/* Main Info Card */}
@@ -208,7 +280,9 @@ export default function RoommateListingDetailPage() {
               <div className="bg-blue-50 p-6 border-b-2 border-black">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-zinc-700 mb-1">Giá thuê/tháng</p>
+                    <p className="text-sm font-medium text-zinc-700 mb-1">
+                      {isHaveRoom ? "Tiền thuê phòng" : "Ngân sách"}
+                    </p>
                     <p className="text-3xl sm:text-4xl font-extrabold">{listing.price}</p>
                   </div>
                   <div className="text-right">
@@ -220,19 +294,79 @@ export default function RoommateListingDetailPage() {
                 </div>
               </div>
 
-              {/* Description */}
+              {/* Location, Property Type & Move-in */}
               <div className="p-6 border-b-2 border-black">
-                <h2 className="mb-4 text-xl font-bold">Mô tả chi tiết</h2>
-                <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
-                  {listing.description}
-                </p>
+                <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-zinc-500">Thông tin phòng</h3>
+                <div className="space-y-6 text-sm">
+                  {/* Location - Full width for long addresses */}
+                  <div>
+                    <p className="text-zinc-500 mb-1">Địa chỉ</p>
+                    <p className="font-semibold text-base">{listing.location}</p>
+                  </div>
+
+                  {/* Grid for other details */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
+                    {/* 1. Loại hình */}
+                    {isHaveRoom && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Loại hình</p>
+                        <p className="font-semibold">
+                          {listing.propertyTypes && listing.propertyTypes.length > 0 ? (
+                            listing.propertyTypes.map((type, idx) => (
+                              <span key={type}>
+                                {type === "house" && "Nhà mặt đất"}
+                                {type === "room" && "Trọ"}
+                                {type === "apartment" && "Chung cư"}
+                                {type === "service-apartment" && "Căn hộ dịch vụ"}
+                                {type === "other" && "Loại hình khác"}
+                                {idx < listing.propertyTypes!.length - 1 && ", "}
+                              </span>
+                            ))
+                          ) : (
+                            "---"
+                          )}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* 2. Diện tích */}
+                    {isHaveRoom && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Diện tích</p>
+                        <p className="font-semibold">{listing.roomSize ? `${listing.roomSize} m²` : "---"}</p>
+                      </div>
+                    )}
+
+                    {/* 3. Số người đang ở */}
+                    {isHaveRoom && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Số người đang ở</p>
+                        <p className="font-semibold">{listing.currentOccupants || "---"}</p>
+                      </div>
+                    )}
+
+                    {/* 4. Dọn vào */}
+                    <div>
+                      <p className="text-zinc-500 mb-1">Dọn vào</p>
+                      <p className="font-semibold">{listing.moveInDate || "---"}</p>
+                    </div>
+
+                    {/* 5. Hợp đồng tối thiểu */}
+                    {isHaveRoom && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
+                        <p className="font-semibold">{listing.minContractDuration || "---"}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Amenities */}
               <div className="p-6">
-                <h2 className="mb-4 text-xl font-bold">Tiện nghi</h2>
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-zinc-500">Tiện nghi</h3>
                 <div className="flex flex-wrap gap-2">
-                  {amenities.map((amenity) => (
+                  {displayAmenities.map((amenity) => (
                     <span
                       key={amenity}
                       className="rounded-lg border-2 border-black bg-blue-100 px-3 py-1.5 text-sm font-medium flex items-center gap-1"
@@ -240,9 +374,112 @@ export default function RoommateListingDetailPage() {
                       <Check className="h-4 w-4" /> {amenity}
                     </span>
                   ))}
+                  {listing.amenitiesOther && (
+                    <span className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-sm font-medium flex items-center gap-1">
+                      <Check className="h-4 w-4" /> {listing.amenitiesOther}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Introduction Card - Separate */}
+            <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
+              <div className="bg-purple-50 p-6 border-b-2 border-black">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" /> Giới thiệu
+                </h2>
+              </div>
+              <div className="p-6">
+                <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
+                  {listing.introduction || listing.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Roommate Preferences Card */}
+            {listing.preferences && (
+              <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
+                <div className="bg-blue-50 p-6 border-b-2 border-black">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Users className="h-5 w-5" /> Mong muốn đối với bạn ở cùng
+                  </h2>
+                </div>
+                <div className="p-6 grid gap-4 sm:grid-cols-2">
+                  {/* Gender */}
+                  {listing.preferences.gender && listing.preferences.gender.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Giới tính</p>
+                      <p className="font-medium">
+                        {listing.preferences.gender.map(v => preferenceLabels.gender[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Status */}
+                  {listing.preferences.status && listing.preferences.status.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Tình trạng</p>
+                      <p className="font-medium">
+                        {listing.preferences.status.map(v => preferenceLabels.status[v] || v).join(", ")}
+                        {listing.preferences.statusOther && ` (${listing.preferences.statusOther})`}
+                      </p>
+                    </div>
+                  )}
+                  {/* Schedule */}
+                  {listing.preferences.schedule && listing.preferences.schedule.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Giờ giấc</p>
+                      <p className="font-medium">
+                        {listing.preferences.schedule.map(v => preferenceLabels.schedule[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Cleanliness */}
+                  {listing.preferences.cleanliness && listing.preferences.cleanliness.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Mức độ sạch sẽ</p>
+                      <p className="font-medium">
+                        {listing.preferences.cleanliness.map(v => preferenceLabels.cleanliness[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Habits */}
+                  {listing.preferences.habits && listing.preferences.habits.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Thói quen</p>
+                      <p className="font-medium">
+                        {listing.preferences.habits.map(v => preferenceLabels.habits[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Pets */}
+                  {listing.preferences.pets && listing.preferences.pets.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Thú cưng</p>
+                      <p className="font-medium">
+                        {listing.preferences.pets.map(v => preferenceLabels.pets[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Move-in Time */}
+                  {listing.preferences.moveInTime && listing.preferences.moveInTime.length > 0 && (
+                    <div>
+                      <p className="text-sm text-zinc-500 mb-1">Thời gian dọn vào</p>
+                      <p className="font-medium">
+                        {listing.preferences.moveInTime.map(v => preferenceLabels.moveInTime[v] || v).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {/* Other */}
+                  {listing.preferences.other && (
+                    <div className="sm:col-span-2">
+                      <p className="text-sm text-zinc-500 mb-1">Yêu cầu khác</p>
+                      <p className="font-medium">{listing.preferences.other}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Tips */}
             <div className="rounded-xl border-2 border-black bg-red-50 p-5 shadow-[var(--shadow-secondary)]">
@@ -251,7 +488,7 @@ export default function RoommateListingDetailPage() {
               </h2>
               <ul className="space-y-1.5 text-sm text-zinc-700">
                 <li>• Xem phòng trực tiếp trước khi quyết định</li>
-                <li>• Không chuyển tiền cọc khi chưa ký hợp đồng</li>
+                <li>• Suy nghĩ kỹ hẳn chuyển cọc</li>
                 <li>• Hỏi rõ các chi phí phát sinh</li>
               </ul>
             </div>
@@ -275,7 +512,7 @@ export default function RoommateListingDetailPage() {
                     <Phone className="h-5 w-5" /> {listing.phone}
                   </a>
 
-                  {/* Zalo - Always show, disabled if no data */}
+                  {/* Zalo */}
                   {listing.zalo ? (
                     <a
                       href={`https://zalo.me/${listing.zalo.replace(/\s/g, "")}`}
@@ -291,10 +528,8 @@ export default function RoommateListingDetailPage() {
                     </div>
                   )}
 
-
-                  {/* Facebook & Instagram - Side by side */}
+                  {/* Facebook & Instagram */}
                   <div className="flex gap-3 mb-4">
-                    {/* Facebook */}
                     {listing.facebook ? (
                       <a
                         href={listing.facebook.startsWith('http') ? listing.facebook : `https://facebook.com/${listing.facebook}`}
@@ -310,7 +545,6 @@ export default function RoommateListingDetailPage() {
                       </div>
                     )}
 
-                    {/* Instagram */}
                     {listing.instagram ? (
                       <a
                         href={listing.instagram.startsWith('http') ? listing.instagram : `https://instagram.com/${listing.instagram}`}
@@ -326,7 +560,6 @@ export default function RoommateListingDetailPage() {
                       </div>
                     )}
                   </div>
-
                 </>
               ) : (
                 <Link
@@ -342,7 +575,7 @@ export default function RoommateListingDetailPage() {
                 roomieVerse không chịu trách nhiệm cho các giao dịch giữa người dùng.
               </p>
 
-              {/* View User Profile Button - Inside sticky card */}
+              {/* View User Profile Button */}
               {listing.userId && (
                 <Link
                   href={`/user/${listing.userId}`}
@@ -352,8 +585,6 @@ export default function RoommateListingDetailPage() {
                 </Link>
               )}
             </div>
-
-
 
             {/* Actions */}
             <div className="flex gap-2">
@@ -375,8 +606,6 @@ export default function RoommateListingDetailPage() {
                 <Flag className="h-4 w-4" />
               </button>
             </div>
-
-
           </div>
         </div>
       </div>

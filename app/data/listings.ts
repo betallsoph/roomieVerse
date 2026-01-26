@@ -112,33 +112,22 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
     const stored = localStorage.getItem(storageKey);
     if (!stored) return [];
 
-    const localData = JSON.parse(stored) as Array<{
-      id: string;
-      type?: string;
-      title: string;
-      introduction?: string;
-      location: string;
-      budget?: string;
-      moveInTime?: string;
-      contact?: {
-        phone?: string;
-        zalo?: string;
-        facebook?: string;
-        instagram?: string;
-      };
-      createdAt: string;
-      userId?: string;
-    }>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const localData = JSON.parse(stored) as any[];
 
     // Convert localStorage format to RoomListing format
     return localData.map((item) => ({
       id: item.id,
       title: item.title,
       author: "Bạn", // Current user
-      price: item.budget || "Thương lượng",
+      price: item.costs?.rent || item.budget || "Thương lượng",
       location: item.location,
+      locationNegotiable: item.locationNegotiable,
       moveInDate: item.moveInTime || "Linh hoạt",
+      timeNegotiable: item.timeNegotiable,
       description: item.introduction || "",
+      introduction: item.introduction,
+      propertyTypes: item.propertyTypes,
       phone: item.contact?.phone || "",
       zalo: item.contact?.zalo,
       facebook: item.contact?.facebook,
@@ -149,6 +138,17 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
       propertyType: "apartment" as const,
       userId: item.userId,
       status: "active" as const,
+      // New fields
+      images: item.images,
+      amenities: item.amenities,
+      amenitiesOther: item.amenitiesOther,
+      costs: item.costs,
+      preferences: item.preferences,
+      // Room details
+      roomSize: item.roomSize,
+      currentOccupants: item.currentOccupants,
+      minContractDuration: item.minContractDuration,
+      isDraft: item.isDraft,
     }));
   } catch {
     return [];

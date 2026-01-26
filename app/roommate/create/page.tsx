@@ -25,6 +25,30 @@ function CreateRoommateContent() {
     }
   }, [isAuthenticated, type, router]);
 
+  // Handle steps via URL params for browser back button support
+  const step = searchParams.get("step");
+
+  useEffect(() => {
+    if (step === "2") {
+      setShowAmenities(true);
+      setShowPreferences(false);
+      setShowContactInfo(false);
+    } else if (step === "3") {
+      setShowAmenities(false);
+      setShowPreferences(true);
+      setShowContactInfo(false);
+    } else if (step === "4") {
+      setShowAmenities(false);
+      setShowPreferences(false);
+      setShowContactInfo(true);
+    } else {
+      // Default step 1
+      setShowAmenities(false);
+      setShowPreferences(false);
+      setShowContactInfo(false);
+    }
+  }, [step]);
+
   const [showPreferences, setShowPreferences] = useState(false);
   const [showAmenities, setShowAmenities] = useState(false); // NEW STEP
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -32,6 +56,7 @@ function CreateRoommateContent() {
   const [timeNegotiable, setTimeNegotiable] = useState(false);
   const [showStatusOther, setShowStatusOther] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Form state - Basic Info
   const [title, setTitle] = useState("");
@@ -42,6 +67,13 @@ function CreateRoommateContent() {
   const [moveInTime, setMoveInTime] = useState("");
   const [showValidationMessage, setShowValidationMessage] = useState(false);
   const [showPreferencesValidation, setShowPreferencesValidation] = useState(false);
+  const [showImagesValidation, setShowImagesValidation] = useState(false);
+
+  // Form state - Room Details (for have-room only)
+  const [roomSize, setRoomSize] = useState("");
+  const [currentOccupants, setCurrentOccupants] = useState("");
+  const [minContractDuration, setMinContractDuration] = useState("");
+
 
   // Form state - Cost (for have-room only)
   const [costRent, setCostRent] = useState("");
@@ -62,17 +94,81 @@ function CreateRoommateContent() {
   const [prefCleanliness, setPrefCleanliness] = useState<string[]>([]);
   const [prefHabits, setPrefHabits] = useState<string[]>([]);
   const [prefPets, setPrefPets] = useState<string[]>([]);
+  const [prefMoveInTime, setPrefMoveInTime] = useState<string[]>([]);
   const [prefOther, setPrefOther] = useState("");
 
   // Form state - Contact Info
   const [contactPhone, setContactPhone] = useState("");
   const [contactZalo, setContactZalo] = useState("");
+  const [sameAsPhone, setSameAsPhone] = useState(false);
+
+  // Sync Zalo with Phone when checkbox is checked
+  useEffect(() => {
+    if (sameAsPhone) {
+      setContactZalo(contactPhone);
+    }
+  }, [sameAsPhone, contactPhone]);
   const [contactFacebook, setContactFacebook] = useState("");
   const [contactInstagram, setContactInstagram] = useState("");
 
   // Form state - Images & Amenities
   const [images, setImages] = useState<string[]>([]); // Base64 preview
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [amenitiesOther, setAmenitiesOther] = useState("");
+
+  // Load draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('roommate_draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        // Only load if matching type
+        if (draft.type === type) {
+          if (confirm('Bạn có bản nháp đã lưu trước đó. Bạn có muốn tiếp tục không?')) {
+            setTitle(draft.title || "");
+            setIntroduction(draft.introduction || "");
+            setLocation(draft.location || "");
+            setLocationNegotiable(draft.locationNegotiable || false);
+            setPropertyTypes(draft.propertyTypes || []);
+            setBudget(draft.budget || "");
+            setMoveInTime(draft.moveInTime || "");
+            setTimeNegotiable(draft.timeNegotiable || false);
+            setImages(draft.images || []);
+            setAmenities(draft.amenities || []);
+            setAmenitiesOther(draft.amenitiesOther || "");
+            setRoomSize(draft.roomSize || "");
+            setCurrentOccupants(draft.currentOccupants || "");
+            setMinContractDuration(draft.minContractDuration || "");
+            setCostRent(draft.costRent || "");
+            setCostDeposit(draft.costDeposit || "");
+            setCostElectricity(draft.costElectricity || "");
+            setCostWater(draft.costWater || "");
+            setCostInternet(draft.costInternet || "");
+            setCostService(draft.costService || "");
+            setCostParking(draft.costParking || "");
+            setCostManagement(draft.costManagement || "");
+            setCostOther(draft.costOther || "");
+            setPrefGender(draft.prefGender || []);
+            setPrefStatus(draft.prefStatus || []);
+            setPrefStatusOther(draft.prefStatusOther || "");
+            setPrefSchedule(draft.prefSchedule || []);
+            setPrefCleanliness(draft.prefCleanliness || []);
+            setPrefHabits(draft.prefHabits || []);
+            setPrefPets(draft.prefPets || []);
+            setPrefMoveInTime(draft.prefMoveInTime || []);
+            setPrefOther(draft.prefOther || "");
+            setContactPhone(draft.contactPhone || "");
+            setContactZalo(draft.contactZalo || "");
+            setContactFacebook(draft.contactFacebook || "");
+            setContactInstagram(draft.contactInstagram || "");
+          }
+        }
+      } catch {
+        // Invalid draft, ignore
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
 
   if (!type) return null;
 
@@ -101,7 +197,102 @@ function CreateRoommateContent() {
     prefSchedule.length > 0 &&
     prefCleanliness.length > 0 &&
     prefHabits.length > 0 &&
-    prefPets.length > 0;
+    prefPets.length > 0 &&
+    prefMoveInTime.length > 0;
+
+  // Calculate progress percentage
+  const [progressPercentage, setProgressPercentage] = useState(0);
+
+  useEffect(() => {
+    let rawPercent = 0;
+
+    // We want the bar to be at specific milestones based on SECTIONS (Stations)
+    // Station 1: Basic Info (0% -> 38%)
+    // Station 2: Details & Images (38% -> 72%)
+    // Station 3: Preferences (72% -> 100%)
+
+    if (!showAmenities && !showPreferences) {
+      // --- STEP 1: Basic Info (Target: 38%) ---
+
+      // Define total fields for Step 1
+      let step1Total = 4; // title, introduction, location, propertyTypes
+      if (isHaveRoom) {
+        step1Total += 1; // costRent
+      } else {
+        step1Total += 2; // budget, moveInTime
+      }
+
+      // Count filled fields
+      let step1Filled = 0;
+      if (title.trim()) step1Filled++;
+      if (introduction.trim()) step1Filled++;
+      if (location.trim()) step1Filled++;
+      if (propertyTypes.length > 0) step1Filled++;
+
+      if (isHaveRoom) {
+        if (costRent.trim()) step1Filled++;
+      } else {
+        if (budget.trim()) step1Filled++;
+        if (moveInTime.trim()) step1Filled++;
+      }
+
+      // Calculate % of Step 1
+      // Range: 3% (start) -> 33% (reach Station 2)
+      const step1Progress = (step1Filled / step1Total);
+      rawPercent = 3 + (step1Progress * (33 - 3));
+
+    } else if (showAmenities && !showPreferences) {
+      // --- STEP 2: Details (Target: 66% to reach Station 3) ---
+      // Range: 33% (Station 2) -> 66% (Station 3)
+
+      let step2Total = 1; // images (mandatory)
+      // Amenities count as 1 block
+      step2Total += 1;
+
+      if (isHaveRoom) {
+        step2Total += 3; // roomSize, currentOccupants, minContractDuration
+      }
+
+      let step2Filled = 0;
+      if (images.length > 0) step2Filled++;
+      if (amenities.length > 0) step2Filled++;
+
+      if (isHaveRoom) {
+        if (roomSize.trim()) step2Filled++;
+        if (currentOccupants.trim()) step2Filled++;
+        if (minContractDuration.trim()) step2Filled++;
+      }
+
+      const step2Progress = (step2Filled / step2Total);
+      rawPercent = 33 + (step2Progress * (66 - 33));
+
+    } else if (showPreferences) {
+      // --- STEP 3: Preferences (Target: 100% to reach Station 4) ---
+      // Range: 66% (Station 3) -> 100% (Station 4)
+
+      let step3Total = 7;
+      let step3Filled = 0;
+      if (prefGender.length > 0) step3Filled++;
+      if (prefStatus.length > 0) step3Filled++;
+      if (prefSchedule.length > 0) step3Filled++;
+      if (prefCleanliness.length > 0) step3Filled++;
+      if (prefHabits.length > 0) step3Filled++;
+      if (prefPets.length > 0) step3Filled++;
+      if (prefMoveInTime.length > 0) step3Filled++;
+
+      const step3Progress = (step3Filled / step3Total);
+      rawPercent = 66 + (step3Progress * (100 - 66));
+    }
+
+    setProgressPercentage(rawPercent);
+
+  }, [
+    // Dependencies
+    isHaveRoom, showAmenities, showPreferences,
+    title, introduction, location, propertyTypes, costRent, budget, moveInTime,
+    roomSize, currentOccupants, minContractDuration, images, amenities,
+    prefGender, prefStatus, prefSchedule, prefCleanliness, prefHabits, prefPets, prefMoveInTime
+  ]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -275,8 +466,13 @@ function CreateRoommateContent() {
                       <input
                         type="text"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder={isHaveRoom ? "Tìm bạn ở ghép căn hộ 2PN Vinhomes" : "Tìm bạn cùng thuê phòng khu Thảo Điền"}
+                        onChange={(e) => {
+                          if (e.target.value.length <= 80) {
+                            setTitle(e.target.value);
+                          }
+                        }}
+                        maxLength={80}
+                        placeholder="Nhập tối đa 80 ký tự"
                         className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />
                       {showValidationMessage && title.trim() === "" && (
@@ -395,119 +591,32 @@ function CreateRoommateContent() {
                       </div>
                     )}
 
-                    {/* Cost Section - for have-room only */}
+                    {/* Cost Section - for have-room only - SIMPLIFIED */}
                     {isHaveRoom && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-bold">Chi phí</label>
-                          <p className="text-sm text-zinc-500 italic mt-1">
-                            Nếu không có bất kỳ phí nào trong các loại phí bên dưới, bạn hãy điền 0 thay vì bỏ trống để hệ thống có thể tính toán tốt nhất.
-                          </p>
-                        </div>
-
-                        {/* Primary costs - 2 columns */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Tiền phòng (VNĐ/tháng) *</label>
-                            <input
-                              type="text"
-                              value={costRent}
-                              onChange={(e) => setCostRent(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                            {showValidationMessage && costRent.trim() === "" && (
-                              <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
-                            )}
-                          </div>
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Tiền cọc</label>
-                            <input
-                              type="text"
-                              value={costDeposit}
-                              onChange={(e) => setCostDeposit(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Utility costs - 2 columns */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Tiền điện</label>
-                            <input
-                              type="text"
-                              value={costElectricity}
-                              onChange={(e) => setCostElectricity(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Tiền nước</label>
-                            <input
-                              type="text"
-                              value={costWater}
-                              onChange={(e) => setCostWater(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Service costs - 2 columns */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Phí Internet</label>
-                            <input
-                              type="text"
-                              value={costInternet}
-                              onChange={(e) => setCostInternet(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Phí dịch vụ</label>
-                            <input
-                              type="text"
-                              value={costService}
-                              onChange={(e) => setCostService(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Additional costs - 2 columns */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Phí gửi xe</label>
-                            <input
-                              type="text"
-                              value={costParking}
-                              onChange={(e) => setCostParking(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs text-zinc-500 mb-1">Phí quản lý</label>
-                            <input
-                              type="text"
-                              value={costManagement}
-                              onChange={(e) => setCostManagement(e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Other costs - full width */}
-                        <div>
-                          <label className="block text-xs text-zinc-500 mb-1">Các phí khác (nếu có)</label>
-                          <input
-                            type="text"
-                            value={costOther}
-                            onChange={(e) => setCostOther(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-sm font-bold">
+                          Chi phí tổng tất cả các loại phí hàng tháng
+                        </label>
+                        <p className="text-sm text-zinc-500 italic mt-1 mb-2">
+                          Để dễ dàng nhất cho việc xác định ngân sách của bạn ở cùng, hãy điền chi phí sau khi đã tính hết tất cả nhé. Bạn có thể bàn lại với bạn ở cùng về các khoản nhỏ bên trong nó.
+                        </p>
+                        <input
+                          type="text"
+                          value={costRent}
+                          onChange={(e) => setCostRent(e.target.value)}
+                          placeholder="Ví dụ: 5 triệu/tháng"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                        {showValidationMessage && costRent.trim() === "" && (
+                          <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
+                        )}
+                        <p className="text-xs text-zinc-500 italic mt-2">
+                          Tổng chi phí bao gồm tất cả các loại phí: tiền phòng, điện, nước, internet, phí dịch vụ, phí quản lý...
+                        </p>
                       </div>
                     )}
+
+
 
                     {/* Property Type - for find-partner only */}
                     {!isHaveRoom && (
@@ -626,7 +735,7 @@ function CreateRoommateContent() {
                               if (costManagement.trim() === "") setCostManagement("0");
                               if (costOther.trim() === "") setCostOther("0");
                             }
-                            setShowAmenities(true);
+                            router.push(`/roommate/create?type=${type}&step=2`);
                           } else {
                             setShowValidationMessage(true);
                           }
@@ -649,6 +758,62 @@ function CreateRoommateContent() {
                   <h2 className="text-xl font-bold mb-6">Hình ảnh & Tiện nghi</h2>
 
                   <div className="space-y-6">
+                    {/* Room Details - for have-room only */}
+                    {isHaveRoom && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {/* Room Size */}
+                        <div>
+                          <label className="block text-sm font-bold mb-2">
+                            Diện tích (m²)
+                          </label>
+                          <input
+                            type="text"
+                            value={roomSize}
+                            onChange={(e) => setRoomSize(e.target.value)}
+                            placeholder="Ví dụ: 20"
+                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          />
+                        </div>
+
+                        {/* Current Occupants */}
+                        <div>
+                          <label className="block text-sm font-bold mb-2">
+                            Số người đang ở
+                          </label>
+                          <select
+                            value={currentOccupants}
+                            onChange={(e) => setCurrentOccupants(e.target.value)}
+                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          >
+                            <option value="">Chọn...</option>
+                            <option value="0">Chưa có ai</option>
+                            <option value="1">1 người</option>
+                            <option value="2">2 người</option>
+                            <option value="3">3 người</option>
+                            <option value="4+">4 người trở lên</option>
+                          </select>
+                        </div>
+
+                        {/* Min Contract Duration */}
+                        <div>
+                          <label className="block text-sm font-bold mb-2">
+                            Hợp đồng tối thiểu
+                          </label>
+                          <select
+                            value={minContractDuration}
+                            onChange={(e) => setMinContractDuration(e.target.value)}
+                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          >
+                            <option value="">Chọn...</option>
+                            <option value="1 tháng">1 tháng</option>
+                            <option value="3 tháng">3 tháng</option>
+                            <option value="6 tháng">6 tháng</option>
+                            <option value="1 năm">1 năm</option>
+                            <option value="Linh hoạt">Linh hoạt</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                     {/* Upload Images */}
                     <div>
                       <label className="block text-sm font-bold mb-2">
@@ -707,8 +872,11 @@ function CreateRoommateContent() {
                         )}
                       </div>
                       <p className="text-xs text-zinc-500 mt-2">
-                        Hình ảnh thật sẽ giúp bài đăng của bạn thu hút hơn
+                        Hình ảnh thật sẽ giúp bài đăng của bạn thu hút hơn. Yêu cầu tối thiểu 1 hình để tiếp tục.
                       </p>
+                      {showImagesValidation && images.length === 0 && (
+                        <p className="text-sm text-pink-500 mt-1 font-bold">Vui lòng tải lên ít nhất 1 hình ảnh</p>
+                      )}
                     </div>
 
                     {/* Amenities */}
@@ -730,28 +898,40 @@ function CreateRoommateContent() {
                           { value: 'security', label: 'Bảo vệ 24/7' },
                           { value: 'balcony', label: 'Ban công' },
                           { value: 'furnished', label: 'Nội thất' },
+                          { value: 'other', label: 'Khác' },
                         ].map((amenity) => (
-                          <label
-                            key={amenity.value}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${amenities.includes(amenity.value)
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-black bg-white hover:bg-zinc-50'
-                              }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={amenities.includes(amenity.value)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setAmenities([...amenities, amenity.value]);
-                                } else {
-                                  setAmenities(amenities.filter(a => a !== amenity.value));
-                                }
-                              }}
-                              className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
-                            />
-                            <span className="text-sm">{amenity.label}</span>
-                          </label>
+                          <div key={amenity.value} className={amenity.value === 'other' ? 'col-span-2 sm:col-span-3' : ''}>
+                            <label
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${amenities.includes(amenity.value)
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-black bg-white hover:bg-zinc-50'
+                                }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={amenities.includes(amenity.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setAmenities([...amenities, amenity.value]);
+                                  } else {
+                                    setAmenities(amenities.filter(a => a !== amenity.value));
+                                  }
+                                }}
+                                className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer flex-shrink-0"
+                              />
+                              <span className="text-sm">{amenity.label}</span>
+                            </label>
+                            {amenity.value === 'other' && amenities.includes('other') && (
+                              <input
+                                type="text"
+                                value={amenitiesOther}
+                                onChange={(e) => setAmenitiesOther(e.target.value)}
+                                placeholder="Nhập tiện nghi khác..."
+                                className="w-full mt-2 px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                                autoFocus
+                              />
+                            )}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -761,7 +941,7 @@ function CreateRoommateContent() {
                   <div className="flex gap-4 mt-8">
                     <button
                       type="button"
-                      onClick={() => setShowAmenities(false)}
+                      onClick={() => router.push(`/roommate/create?type=${type}`)}
                       className="flex-1 btn-secondary"
                     >
                       Quay lại
@@ -769,8 +949,11 @@ function CreateRoommateContent() {
                     <button
                       type="button"
                       onClick={() => {
-                        setShowAmenities(false);
-                        setShowPreferences(true);
+                        if (images.length === 0) {
+                          setShowImagesValidation(true);
+                          return;
+                        }
+                        router.push(`/roommate/create?type=${type}&step=3`);
                       }}
                       className="flex-1 btn-primary"
                     >
@@ -1031,6 +1214,42 @@ function CreateRoommateContent() {
                       </div>
                     </div>
 
+                    {/* Move-in Time */}
+                    <div>
+                      <label className="block text-sm font-bold mb-2">Thời gian dọn vào</label>
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          { value: "early-month", label: "Đầu tháng" },
+                          { value: "end-month", label: "Cuối tháng" },
+                          { value: "any", label: "Thời gian bất kỳ" },
+                          { value: "asap", label: "Càng sớm càng tốt" },
+                        ].map((option) => (
+                          <label
+                            key={option.value}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
+                          >
+                            <input
+                              type="radio"
+                              name="prefMoveInTime"
+                              value={option.value}
+                              checked={prefMoveInTime.includes(option.value)}
+                              onClick={(e) => {
+                                if (prefMoveInTime.includes((e.target as HTMLInputElement).value)) {
+                                  e.preventDefault();
+                                  setPrefMoveInTime([]);
+                                }
+                              }}
+                              onChange={(e) => {
+                                setPrefMoveInTime([e.target.value]);
+                              }}
+                              className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
+                            />
+                            <span className="text-sm">{option.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Other */}
                     <div>
                       <label className="block text-sm font-bold mb-2">Khác</label>
@@ -1050,8 +1269,7 @@ function CreateRoommateContent() {
                           <button
                             type="button"
                             onClick={() => {
-                              setShowPreferences(false);
-                              setShowAmenities(true);
+                              router.push(`/roommate/create?type=${type}&step=2`);
                             }}
                             className="btn-secondary flex-1"
                           >
@@ -1064,7 +1282,7 @@ function CreateRoommateContent() {
                                 setShowPreferencesValidation(true);
                               } else {
                                 setShowPreferencesValidation(false);
-                                setShowContactInfo(true);
+                                router.push(`/roommate/create?type=${type}&step=4`);
                               }
                             }}
                             className={`flex-1 ${arePreferencesComplete ? 'btn-primary' : 'btn-start opacity-50'}`}
@@ -1079,7 +1297,7 @@ function CreateRoommateContent() {
                               ⚠️ Bạn chưa điền đủ thông tin!
                             </p>
                             <p className="text-xs text-pink-600 mt-1">
-                              Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, và Thú cưng.
+                              Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, Thú cưng và Thời gian dọn vào.
                             </p>
                           </div>
                         )}
@@ -1118,8 +1336,18 @@ function CreateRoommateContent() {
                         value={contactZalo}
                         onChange={(e) => setContactZalo(e.target.value)}
                         placeholder="Số Zalo (nếu khác SĐT)"
-                        className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        disabled={sameAsPhone}
+                        className={`w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 ${sameAsPhone ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`}
                       />
+                      <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={sameAsPhone}
+                          onChange={(e) => setSameAsPhone(e.target.checked)}
+                          className="w-4 h-4 rounded appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500"
+                        />
+                        <span className="text-sm">Dùng chung số điện thoại</span>
+                      </label>
                     </div>
 
                     {/* Facebook */}
@@ -1160,8 +1388,7 @@ function CreateRoommateContent() {
                     <button
                       type="button"
                       onClick={() => {
-                        setShowContactInfo(false);
-                        setShowPreferences(true);
+                        router.push(`/roommate/create?type=${type}&step=3`);
                       }}
                       className="btn-secondary flex-1"
                     >
@@ -1183,8 +1410,15 @@ function CreateRoommateContent() {
                           budget,
                           moveInTime,
                           timeNegotiable,
-                          // Cost data (for have-room)
+                          // Images & Amenities
+                          images,
+                          amenities,
+                          amenitiesOther,
+                          // Room details (for have-room)
                           ...(isHaveRoom && {
+                            roomSize,
+                            currentOccupants,
+                            minContractDuration,
                             costs: {
                               rent: costRent,
                               deposit: costDeposit,
@@ -1205,6 +1439,7 @@ function CreateRoommateContent() {
                             cleanliness: prefCleanliness,
                             habits: prefHabits,
                             pets: prefPets,
+                            moveInTime: prefMoveInTime,
                             other: prefOther,
                           },
                           contact: {
@@ -1222,6 +1457,9 @@ function CreateRoommateContent() {
                         existingListings.push(listingData);
                         localStorage.setItem('roommate_listings', JSON.stringify(existingListings));
 
+                        // Remove draft if exists
+                        localStorage.removeItem('roommate_draft');
+
                         setShowSuccessModal(true);
                       }}
                       className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-primary'}`}
@@ -1229,6 +1467,8 @@ function CreateRoommateContent() {
                       Đăng tin
                     </button>
                   </div>
+
+
                 </>
               )}
 
@@ -1236,6 +1476,82 @@ function CreateRoommateContent() {
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* Metro Style Progress */}
+              <div className="py-2">
+                <div className="relative pl-2">
+                  {/* Track Line Background */}
+                  <div className="absolute left-[19px] top-4 bottom-4 w-1.5 bg-zinc-100 rounded-full" />
+
+                  {/* Track Line Active */}
+                  <div
+                    className="absolute left-[19px] top-4 w-1.5 bg-black rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      height: `${progressPercentage}%`
+                    }}
+                  />
+
+
+
+                  <div className="space-y-8 relative">
+
+                    {/* Station 1 */}
+                    <div className="flex gap-4 items-center group">
+                      <div className={`
+                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
+                        ${(!showAmenities && !showPreferences) ? 'border-black scale-125 shadow-lg' : 'border-black'}
+                      `}>
+                        {/* Dot for station */}
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${(!showAmenities && !showPreferences) ? 'bg-black animate-pulse' : 'bg-black'}`} />
+                      </div>
+                      <div className="transition-opacity duration-300">
+                        <p className="font-bold text-sm uppercase tracking-wide">Thông tin</p>
+                        <p className="text-xs text-zinc-500">Cơ bản & Chi phí</p>
+                      </div>
+                    </div>
+
+                    {/* Station 2 */}
+                    <div className="flex gap-4 items-center group">
+                      <div className={`
+                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
+                        ${showAmenities || showPreferences ? 'border-black' : 'border-zinc-200'}
+                        ${(showAmenities && !showPreferences) ? 'scale-125 shadow-lg' : ''}
+                      `}>
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showAmenities || showPreferences ? 'bg-black' : 'bg-zinc-200'} ${(showAmenities && !showPreferences) ? 'animate-pulse' : ''}`} />
+                      </div>
+                      <div className={`transition-opacity duration-300 ${(showAmenities || showPreferences) ? 'opacity-100' : 'opacity-40'}`}>
+                        <p className="font-bold text-sm uppercase tracking-wide">Chi tiết</p>
+                        <p className="text-xs text-zinc-500">Tiện nghi & Ảnh</p>
+                      </div>
+                    </div>
+
+                    {/* Station 3 */}
+                    <div className="flex gap-4 items-center group">
+                      <div className={`
+                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
+                        ${showPreferences ? 'border-black scale-125 shadow-lg' : 'border-zinc-200'}
+                      `}>
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showPreferences ? 'bg-black animate-pulse' : 'bg-zinc-200'}`} />
+                      </div>
+                      <div className={`transition-opacity duration-300 ${showPreferences ? 'opacity-100' : 'opacity-40'}`}>
+                        <p className="font-bold text-sm uppercase tracking-wide">Mong muốn</p>
+                        <p className="text-xs text-zinc-500">Bạn ở cùng</p>
+                      </div>
+                    </div>
+
+                    {/* Station 4 */}
+                    <div className="flex gap-4 items-center group">
+                      <div className="relative z-10 w-6 h-6 rounded-full border-[3px] border-zinc-200 flex items-center justify-center bg-white">
+                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+                      </div>
+                      <div className="opacity-40">
+                        <p className="font-bold text-sm uppercase tracking-wide">Hoàn tất</p>
+                        <p className="text-xs text-zinc-500">Đăng tin</p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
               {/* Tips & Checklist */}
               <div className="card bg-yellow-50 !p-5">
                 <div className="flex items-center gap-2 mb-3">
@@ -1250,23 +1566,7 @@ function CreateRoommateContent() {
                       <li>• Đăng giá hợp lý với thị trường</li>
                       <li>• Cập nhật thông tin liên hệ chính xác</li>
                     </ul>
-                    <div className="border-t border-yellow-200 pt-3">
-                      <p className="text-xs font-semibold text-zinc-500 mb-2">CHUẨN BỊ SẴN:</p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-yellow-600" />
-                          <span>Địa chỉ chính xác</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-yellow-600" />
-                          <span>Giá thuê & chi phí phát sinh</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-yellow-600" />
-                          <span>Ảnh phòng (sắp có)</span>
-                        </li>
-                      </ul>
-                    </div>
+
                   </>
                 ) : (
                   <>
@@ -1276,33 +1576,212 @@ function CreateRoommateContent() {
                       <li>• Mô tả thói quen sinh hoạt của bạn</li>
                       <li>• Đưa ra yêu cầu về bạn ở cùng hợp lý</li>
                     </ul>
-                    <div className="border-t border-yellow-200 pt-3">
-                      <p className="text-xs font-semibold text-zinc-500 mb-2">NÊN CÓ:</p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-yellow-600" />
-                          <span>Khu vực mong muốn rõ ràng</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-yellow-600" />
-                          <span>Ngân sách dự kiến</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-yellow-600" />
-                          <span>Thời gian dự kiến chuyển vào</span>
-                        </li>
-                      </ul>
-                    </div>
+
                   </>
                 )}
+              </div>
+
+              {/* Preview & Draft buttons - Sidebar */}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPreviewModal(true)}
+                  className="flex-1 btn-secondary"
+                >
+                  Xem trước
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const draftData = {
+                      type,
+                      title,
+                      introduction,
+                      location,
+                      locationNegotiable,
+                      propertyTypes,
+                      budget,
+                      moveInTime,
+                      timeNegotiable,
+                      images,
+                      amenities,
+                      amenitiesOther,
+                      roomSize,
+                      currentOccupants,
+                      minContractDuration,
+                      costRent,
+                      costDeposit,
+                      costElectricity,
+                      costWater,
+                      costInternet,
+                      costService,
+                      costParking,
+                      costManagement,
+                      costOther,
+                      prefGender,
+                      prefStatus,
+                      prefStatusOther,
+                      prefSchedule,
+                      prefCleanliness,
+                      prefHabits,
+                      prefPets,
+                      prefMoveInTime,
+                      prefOther,
+                      contactPhone,
+                      contactZalo,
+                      contactFacebook,
+                      contactInstagram,
+                      savedAt: new Date().toISOString(),
+                    };
+                    localStorage.setItem('roommate_draft', JSON.stringify(draftData));
+                    alert('Đã lưu nháp thành công! Bạn có thể quay lại tiếp tục sau.');
+                  }}
+                  className="flex-1 btn-secondary"
+                >
+                  Lưu nháp
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </section >
+
+      {/* Preview Modal */}
+      {
+        showPreviewModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-xl border-2 border-black shadow-[var(--shadow-primary)] max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="bg-blue-50 p-6 border-b-2 border-black flex items-center justify-between sticky top-0">
+                <h2 className="text-xl font-bold">👁️ Xem trước bài đăng</h2>
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="p-2 hover:bg-blue-100 rounded-lg"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                {/* Title */}
+                <h3 className="text-2xl font-bold">{title || "(Chưa có tiêu đề)"}</h3>
+
+                {/* Price */}
+                <div className="bg-blue-50 p-4 rounded-lg border-2 border-black">
+                  <p className="text-sm text-zinc-500">{isHaveRoom ? "Tiền thuê phòng" : "Ngân sách"}</p>
+                  <p className="text-2xl font-bold">{isHaveRoom ? costRent : budget || "(Chưa nhập)"}</p>
+                </div>
+
+                {/* Room Info */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-zinc-500">Địa chỉ</p>
+                    <p className="font-semibold">{location || "(Chưa nhập)"}</p>
+                  </div>
+                  {isHaveRoom && propertyTypes.length > 0 && (
+                    <div>
+                      <p className="text-zinc-500">Loại hình</p>
+                      <p className="font-semibold">
+                        {propertyTypes.map(t => {
+                          if (t === "house") return "Nhà mặt đất";
+                          if (t === "room") return "Trọ";
+                          if (t === "apartment") return "Chung cư";
+                          if (t === "service-apartment") return "Căn hộ dịch vụ";
+                          return t;
+                        }).join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-zinc-500">Dọn vào</p>
+                    <p className="font-semibold">{moveInTime || "(Chưa nhập)"}</p>
+                  </div>
+                  {roomSize && (
+                    <div>
+                      <p className="text-zinc-500">Diện tích</p>
+                      <p className="font-semibold">{roomSize} m²</p>
+                    </div>
+                  )}
+                  {currentOccupants && (
+                    <div>
+                      <p className="text-zinc-500">Số người đang ở</p>
+                      <p className="font-semibold">{currentOccupants}</p>
+                    </div>
+                  )}
+                  {minContractDuration && (
+                    <div>
+                      <p className="text-zinc-500">Hợp đồng tối thiểu</p>
+                      <p className="font-semibold">{minContractDuration}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Amenities */}
+                {amenities.length > 0 && (
+                  <div>
+                    <p className="text-sm font-bold uppercase text-zinc-500 mb-2">Tiện nghi</p>
+                    <div className="flex flex-wrap gap-2">
+                      {amenities.filter(a => a !== 'other').map(a => (
+                        <span key={a} className="px-3 py-1 bg-blue-100 rounded-lg border-2 border-black text-sm">
+                          {a === "ac" && "Điều hòa"}
+                          {a === "wifi" && "Wifi"}
+                          {a === "washing" && "Máy giặt"}
+                          {a === "fridge" && "Tủ lạnh"}
+                          {a === "kitchen" && "Bếp"}
+                          {a === "parking" && "Chỗ đậu xe"}
+                          {a === "elevator" && "Thang máy"}
+                          {a === "security" && "Bảo vệ 24/7"}
+                          {a === "balcony" && "Ban công"}
+                          {a === "furnished" && "Nội thất"}
+                        </span>
+                      ))}
+                      {amenitiesOther && (
+                        <span className="px-3 py-1 bg-yellow-100 rounded-lg border-2 border-black text-sm">{amenitiesOther}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Introduction */}
+                <div>
+                  <p className="text-sm font-bold uppercase text-zinc-500 mb-2">Giới thiệu</p>
+                  <p className="text-zinc-700 whitespace-pre-line">{introduction || "(Chưa nhập giới thiệu)"}</p>
+                </div>
+
+                {/* Images Preview */}
+                {images.length > 0 && (
+                  <div>
+                    <p className="text-sm font-bold uppercase text-zinc-500 mb-2">Hình ảnh ({images.length})</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {images.slice(0, 6).map((img, idx) => (
+                        <div key={idx} className="aspect-square bg-zinc-100 rounded-lg overflow-hidden">
+                          <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact */}
+                <div className="bg-zinc-50 p-4 rounded-lg border-2 border-black">
+                  <p className="text-sm font-bold uppercase text-zinc-500 mb-2">Thông tin liên hệ</p>
+                  <p className="font-semibold">📞 {contactPhone || "(Chưa nhập)"}</p>
+                  {contactZalo && <p className="text-sm text-zinc-600">Zalo: {contactZalo}</p>}
+                </div>
+              </div>
+              <div className="p-6 border-t-2 border-black bg-zinc-50 sticky bottom-0">
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="w-full btn-primary"
+                >
+                  Đóng xem trước
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
 
       <ShareFooter />
-    </div>
+    </div >
   );
 }
 

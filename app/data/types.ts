@@ -14,6 +14,7 @@ export interface RoommatePreferences {
   cleanliness?: string[]; // ["very-clean", "normal", "relaxed"]
   habits?: string[]; // ["no-smoke", "no-alcohol", "flexible"]
   pets?: string[]; // ["no-pets", "cats-ok", "dogs-ok", "any-pets"]
+  moveInTime?: string[]; // ["early-month", "end-month", "any", "asap"]
   other?: string;
 }
 
@@ -53,10 +54,19 @@ export interface RoomListing {
   image?: string;
   userId?: string;
   status?: ListingStatus;
-
   // New fields from create form
+  introduction?: string; // Self introduction
+  images?: string[]; // Image URLs or base64
+  amenities?: string[]; // ["ac", "wifi", "washing", ...]
+  amenitiesOther?: string; // Custom amenities
   preferences?: RoommatePreferences;
   costs?: RoomCosts; // For have-room listings
+  // Room details (for have-room)
+  roomSize?: string; // m²
+  currentOccupants?: string; // Number of people currently living
+  minContractDuration?: string; // Minimum contract duration
+  // Draft status
+  isDraft?: boolean;
 }
 
 // Lifestyle preferences interface (for user profile)
