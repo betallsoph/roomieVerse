@@ -3,223 +3,113 @@
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import Link from "next/link";
-import { ArrowLeft, Settings, Users, BarChart3, Database, Mail, Bell } from "lucide-react";
+import { ArrowLeft, Settings, Users, BarChart3, Database, Mail, Bell, ArrowRight } from "lucide-react";
 
 export default function ManagementPage() {
-  // Mock data - replace with real data from backend
-  const systemStats = {
-    totalUsers: 2458,
-    activeUsers: 1823,
-    totalListings: 342,
-    totalMessages: 8934,
-  };
+  const systemStats = { totalUsers: 2458, activeUsers: 1823, totalListings: 342, totalMessages: 8934 };
 
   const recentUsers = [
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      email: "nguyenvana@email.com",
-      joinDate: "2025-12-01",
-      role: "user",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      email: "tranthib@email.com",
-      joinDate: "2025-12-03",
-      role: "user",
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Lê Văn C",
-      email: "levanc@email.com",
-      joinDate: "2025-11-28",
-      role: "user",
-      status: "inactive",
-    },
+    { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@email.com", joinDate: "2025-12-01", role: "user", status: "active" },
+    { id: 2, name: "Trần Thị B", email: "tranthib@email.com", joinDate: "2025-12-03", role: "user", status: "active" },
+    { id: 3, name: "Lê Văn C", email: "levanc@email.com", joinDate: "2025-11-28", role: "user", status: "inactive" },
+  ];
+
+  const quickActions = [
+    { icon: Users, title: "Quản lý người dùng", desc: "Xem, chỉnh sửa thông tin" },
+    { icon: BarChart3, title: "Báo cáo & Thống kê", desc: "Xem báo cáo chi tiết" },
+    { icon: Settings, title: "Cài đặt hệ thống", desc: "Cấu hình thiết lập" },
+    { icon: Bell, title: "Thông báo", desc: "Gửi thông báo người dùng" },
+    { icon: Database, title: "Quản lý dữ liệu", desc: "Sao lưu, khôi phục" },
+    { icon: Mail, title: "Email Marketing", desc: "Gửi email hàng loạt" },
   ];
 
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
 
-      <section className="section bg-green-50 py-12 md:py-16">
-        <div className="wrapper max-w-6xl">
+      <section className="py-12 md:py-16 border-b-2 border-black">
+        <div className="wrapper max-w-5xl">
           {/* Header */}
-          <div className="mb-8">
-            <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-600 hover:text-black transition-colors mb-4">
+          <div className="mb-10">
+            <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-black transition-colors mb-6">
               <ArrowLeft className="w-4 h-4" />
-              Quay lại trang Admin
+              Quay lại
             </Link>
-            <div className="flex items-center gap-3 mb-3">
-              <Settings className="w-10 h-10 text-green-600" />
-              <h1 className="text-4xl font-black">Quản Lý Hệ Thống</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <Settings className="w-8 h-8" strokeWidth={1.5} />
+              <h1 className="text-3xl md:text-4xl font-black">Quản Lý Hệ Thống</h1>
             </div>
-            <p className="text-base text-zinc-600">
-              Quản lý người dùng, thống kê và cài đặt hệ thống
-            </p>
+            <p className="text-zinc-600">Quản lý người dùng, thống kê và cài đặt</p>
           </div>
 
-          {/* System Statistics */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Thống Kê Hệ Thống</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="card bg-white">
-                <div className="text-center">
-                  <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-zinc-600 mb-1">Tổng người dùng</p>
-                  <p className="text-2xl font-black text-blue-700">{systemStats.totalUsers.toLocaleString()}</p>
-                </div>
-              </div>
-
-              <div className="card bg-white">
-                <div className="text-center">
-                  <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-zinc-600 mb-1">Người dùng hoạt động</p>
-                  <p className="text-2xl font-black text-green-700">{systemStats.activeUsers.toLocaleString()}</p>
-                </div>
-              </div>
-
-              <div className="card bg-white">
-                <div className="text-center">
-                  <Database className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-zinc-600 mb-1">Tổng tin đăng</p>
-                  <p className="text-2xl font-black text-purple-700">{systemStats.totalListings.toLocaleString()}</p>
-                </div>
-              </div>
-
-              <div className="card bg-white">
-                <div className="text-center">
-                  <Mail className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-zinc-600 mb-1">Tin nhắn</p>
-                  <p className="text-2xl font-black text-orange-700">{systemStats.totalMessages.toLocaleString()}</p>
-                </div>
-              </div>
+          {/* Stats - Inline */}
+          <div className="flex flex-wrap gap-8 mb-12 py-6 border-y-2 border-black">
+            <div>
+              <p className="text-sm text-zinc-500">Tổng người dùng</p>
+              <p className="text-3xl font-black">{systemStats.totalUsers.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">Đang hoạt động</p>
+              <p className="text-3xl font-black">{systemStats.activeUsers.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">Tổng tin đăng</p>
+              <p className="text-3xl font-black">{systemStats.totalListings.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">Tin nhắn</p>
+              <p className="text-3xl font-black">{systemStats.totalMessages.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Thao Tác Nhanh</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 border-2 border-black rounded-xl">
-                    <Users className="w-6 h-6 text-blue-600" />
+          {/* Quick Actions - Grid, no card wrapper */}
+          <div className="mb-12">
+            <h2 className="text-xl font-bold mb-4">Thao Tác Nhanh</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {quickActions.map((action, idx) => (
+                <button key={idx} className="group flex items-center gap-3 p-4 border-2 border-black rounded-xl hover:bg-blue-50 transition-all text-left">
+                  <action.icon className="w-6 h-6 text-zinc-600 group-hover:text-black" strokeWidth={1.5} />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm truncate">{action.title}</h3>
+                    <p className="text-xs text-zinc-500 truncate">{action.desc}</p>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Quản lý người dùng</h3>
-                    <p className="text-xs text-zinc-600">Xem, chỉnh sửa thông tin người dùng</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-100 border-2 border-black rounded-xl">
-                    <BarChart3 className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Báo cáo & Thống kê</h3>
-                    <p className="text-xs text-zinc-600">Xem báo cáo chi tiết hệ thống</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-100 border-2 border-black rounded-xl">
-                    <Settings className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Cài đặt hệ thống</h3>
-                    <p className="text-xs text-zinc-600">Cấu hình các thiết lập chung</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-yellow-100 border-2 border-black rounded-xl">
-                    <Bell className="w-6 h-6 text-yellow-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Thông báo hệ thống</h3>
-                    <p className="text-xs text-zinc-600">Gửi thông báo cho người dùng</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-red-100 border-2 border-black rounded-xl">
-                    <Database className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Quản lý dữ liệu</h3>
-                    <p className="text-xs text-zinc-600">Sao lưu và khôi phục dữ liệu</p>
-                  </div>
-                </div>
-              </button>
-
-              <button className="card bg-white hover:-translate-y-1 transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-pink-100 border-2 border-black rounded-xl">
-                    <Mail className="w-6 h-6 text-pink-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg mb-1">Email Marketing</h3>
-                    <p className="text-xs text-zinc-600">Gửi email tới người dùng</p>
-                  </div>
-                </div>
-              </button>
+                  <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Recent Users */}
+          {/* Recent Users - Table style */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Người Dùng Gần Đây</h2>
-            <div className="space-y-3">
-              {recentUsers.map((user) => (
-                <div key={user.id} className="card bg-white">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-200 border-2 border-black rounded-full flex items-center justify-center font-bold text-blue-700">
-                        {user.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-base mb-1">{user.name}</h3>
-                        <p className="text-sm text-zinc-600">{user.email}</p>
-                      </div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Người Dùng Gần Đây</h2>
+              <button className="text-sm font-semibold text-zinc-500 hover:text-black transition-colors">
+                Xem tất cả →
+              </button>
+            </div>
+            <div className="border-2 border-black rounded-xl overflow-hidden">
+              {recentUsers.map((user, idx) => (
+                <div key={user.id} className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 ${idx !== recentUsers.length - 1 ? 'border-b-2 border-black' : ''} hover:bg-zinc-50 transition-colors`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 border-2 border-black rounded-full flex items-center justify-center font-bold text-sm">
+                      {user.name.charAt(0)}
                     </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <div className="flex gap-2">
-                        <span className={`px-3 py-1 text-xs font-bold rounded-full border-2 border-black ${
-                          user.status === "active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {user.status === "active" ? "Hoạt động" : "Không hoạt động"}
-                        </span>
-                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700 border-2 border-black">
-                          {user.role === "admin" ? "Admin" : "User"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-zinc-500">Tham gia: {user.joinDate}</span>
-                      <button className="btn-secondary text-xs px-3 py-1">
-                        Chi tiết
-                      </button>
+                    <div>
+                      <h3 className="font-bold">{user.name}</h3>
+                      <p className="text-sm text-zinc-500">{user.email}</p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-2 py-0.5 text-xs font-bold rounded border border-black ${user.status === "active" ? "bg-blue-100" : "bg-zinc-100"}`}>
+                      {user.status === "active" ? "Hoạt động" : "Không hoạt động"}
+                    </span>
+                    <span className="text-xs text-zinc-400">{user.joinDate}</span>
+                    <button className="px-3 py-1.5 text-xs font-semibold border-2 border-black rounded-lg hover:bg-zinc-100 transition-colors">
+                      Chi tiết
+                    </button>
                   </div>
                 </div>
               ))}
-            </div>
-            <div className="text-center mt-6">
-              <button className="btn-primary">
-                Xem tất cả người dùng
-              </button>
             </div>
           </div>
         </div>
