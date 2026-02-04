@@ -230,9 +230,9 @@ export default function RoomshareListingDetailPage() {
                   {amenities.map((amenity) => (
                     <span
                       key={amenity}
-                      className="rounded-lg border-2 border-black bg-pink-100 px-3 py-1.5 text-sm font-medium flex items-center gap-1"
+                      className="rounded-lg border-2 border-black bg-pink-100 px-3 py-1.5 text-sm font-medium"
                     >
-                      <Check className="h-4 w-4" /> {amenity}
+                      {amenity}
                     </span>
                   ))}
                 </div>

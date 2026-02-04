@@ -369,14 +369,14 @@ export default function RoommateListingDetailPage() {
                   {displayAmenities.map((amenity) => (
                     <span
                       key={amenity}
-                      className="rounded-lg border-2 border-black bg-blue-100 px-3 py-1.5 text-sm font-medium flex items-center gap-1"
+                      className="rounded-lg border-2 border-black bg-blue-100 px-3 py-1.5 text-sm font-medium"
                     >
-                      <Check className="h-4 w-4" /> {amenity}
+                      {amenity}
                     </span>
                   ))}
                   {listing.amenitiesOther && (
-                    <span className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-sm font-medium flex items-center gap-1">
-                      <Check className="h-4 w-4" /> {listing.amenitiesOther}
+                    <span className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-sm font-medium">
+                      {listing.amenitiesOther}
                     </span>
                   )}
                 </div>

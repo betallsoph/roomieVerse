@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
-import { Lightbulb, MapPin, DollarSign, Eye, Loader2 } from "lucide-react";
+import { Lightbulb, MapPin, DollarSign, Eye, Loader2, NotebookPen } from "lucide-react";
 
 type RoommateType = "have-room" | "find-partner";
 
@@ -57,6 +57,10 @@ function CreateRoommateContent() {
   const [showStatusOther, setShowStatusOther] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  // Draft Modal State
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [draftData, setDraftData] = useState<any>(null);
 
   // Form state - Basic Info
   const [title, setTitle] = useState("");
@@ -124,44 +128,8 @@ function CreateRoommateContent() {
         const draft = JSON.parse(savedDraft);
         // Only load if matching type
         if (draft.type === type) {
-          if (confirm('Bạn có bản nháp đã lưu trước đó. Bạn có muốn tiếp tục không?')) {
-            setTitle(draft.title || "");
-            setIntroduction(draft.introduction || "");
-            setLocation(draft.location || "");
-            setLocationNegotiable(draft.locationNegotiable || false);
-            setPropertyTypes(draft.propertyTypes || []);
-            setBudget(draft.budget || "");
-            setMoveInTime(draft.moveInTime || "");
-            setTimeNegotiable(draft.timeNegotiable || false);
-            setImages(draft.images || []);
-            setAmenities(draft.amenities || []);
-            setAmenitiesOther(draft.amenitiesOther || "");
-            setRoomSize(draft.roomSize || "");
-            setCurrentOccupants(draft.currentOccupants || "");
-            setMinContractDuration(draft.minContractDuration || "");
-            setCostRent(draft.costRent || "");
-            setCostDeposit(draft.costDeposit || "");
-            setCostElectricity(draft.costElectricity || "");
-            setCostWater(draft.costWater || "");
-            setCostInternet(draft.costInternet || "");
-            setCostService(draft.costService || "");
-            setCostParking(draft.costParking || "");
-            setCostManagement(draft.costManagement || "");
-            setCostOther(draft.costOther || "");
-            setPrefGender(draft.prefGender || []);
-            setPrefStatus(draft.prefStatus || []);
-            setPrefStatusOther(draft.prefStatusOther || "");
-            setPrefSchedule(draft.prefSchedule || []);
-            setPrefCleanliness(draft.prefCleanliness || []);
-            setPrefHabits(draft.prefHabits || []);
-            setPrefPets(draft.prefPets || []);
-            setPrefMoveInTime(draft.prefMoveInTime || []);
-            setPrefOther(draft.prefOther || "");
-            setContactPhone(draft.contactPhone || "");
-            setContactZalo(draft.contactZalo || "");
-            setContactFacebook(draft.contactFacebook || "");
-            setContactInstagram(draft.contactInstagram || "");
-          }
+          setDraftData(draft);
+          setShowDraftModal(true);
         }
       } catch {
         // Invalid draft, ignore
@@ -169,6 +137,56 @@ function CreateRoommateContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
+
+  const handleRestoreDraft = () => {
+    if (!draftData) return;
+
+    setTitle(draftData.title || "");
+    setIntroduction(draftData.introduction || "");
+    setLocation(draftData.location || "");
+    setLocationNegotiable(draftData.locationNegotiable || false);
+    setPropertyTypes(draftData.propertyTypes || []);
+    setBudget(draftData.budget || "");
+    setMoveInTime(draftData.moveInTime || "");
+    setTimeNegotiable(draftData.timeNegotiable || false);
+    setImages(draftData.images || []);
+    setAmenities(draftData.amenities || []);
+    setAmenitiesOther(draftData.amenitiesOther || "");
+    setRoomSize(draftData.roomSize || "");
+    setCurrentOccupants(draftData.currentOccupants || "");
+    setMinContractDuration(draftData.minContractDuration || "");
+    setCostRent(draftData.costRent || "");
+    setCostDeposit(draftData.costDeposit || "");
+    setCostElectricity(draftData.costElectricity || "");
+    setCostWater(draftData.costWater || "");
+    setCostInternet(draftData.costInternet || "");
+    setCostService(draftData.costService || "");
+    setCostParking(draftData.costParking || "");
+    setCostManagement(draftData.costManagement || "");
+    setCostOther(draftData.costOther || "");
+    setPrefGender(draftData.prefGender || []);
+    setPrefStatus(draftData.prefStatus || []);
+    setPrefStatusOther(draftData.prefStatusOther || "");
+    setPrefSchedule(draftData.prefSchedule || []);
+    setPrefCleanliness(draftData.prefCleanliness || []);
+    setPrefHabits(draftData.prefHabits || []);
+    setPrefPets(draftData.prefPets || []);
+    setPrefMoveInTime(draftData.prefMoveInTime || []);
+    setPrefOther(draftData.prefOther || "");
+    setContactPhone(draftData.contactPhone || "");
+    setContactZalo(draftData.contactZalo || "");
+    setSameAsPhone(draftData.sameAsPhone || false);
+    setContactFacebook(draftData.contactFacebook || "");
+    setContactInstagram(draftData.contactInstagram || "");
+
+    setShowDraftModal(false);
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem('roommate_draft');
+    setDraftData(null);
+    setShowDraftModal(false);
+  };
 
   if (!type) return null;
 
@@ -1779,6 +1797,43 @@ function CreateRoommateContent() {
           </div>
         )
       }
+
+      {/* Draft Found Modal */}
+      {showDraftModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <NotebookPen className="w-8 h-8 text-black" strokeWidth={1.5} />
+                <h3 className="text-xl font-bold">Tìm thấy bản nháp</h3>
+              </div>
+              <p className="text-zinc-600 mb-6 font-medium">
+                Bạn có một bản nháp đã lưu trước đó. Bạn có muốn khôi phục lại không?
+              </p>
+              <div className="p-3 bg-zinc-50 border-2 border-black/10 rounded-lg mb-6">
+                <p className="text-sm text-zinc-500">
+                  Nếu chọn <span className="font-bold text-red-500">Bỏ qua</span>, bản nháp cũ sẽ bị xóa và không thể khôi phục.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDiscardDraft}
+                  className="flex-1 btn-secondary justify-center text-center"
+                >
+                  Bỏ qua
+                </button>
+                <button
+                  onClick={handleRestoreDraft}
+                  className="flex-1 btn-primary justify-center text-center"
+                >
+                  Khôi phục
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ShareFooter />
     </div >
