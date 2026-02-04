@@ -1,12 +1,6 @@
 'use client';
 
-import { useState } from "react";
-
-interface CompleteProfileModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onComplete: (data: ProfileData) => void;
-}
+import { useState, useEffect } from "react";
 
 interface ProfileData {
   gender: string;
@@ -14,12 +8,30 @@ interface ProfileData {
   occupation: string;
 }
 
-export default function CompleteProfileModal({ isOpen, onClose, onComplete }: CompleteProfileModalProps) {
+interface CompleteProfileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (data: ProfileData) => void;
+  initialData?: ProfileData;
+}
+
+export default function CompleteProfileModal({ isOpen, onClose, onComplete, initialData }: CompleteProfileModalProps) {
   const [formData, setFormData] = useState<ProfileData>({
     gender: '',
     birthYear: '',
     occupation: ''
   });
+
+  // Update form when modal opens with initial data
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setFormData({
+        gender: initialData.gender || '',
+        birthYear: initialData.birthYear || '',
+        occupation: initialData.occupation || ''
+      });
+    }
+  }, [isOpen, initialData]);
 
   const [errors, setErrors] = useState<Partial<ProfileData>>({});
 
@@ -111,7 +123,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Co
               type="number"
               min="1950"
               max={new Date().getFullYear()}
-              placeholder="VD: 1998"
+              placeholder="1998"
               value={formData.birthYear}
               onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
               className="w-full rounded-lg border-2 border-black px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -126,7 +138,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Co
             </label>
             <input
               type="text"
-              placeholder="VD: Software Engineer"
+              placeholder="Software Engineer"
               value={formData.occupation}
               onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
               className="w-full rounded-lg border-2 border-black px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -138,14 +150,14 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete }: Co
           <div className="flex flex-col gap-3 pt-4">
             <button
               type="submit"
-              className="btn-primary text-base px-6 py-3 w-full"
+              className="btn-primary btn-click-sink text-base px-6 py-3 w-full"
             >
               Hoàn thành
             </button>
             <button
               type="button"
               onClick={handleSkip}
-              className="btn-secondary text-base px-6 py-3 w-full"
+              className="btn-secondary btn-click-sink text-base px-6 py-3 w-full"
             >
               Để sau
             </button>

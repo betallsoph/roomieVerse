@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 interface SplitCTASectionProps {
   // Left side - current page
   leftHeading: string;
+  leftSubheading?: string;
   leftButton: string;
   leftReturnUrl: string;
   onPostClick?: () => void;
@@ -21,6 +22,7 @@ interface SplitCTASectionProps {
 
 export default function SplitCTASection({
   leftHeading,
+  leftSubheading = "Đăng tin tìm bạn ngay!",
   leftButton,
   leftReturnUrl,
   onPostClick,
@@ -46,7 +48,7 @@ export default function SplitCTASection({
       <div className={`rounded-xl border-2 border-black ${leftBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{leftHeading}</h2>
         <p className="mb-6 text-base text-zinc-700">
-          Đăng tin của bạn ngay - MIỄN PHÍ mãi mãi!
+          {leftSubheading}
         </p>
         {isAuthenticated ? (
           <button
@@ -54,14 +56,14 @@ export default function SplitCTASection({
               onPostClick?.();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="btn-primary text-base w-full"
+            className="btn-secondary text-base w-full max-w-[200px] mx-auto"
           >
             {leftButton}
           </button>
         ) : (
           <Link
             href={`/auth?returnUrl=${leftReturnUrl}`}
-            className="btn-primary text-base block"
+            className="btn-secondary text-base block w-full max-w-[200px] mx-auto"
           >
             Đăng nhập để đăng tin
           </Link>
@@ -74,7 +76,10 @@ export default function SplitCTASection({
         <p className="mb-6 text-base text-zinc-700">
           Khám phá thêm nhiều lựa chọn khác!
         </p>
-        <Link href={rightLink} className="btn-secondary text-base block">
+        <Link
+          href={rightLink}
+          className="btn-secondary text-base block w-full max-w-[200px] mx-auto"
+        >
           {rightButton}
         </Link>
       </div>

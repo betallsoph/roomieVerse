@@ -1,42 +1,114 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  User,
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut
+} from "firebase/auth";
+import { auth } from "../lib/firebase";
+import { getUserProfile } from "../data/users";
 
 interface AuthContextType {
+  user: User | null;
   isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
+  isLoading: boolean;
+  isProfileComplete: boolean;
+  profileChecked: boolean;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  checkProfileComplete: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const googleProvider = new GoogleAuthProvider();
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
 
   useEffect(() => {
-    // Check localStorage on mount
-    const authStatus = localStorage.getItem("isAuthenticated");
-    setIsAuthenticated(authStatus === "true");
-    setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      setIsLoading(false);
+
+      if (user) {
+        // Check if profile is complete
+        try {
+          const profile = await getUserProfile(user.uid);
+
+          // If no profile exists in database, this is a new/reset user
+          // Clear the reminder dismissal so the modal shows again
+          if (!profile) {
+            localStorage.removeItem('profileReminderDismissed');
+          }
+
+          const complete = !!(profile?.gender && profile?.birthYear && profile?.occupation);
+          setIsProfileComplete(complete);
+        } catch (error) {
+          console.error("Error checking profile:", error);
+          setIsProfileComplete(false);
+        }
+      } else {
+        setIsProfileComplete(false);
+      }
+      setProfileChecked(true);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem("isAuthenticated", "true");
+  const checkProfileComplete = async (): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const profile = await getUserProfile(user.uid);
+      const complete = !!(profile?.gender && profile?.birthYear && profile?.occupation);
+      setIsProfileComplete(complete);
+      return complete;
+    } catch (error) {
+      console.error("Error checking profile:", error);
+      return false;
+    }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("isAuthenticated");
+  const loginWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
   };
 
   if (isLoading) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      isProfileComplete,
+      profileChecked,
+      loginWithGoogle,
+      logout,
+      checkProfileComplete
+    }}>
       {children}
     </AuthContext.Provider>
   );

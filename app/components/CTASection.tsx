@@ -20,7 +20,7 @@ export default function CTASection({
     <div className="mt-20 rounded-xl border-2 border-black bg-gradient-to-br from-blue-100 to-blue-200 p-16 text-center shadow-[var(--shadow-primary)]">
       <h2 className="mb-4 text-3xl font-bold">{heading}</h2>
       <p className="mb-8 text-lg text-zinc-700">
-        Đăng tin của bạn ngay - MIỄN PHÍ mãi mãi!
+        Đăng tin tìm bạn ngay!
       </p>
       {isAuthenticated ? (
         <button

@@ -5,24 +5,28 @@ import Image from "next/image";
 import { SparklesText } from "./components/sparkles-text";
 import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
-import { useAuth } from "./contexts/AuthContext";
+import ProfileReminderModal from "./components/ProfileReminderModal";
+import { useProfileReminder } from "./hooks/useProfileReminder";
 
 export default function LandingPage() {
-  const { isAuthenticated } = useAuth();
+  const { showReminder, dismissReminder } = useProfileReminder();
 
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
 
+      {/* Profile Reminder Modal */}
+      <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
+
       {/* Hero Section */}
       <section className="section bg-blue-50 py-16 sm:py-24 md:py-32">
         <div className="wrapper text-center">
-          <h1 className="mb-8 text-4xl font-bold leading-tight text-black sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-8 font-bold leading-tight text-black">
             Không chỉ là tìm phòng...
-            <br />
+            <br className="hidden min-[500px]:block" />
             Mà còn là{" "}
             <SparklesText
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+              className="font-bold"
               sparklesCount={15}
               colors={{ first: "#9E7AFF", second: "#FE8BBB" }}
             >
@@ -31,29 +35,36 @@ export default function LandingPage() {
           </h1>
 
           <p className="mb-10 text-lg font-medium text-zinc-600 sm:text-xl md:text-2xl max-w-3xl mx-auto">
-            Nơi lý tưởng để tìm người ở ghép, tìm phòng share...
+            Nơi lý tưởng để tìm người ở ghép, tìm phòng trống...
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="#cta-section"
-              className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center"
+              className="btn-primary text-center sm:w-[200px]"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              Tìm ngay
+              Bắt đầu tìm ngay
             </a>
-            <Link href="/pages/login-required" className="btn-secondary text-base sm:text-lg px-8 py-4 min-w-[200px] text-center">
-              Đăng tin miễn phí
-            </Link>
+            <a
+              href="#how-it-works"
+              className="btn-secondary text-center sm:w-[200px]"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Khám phá thêm
+            </a>
           </div>
         </div>
       </section>
 
       {/* How it Works Section */}
-      <section className="section border-t-2 border-black bg-white py-16 md:py-20">
+      <section id="how-it-works" className="section border-t-2 border-black bg-white py-16 md:py-20">
         <div className="wrapper">
           <h2 className="mb-12 text-center text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
             Cách hoạt động
@@ -109,7 +120,7 @@ export default function LandingPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
+      <section id="why-choose-us" className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
         <div className="wrapper">
           <h2 className="mb-10 text-center text-3xl font-bold uppercase sm:mb-12 sm:text-4xl md:mb-16 md:text-5xl">
             Tại sao chọn chúng tôi?
@@ -176,6 +187,16 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
+
+          {/* Learn more button */}
+          <div className="mt-10 text-center">
+            <Link
+              href="/about"
+              className="btn-secondary"
+            >
+              Tìm hiểu thêm về roomieVerse
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -191,16 +212,16 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href={isAuthenticated ? "/roommate" : "/pages/login-required"}
+                href="/roommate"
                 className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
                 Tìm roommate
               </Link>
               <Link
-                href={isAuthenticated ? "/roomshare" : "/pages/login-required"}
+                href="/roomshare"
                 className="btn-pink text-base sm:text-lg px-8 py-4 min-w-[200px]"
               >
-                Tìm phòng share
+                Tìm phòng
               </Link>
             </div>
           </div>
