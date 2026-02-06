@@ -144,6 +144,12 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
       amenitiesOther: item.amenitiesOther,
       costs: item.costs,
       preferences: item.preferences,
+      // Address fields
+      city: item.city,
+      district: item.district,
+      specificAddress: item.specificAddress,
+      buildingName: item.buildingName,
+      addressOther: item.addressOther,
       // Room details
       roomSize: item.roomSize,
       currentOccupants: item.currentOccupants,

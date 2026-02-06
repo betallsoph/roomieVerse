@@ -283,7 +283,7 @@ export default function RoommateListingDetailPage() {
                     <p className="text-sm font-medium text-zinc-700 mb-1">
                       {isHaveRoom ? "Tiền thuê phòng" : "Ngân sách"}
                     </p>
-                    <p className="text-3xl sm:text-4xl font-extrabold">{listing.price}</p>
+                    <p className="text-3xl sm:text-4xl font-extrabold text-blue-600">{listing.price}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-zinc-700 mb-1">Đăng bởi</p>
@@ -294,77 +294,114 @@ export default function RoommateListingDetailPage() {
                 </div>
               </div>
 
-              {/* Location, Property Type & Move-in */}
+
+              {/* Address Section */}
               <div className="p-6 border-b-2 border-black">
-                <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-zinc-500">Thông tin phòng</h3>
-                <div className="space-y-6 text-sm">
-                  {/* Location - Full width for long addresses */}
-                  <div>
-                    <p className="text-zinc-500 mb-1">Địa chỉ</p>
-                    <p className="font-semibold text-base">{listing.location}</p>
-                  </div>
-
-                  {/* Grid for other details */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
-                    {/* 1. Loại hình */}
-                    {isHaveRoom && (
-                      <div>
-                        <p className="text-zinc-500 mb-1">Loại hình</p>
-                        <p className="font-semibold">
-                          {listing.propertyTypes && listing.propertyTypes.length > 0 ? (
-                            listing.propertyTypes.map((type, idx) => (
-                              <span key={type}>
-                                {type === "house" && "Nhà mặt đất"}
-                                {type === "room" && "Trọ"}
-                                {type === "apartment" && "Chung cư"}
-                                {type === "service-apartment" && "Căn hộ dịch vụ"}
-                                {type === "other" && "Loại hình khác"}
-                                {idx < listing.propertyTypes!.length - 1 && ", "}
-                              </span>
-                            ))
-                          ) : (
-                            "---"
-                          )}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* 2. Diện tích */}
-                    {isHaveRoom && (
-                      <div>
-                        <p className="text-zinc-500 mb-1">Diện tích</p>
-                        <p className="font-semibold">{listing.roomSize ? `${listing.roomSize} m²` : "---"}</p>
-                      </div>
-                    )}
-
-                    {/* 3. Số người đang ở */}
-                    {isHaveRoom && (
-                      <div>
-                        <p className="text-zinc-500 mb-1">Số người đang ở</p>
-                        <p className="font-semibold">{listing.currentOccupants || "---"}</p>
-                      </div>
-                    )}
-
-                    {/* 4. Dọn vào */}
+                <h3 className="mb-4 text-sm font-bold text-zinc-500">Địa chỉ</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {listing.city && (
                     <div>
-                      <p className="text-zinc-500 mb-1">Dọn vào</p>
-                      <p className="font-semibold">{listing.moveInDate || "---"}</p>
+                      <p className="text-zinc-500 mb-1">Thành phố</p>
+                      <p className="font-semibold text-blue-700">{listing.city}</p>
                     </div>
+                  )}
+                  {listing.district && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Quận - Huyện - Xã</p>
+                      <p className="font-semibold text-blue-700">{listing.district}</p>
+                    </div>
+                  )}
+                  {listing.specificAddress && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Số nhà - Tên đường</p>
+                      <p className="font-semibold text-blue-700">{listing.specificAddress}</p>
+                    </div>
+                  )}
+                  {listing.buildingName && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Tên toà nhà/Chung cư - Block</p>
+                      <p className="font-semibold text-blue-700">{listing.buildingName}</p>
+                    </div>
+                  )}
+                  {listing.addressOther && (
+                    <div className="col-span-2">
+                      <p className="text-zinc-500 mb-1">Khác</p>
+                      <p className="font-semibold text-blue-700">{listing.addressOther}</p>
+                    </div>
+                  )}
+                  {/* Fallback to old location field if new fields are empty */}
+                  {!listing.city && !listing.district && !listing.specificAddress && listing.location && (
+                    <div className="col-span-2">
+                      <p className="text-zinc-500 mb-1">Địa chỉ</p>
+                      <p className="font-semibold text-blue-700">{listing.location}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-                    {/* 5. Hợp đồng tối thiểu */}
-                    {isHaveRoom && (
-                      <div>
-                        <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
-                        <p className="font-semibold">{listing.minContractDuration || "---"}</p>
-                      </div>
-                    )}
+              {/* Room Info Section */}
+              <div className="p-6 border-b-2 border-black">
+                <h3 className="mb-4 text-sm font-bold text-zinc-500">Thông tin phòng</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 text-sm">
+                  {/* 1. Loại hình */}
+                  {isHaveRoom && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Loại hình</p>
+                      <p className="font-semibold text-blue-700">
+                        {listing.propertyTypes && listing.propertyTypes.length > 0 ? (
+                          listing.propertyTypes.map((type, idx) => (
+                            <span key={type}>
+                              {type === "house" && "Nhà mặt đất"}
+                              {type === "room" && "Trọ"}
+                              {type === "apartment" && "Chung cư"}
+                              {type === "service-apartment" && "Căn hộ dịch vụ"}
+                              {type === "other" && "Loại hình khác"}
+                              {idx < listing.propertyTypes!.length - 1 && ", "}
+                            </span>
+                          ))
+                        ) : (
+                          "---"
+                        )}
+                      </p>
+                    </div>
+                  )}
+
+
+                  {/* 2. Diện tích */}
+                  {isHaveRoom && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Diện tích</p>
+                      <p className="font-semibold text-blue-700">{listing.roomSize ? `${listing.roomSize} m²` : "---"}</p>
+                    </div>
+                  )}
+
+                  {/* 3. Số người đang ở */}
+                  {isHaveRoom && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Số người đang ở</p>
+                      <p className="font-semibold text-blue-700">{listing.currentOccupants || "---"}</p>
+                    </div>
+                  )}
+
+                  {/* 4. Dọn vào */}
+                  <div>
+                    <p className="text-zinc-500 mb-1">Dọn vào</p>
+                    <p className="font-semibold text-blue-700">{listing.moveInDate || "---"}</p>
                   </div>
+
+                  {/* 5. Hợp đồng tối thiểu */}
+                  {isHaveRoom && (
+                    <div>
+                      <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
+                      <p className="font-semibold text-blue-700">{listing.minContractDuration || "---"}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Amenities */}
               <div className="p-6">
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-zinc-500">Tiện nghi</h3>
+                <h3 className="mb-3 text-sm font-bold text-zinc-500">Tiện nghi</h3>
                 <div className="flex flex-wrap gap-2">
                   {displayAmenities.map((amenity) => (
                     <span
@@ -410,7 +447,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.gender && listing.preferences.gender.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Giới tính</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.gender.map(v => preferenceLabels.gender[v] || v).join(", ")}
                       </p>
                     </div>
@@ -419,7 +456,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.status && listing.preferences.status.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Tình trạng</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.status.map(v => preferenceLabels.status[v] || v).join(", ")}
                         {listing.preferences.statusOther && ` (${listing.preferences.statusOther})`}
                       </p>
@@ -429,7 +466,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.schedule && listing.preferences.schedule.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Giờ giấc</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.schedule.map(v => preferenceLabels.schedule[v] || v).join(", ")}
                       </p>
                     </div>
@@ -438,7 +475,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.cleanliness && listing.preferences.cleanliness.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Mức độ sạch sẽ</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.cleanliness.map(v => preferenceLabels.cleanliness[v] || v).join(", ")}
                       </p>
                     </div>
@@ -447,7 +484,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.habits && listing.preferences.habits.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Thói quen</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.habits.map(v => preferenceLabels.habits[v] || v).join(", ")}
                       </p>
                     </div>
@@ -456,7 +493,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.pets && listing.preferences.pets.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Thú cưng</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.pets.map(v => preferenceLabels.pets[v] || v).join(", ")}
                       </p>
                     </div>
@@ -465,7 +502,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.moveInTime && listing.preferences.moveInTime.length > 0 && (
                     <div>
                       <p className="text-sm text-zinc-500 mb-1">Thời gian dọn vào</p>
-                      <p className="font-medium">
+                      <p className="font-semibold text-blue-700">
                         {listing.preferences.moveInTime.map(v => preferenceLabels.moveInTime[v] || v).join(", ")}
                       </p>
                     </div>
@@ -474,7 +511,7 @@ export default function RoommateListingDetailPage() {
                   {listing.preferences.other && (
                     <div className="sm:col-span-2">
                       <p className="text-sm text-zinc-500 mb-1">Yêu cầu khác</p>
-                      <p className="font-medium">{listing.preferences.other}</p>
+                      <p className="font-semibold text-blue-700">{listing.preferences.other}</p>
                     </div>
                   )}
                 </div>

@@ -137,7 +137,7 @@ export default function RoommatePage() {
         />
       </div>
 
-      {/* Post Type Modal */}
+      {/* Roommate Type Modal */}
       <PostTypeModal
         isOpen={showPostTypeModal}
         onClose={() => setShowPostTypeModal(false)}

@@ -31,7 +31,7 @@ export default function FilterButtons({
             : "text-black border-2 border-transparent hover:bg-zinc-100"
             }`}
         >
-          Đã có phòng
+          Bạn đã có phòng
         </motion.button>
         <motion.button
           type="button"
@@ -43,7 +43,7 @@ export default function FilterButtons({
             : "text-black border-2 border-transparent hover:bg-zinc-100"
             }`}
         >
-          Chưa có phòng
+          Bạn chưa có phòng
         </motion.button>
       </motion.div>
 

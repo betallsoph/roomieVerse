@@ -74,17 +74,6 @@ export default function PostTypeModal({ isOpen, onClose }: PostTypeModalProps) {
               opacity: 1;
             }
           }
-          @keyframes wiggle {
-            0%, 100% {
-              transform: rotate(0deg);
-            }
-            25% {
-              transform: rotate(-3deg);
-            }
-            75% {
-              transform: rotate(3deg);
-            }
-          }
         `}</style>
         {/* Close button */}
         <button
@@ -120,7 +109,9 @@ export default function PostTypeModal({ isOpen, onClose }: PostTypeModalProps) {
                 className="group p-6 rounded-xl border-2 border-black bg-blue-100 transition-all btn-modal-flat"
               >
                 <div className="flex flex-col items-center text-center gap-4">
-                  <Users className="w-12 h-12 text-blue-600 group-hover:animate-[wiggle_0.4s_ease-in-out]" />
+                  <div className="w-16 h-16 rounded-full bg-blue-300 border-2 border-black flex items-center justify-center">
+                    <Users className="w-8 h-8" />
+                  </div>
                   <h3 className="text-lg font-bold">Đăng bài kiếm người ở cùng</h3>
                 </div>
               </button>
@@ -131,7 +122,9 @@ export default function PostTypeModal({ isOpen, onClose }: PostTypeModalProps) {
                 className="group p-6 rounded-xl border-2 border-black bg-pink-100 transition-all btn-modal-flat"
               >
                 <div className="flex flex-col items-center text-center gap-4">
-                  <Home className="w-12 h-12 text-pink-600 group-hover:animate-[wiggle_0.4s_ease-in-out]" />
+                  <div className="w-16 h-16 rounded-full bg-pink-300 border-2 border-black flex items-center justify-center">
+                    <Home className="w-8 h-8" />
+                  </div>
                   <h3 className="text-lg font-bold">Đăng bài share phòng</h3>
                 </div>
               </button>
@@ -155,9 +148,11 @@ export default function PostTypeModal({ isOpen, onClose }: PostTypeModalProps) {
                 className="group p-6 rounded-xl border-2 border-black bg-blue-100 transition-all btn-modal-flat"
               >
                 <div className="flex flex-col items-center text-center gap-4">
-                  <Home className="w-12 h-12 text-blue-600 group-hover:animate-[wiggle_0.4s_ease-in-out]" />
+                  <div className="w-16 h-16 rounded-full bg-blue-300 border-2 border-black flex items-center justify-center">
+                    <Home className="w-8 h-8" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-bold mb-2">Đã có phòng</h3>
+                    <h3 className="text-lg font-bold mb-2">Bạn đã có phòng</h3>
                     <p className="text-sm text-zinc-600">
                       Bạn có phòng sẵn, muốn tìm người ở cùng
                     </p>
@@ -171,9 +166,11 @@ export default function PostTypeModal({ isOpen, onClose }: PostTypeModalProps) {
                 className="group p-6 rounded-xl border-2 border-black bg-blue-100 transition-all btn-modal-flat"
               >
                 <div className="flex flex-col items-center text-center gap-4">
-                  <Users className="w-12 h-12 text-blue-600 group-hover:animate-[wiggle_0.4s_ease-in-out]" />
+                  <div className="w-16 h-16 rounded-full bg-blue-300 border-2 border-black flex items-center justify-center">
+                    <Users className="w-8 h-8" />
+                  </div>
                   <div>
-                    <h3 className="text-lg font-bold mb-2">Chưa có phòng</h3>
+                    <h3 className="text-lg font-bold mb-2">Bạn chưa có phòng</h3>
                     <p className="text-sm text-zinc-600">
                       Bạn muốn tìm bạn trước, rồi cùng nhau đi thuê phòng
                     </p>

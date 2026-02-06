@@ -65,7 +65,11 @@ function CreateRoommateContent() {
   // Form state - Basic Info
   const [title, setTitle] = useState("");
   const [introduction, setIntroduction] = useState("");
-  const [location, setLocation] = useState("");
+  const [city, setCity] = useState("");
+  const [district, setDistrict] = useState("");
+  const [specificAddress, setSpecificAddress] = useState("");
+  const [buildingName, setBuildingName] = useState("");
+  const [addressOther, setAddressOther] = useState("");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
   const [budget, setBudget] = useState("");
   const [moveInTime, setMoveInTime] = useState("");
@@ -143,7 +147,10 @@ function CreateRoommateContent() {
 
     setTitle(draftData.title || "");
     setIntroduction(draftData.introduction || "");
-    setLocation(draftData.location || "");
+    setCity(draftData.city || "");
+    setDistrict(draftData.district || "");
+    setSpecificAddress(draftData.specificAddress || "");
+    setBuildingName(draftData.buildingName || "");
     setLocationNegotiable(draftData.locationNegotiable || false);
     setPropertyTypes(draftData.propertyTypes || []);
     setBudget(draftData.budget || "");
@@ -198,12 +205,12 @@ function CreateRoommateContent() {
   const isBasicInfoComplete = isHaveRoom
     ? (title.trim() !== "" &&
       introduction.trim() !== "" &&
-      location.trim() !== "" &&
+      city.trim() !== "" && district.trim() !== "" &&
       propertyTypes.length > 0 &&
       costRent.trim() !== "")
     : (title.trim() !== "" &&
       introduction.trim() !== "" &&
-      location.trim() !== "" &&
+      city.trim() !== "" && district.trim() !== "" &&
       propertyTypes.length > 0 &&
       budget.trim() !== "" &&
       moveInTime.trim() !== "");
@@ -244,7 +251,7 @@ function CreateRoommateContent() {
       let step1Filled = 0;
       if (title.trim()) step1Filled++;
       if (introduction.trim()) step1Filled++;
-      if (location.trim()) step1Filled++;
+      if (city.trim() && district.trim() && specificAddress.trim()) step1Filled++;
       if (propertyTypes.length > 0) step1Filled++;
 
       if (isHaveRoom) {
@@ -307,7 +314,7 @@ function CreateRoommateContent() {
   }, [
     // Dependencies
     isHaveRoom, showAmenities, showPreferences,
-    title, introduction, location, propertyTypes, costRent, budget, moveInTime,
+    title, introduction, city, district, specificAddress, buildingName, addressOther, propertyTypes, costRent, budget, moveInTime,
     roomSize, currentOccupants, minContractDuration, images, amenities,
     prefGender, prefStatus, prefSchedule, prefCleanliness, prefHabits, prefPets, prefMoveInTime
   ]);
@@ -420,7 +427,7 @@ function CreateRoommateContent() {
       <section className="py-12 bg-blue-50 relative">
         <div className="mx-auto max-w-7xl px-6">
           <h1 className="text-3xl font-bold mb-2">
-            {isHaveRoom ? "Đăng tin tìm người ở cùng" : "Đăng tin tìm bạn cùng thuê"}
+            {isHaveRoom ? "Đăng tin tìm người ở ghép cùng" : "Đăng tin tìm bạn cùng thuê"}
           </h1>
           <p className="text-zinc-600">
             {isHaveRoom
@@ -451,7 +458,9 @@ function CreateRoommateContent() {
                           setTitle("Tìm bạn ở ghép căn hộ 2PN Vinhomes Grand Park Q9");
                           setIntroduction("Mình là nữ, 25 tuổi, làm văn phòng ở Quận 1. Thói quen sinh hoạt điều độ, thích gọn gàng sạch sẽ. Không hút thuốc, không nuôi thú cưng.");
                           setPropertyTypes(["apartment"]);
-                          setLocation("Quận 9, Vinhomes Grand Park");
+                          setCity("TP. Hồ Chí Minh");
+                          setDistrict("Quận 9");
+                          setSpecificAddress("Vinhomes Grand Park, Tháp S3.02, Phòng 1202");
                           // Cost fields
                           setCostRent("3.500.000");
                           setCostDeposit("1 tháng tiền phòng");
@@ -464,7 +473,9 @@ function CreateRoommateContent() {
                         } else {
                           setTitle("Tìm bạn cùng thuê phòng khu Thảo Điền");
                           setIntroduction("Mình là nữ, 25 tuổi, làm văn phòng ở Quận 1. Thói quen sinh hoạt điều độ, thích gọn gàng sạch sẽ. Không hút thuốc, không nuôi thú cưng.");
-                          setLocation("Quận 2, Thảo Điền, Bình Thạnh");
+                          setCity("TP. Hồ Chí Minh");
+                          setDistrict("Quận 2, Bình Thạnh");
+                          setSpecificAddress("Khu vực Thảo Điền hoặc lân cận");
                           setPropertyTypes(["apartment", "service-apartment"]);
                           setBudget("4-5 triệu/tháng");
                           setMoveInTime("Trong tháng 1/2025");
@@ -478,7 +489,7 @@ function CreateRoommateContent() {
                   <div className="space-y-6">
                     {/* Title */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Tiêu đề bài đăng
                       </label>
                       <input
@@ -498,30 +509,11 @@ function CreateRoommateContent() {
                       )}
                     </div>
 
-                    {/* Location - moved before Introduction for have-room */}
-                    {isHaveRoom && (
-                      <div>
-                        <label className="block text-sm font-bold mb-2">
-                          Địa chỉ cụ thể
-                        </label>
-                        <input
-                          type="text"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          placeholder="Quận 2, Thảo Điền..."
-                          className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                        {showValidationMessage && location.trim() === "" && (
-                          <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
-                        )}
-                      </div>
-                    )}
 
-
-                    {/* Property Type - show before Introduction for have-room */}
+                    {/* Property Type - show before Address for have-room */}
                     {isHaveRoom && (
-                      <div>
-                        <label className="block text-sm font-bold mb-2">
+                      <div className="mb-6">
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
                           Loại hình hiện tại
                         </label>
                         <div className="flex flex-wrap gap-3">
@@ -563,9 +555,116 @@ function CreateRoommateContent() {
                       </div>
                     )}
 
+                    {/* Location - moved before Introduction for have-room */}
+                    {isHaveRoom && (
+                      <div>
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
+                          Địa chỉ
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {/* City */}
+                          <div>
+                            {(() => {
+                              const knownCities = ["TP. Hồ Chí Minh", "Bảo Lộc", "Cam Ranh", "Cần Thơ", "Đà Lạt", "Đà Nẵng", "Dĩ An", "Hà Nội", "Hội An", "Huế", "Nha Trang", "Phan Rang", "Phan Thiết", "Quy Nhơn", "Tam Kỳ", "Tân Uyên", "Thủ Dầu Một", "Tuy Hoà"];
+                              const isCustomCity = city !== "" && !knownCities.includes(city);
+                              return (
+                                <>
+                                  <select
+                                    value={isCustomCity ? "other" : city}
+                                    onChange={(e) => setCity(e.target.value === "other" ? "" : e.target.value)}
+                                    className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
+                                  >
+                                    <option value="">Chọn thành phố</option>
+                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <option value="Bảo Lộc">Bảo Lộc</option>
+                                    <option value="Cam Ranh">Cam Ranh</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
+                                    <option value="Đà Lạt">Đà Lạt</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Dĩ An">Dĩ An</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Hội An">Hội An</option>
+                                    <option value="Huế">Huế</option>
+                                    <option value="Nha Trang">Nha Trang</option>
+                                    <option value="Phan Rang">Phan Rang</option>
+                                    <option value="Phan Thiết">Phan Thiết</option>
+                                    <option value="Quy Nhơn">Quy Nhơn</option>
+                                    <option value="Tam Kỳ">Tam Kỳ</option>
+                                    <option value="Tân Uyên">Tân Uyên</option>
+                                    <option value="Thủ Dầu Một">Thủ Dầu Một</option>
+                                    <option value="Tuy Hoà">Tuy Hoà</option>
+                                    <option value="other">Khác</option>
+                                  </select>
+                                  {isCustomCity && (
+                                    <input
+                                      type="text"
+                                      value={city}
+                                      onChange={(e) => setCity(e.target.value)}
+                                      placeholder="Nhập tên thành phố..."
+                                      maxLength={30}
+                                      className="w-full px-4 py-3 mt-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                      autoFocus
+                                    />
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                          {/* District */}
+                          <div>
+                            <input
+                              type="text"
+                              value={district}
+                              onChange={(e) => setDistrict(e.target.value)}
+                              placeholder="Quận - Huyện - Xã"
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                          {/* Specific Address */}
+                          <div>
+                            <input
+                              type="text"
+                              value={specificAddress}
+                              onChange={(e) => setSpecificAddress(e.target.value)}
+                              placeholder="Số nhà - Tên đường"
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                          {/* Building Name */}
+                          <div>
+                            <input
+                              type="text"
+                              value={buildingName}
+                              onChange={(e) => setBuildingName(e.target.value)}
+                              placeholder="Tên toà nhà - Tên chung cư - Block"
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                          {/* Other Address Info */}
+                          <div className="col-span-2">
+                            <input
+                              type="text"
+                              value={addressOther}
+                              onChange={(e) => setAddressOther(e.target.value)}
+                              placeholder="Nếu bạn còn gì khác thì nhập ở đây nhé!"
+                              maxLength={50}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                        </div>
+                        {showValidationMessage && (city.trim() === "" || district.trim() === "") && (
+                          <p className="text-sm text-pink-500 mt-1">Vui lòng điền đầy đủ địa chỉ ^^</p>
+                        )}
+                      </div>
+                    )}
+
+
+                    {/* Property Type - show before Introduction for have-room */}
+
+
                     {/* Introduction */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Giới thiệu chung bản thân
                       </label>
                       <textarea
@@ -584,18 +683,81 @@ function CreateRoommateContent() {
                     {/* Location - for find-partner only (have-room location is above) */}
                     {!isHaveRoom && (
                       <div>
-                        <label className="block text-sm font-bold mb-2">
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
                           Khu vực mong muốn ở
                         </label>
-                        <input
-                          type="text"
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          placeholder="Quận 1, Quận 3, Bình Thạnh..."
-                          className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                        {showValidationMessage && location.trim() === "" && (
-                          <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            {(() => {
+                              const knownCities = ["TP. Hồ Chí Minh", "Bảo Lộc", "Cam Ranh", "Cần Thơ", "Đà Lạt", "Đà Nẵng", "Dĩ An", "Hà Nội", "Hội An", "Huế", "Nha Trang", "Phan Rang", "Phan Thiết", "Quy Nhơn", "Tam Kỳ", "Tân Uyên", "Thủ Dầu Một", "Tuy Hoà"];
+                              const isCustomCity = city !== "" && !knownCities.includes(city);
+                              return (
+                                <>
+                                  <select
+                                    value={isCustomCity ? "other" : city}
+                                    onChange={(e) => setCity(e.target.value === "other" ? "" : e.target.value)}
+                                    className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
+                                  >
+                                    <option value="">Chọn thành phố</option>
+                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <option value="Bảo Lộc">Bảo Lộc</option>
+                                    <option value="Cam Ranh">Cam Ranh</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
+                                    <option value="Đà Lạt">Đà Lạt</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Dĩ An">Dĩ An</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Hội An">Hội An</option>
+                                    <option value="Huế">Huế</option>
+                                    <option value="Nha Trang">Nha Trang</option>
+                                    <option value="Phan Rang">Phan Rang</option>
+                                    <option value="Phan Thiết">Phan Thiết</option>
+                                    <option value="Quy Nhơn">Quy Nhơn</option>
+                                    <option value="Tam Kỳ">Tam Kỳ</option>
+                                    <option value="Tân Uyên">Tân Uyên</option>
+                                    <option value="Thủ Dầu Một">Thủ Dầu Một</option>
+                                    <option value="Tuy Hoà">Tuy Hoà</option>
+                                    <option value="other">Khác</option>
+                                  </select>
+                                  {isCustomCity && (
+                                    <input
+                                      type="text"
+                                      value={city}
+                                      onChange={(e) => setCity(e.target.value)}
+                                      placeholder="Nhập tên thành phố..."
+                                      maxLength={30}
+                                      className="w-full px-4 py-3 mt-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                      autoFocus
+                                    />
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                          {/* District */}
+                          <div>
+                            <input
+                              type="text"
+                              value={district}
+                              onChange={(e) => setDistrict(e.target.value)}
+                              placeholder="Quận - Huyện - Xã mong muốn"
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                          {/* Other Address Info */}
+                          <div className="col-span-2">
+                            <input
+                              type="text"
+                              value={addressOther}
+                              onChange={(e) => setAddressOther(e.target.value)}
+                              placeholder="Nếu bạn còn gì khác thì nhập ở đây nhé!"
+                              maxLength={50}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                          </div>
+                        </div>
+                        {showValidationMessage && (city.trim() === "" || district.trim() === "") && (
+                          <p className="text-sm text-pink-500 mt-1">Vui lòng điền đầy đủ khu vực ^^</p>
                         )}
                         <label className="flex items-center gap-2 mt-2 cursor-pointer">
                           <input
@@ -612,7 +774,7 @@ function CreateRoommateContent() {
                     {/* Cost Section - for have-room only - SIMPLIFIED */}
                     {isHaveRoom && (
                       <div>
-                        <label className="block text-sm font-bold">
+                        <label className="block text-sm font-bold text-blue-600">
                           Chi phí tổng tất cả các loại phí hàng tháng
                         </label>
                         <p className="text-sm text-zinc-500 italic mt-1 mb-2">
@@ -639,7 +801,7 @@ function CreateRoommateContent() {
                     {/* Property Type - for find-partner only */}
                     {!isHaveRoom && (
                       <div>
-                        <label className="block text-sm font-bold mb-2">
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
                           Loại hình mong muốn ở
                         </label>
                         <div className="flex flex-wrap gap-3">
@@ -683,7 +845,7 @@ function CreateRoommateContent() {
                     {/* Budget - only for find-partner */}
                     {!isHaveRoom && (
                       <div>
-                        <label className="block text-sm font-bold mb-2">
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
                           Ngân sách tối đa
                         </label>
                         <input
@@ -702,7 +864,7 @@ function CreateRoommateContent() {
                     {/* Move-in Time - only for find-partner */}
                     {!isHaveRoom && (
                       <div>
-                        <label className="block text-sm font-bold mb-2">
+                        <label className="block text-sm font-bold mb-2 text-blue-600">
                           Thời gian mong muốn tìm được phòng
                         </label>
                         <input
@@ -778,10 +940,10 @@ function CreateRoommateContent() {
                   <div className="space-y-6">
                     {/* Room Details - for have-room only */}
                     {isHaveRoom && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Room Size */}
                         <div>
-                          <label className="block text-sm font-bold mb-2">
+                          <label className="block text-sm font-bold mb-2 text-blue-600">
                             Diện tích (m²)
                           </label>
                           <input
@@ -795,16 +957,15 @@ function CreateRoommateContent() {
 
                         {/* Current Occupants */}
                         <div>
-                          <label className="block text-sm font-bold mb-2">
+                          <label className="block text-sm font-bold mb-2 text-blue-600">
                             Số người đang ở
                           </label>
                           <select
                             value={currentOccupants}
                             onChange={(e) => setCurrentOccupants(e.target.value)}
-                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
                           >
                             <option value="">Chọn...</option>
-                            <option value="0">Chưa có ai</option>
                             <option value="1">1 người</option>
                             <option value="2">2 người</option>
                             <option value="3">3 người</option>
@@ -814,13 +975,13 @@ function CreateRoommateContent() {
 
                         {/* Min Contract Duration */}
                         <div>
-                          <label className="block text-sm font-bold mb-2">
-                            Hợp đồng tối thiểu
+                          <label className="block text-sm font-bold mb-2 text-blue-600">
+                            Thời hạn hợp đồng còn lại
                           </label>
                           <select
                             value={minContractDuration}
                             onChange={(e) => setMinContractDuration(e.target.value)}
-                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
                           >
                             <option value="">Chọn...</option>
                             <option value="1 tháng">1 tháng</option>
@@ -834,7 +995,7 @@ function CreateRoommateContent() {
                     )}
                     {/* Upload Images */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Hình ảnh phòng/nhà (Tối đa 5 ảnh)
                       </label>
                       <div className="space-y-3">
@@ -899,7 +1060,7 @@ function CreateRoommateContent() {
 
                     {/* Amenities */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Tiện nghi
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -964,19 +1125,29 @@ function CreateRoommateContent() {
                     >
                       Quay lại
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (images.length === 0) {
-                          setShowImagesValidation(true);
-                          return;
-                        }
-                        router.push(`/roommate/create?type=${type}&step=3`);
-                      }}
-                      className="flex-1 btn-primary"
-                    >
-                      Tiếp tục
-                    </button>
+                    {(() => {
+                      const isStep2Complete = isHaveRoom
+                        ? (images.length > 0 && amenities.length > 0 && roomSize.trim() !== "" && currentOccupants !== "" && minContractDuration !== "")
+                        : (images.length > 0 && amenities.length > 0);
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (images.length === 0) {
+                              setShowImagesValidation(true);
+                              return;
+                            }
+                            if (!isStep2Complete) {
+                              return;
+                            }
+                            router.push(`/roommate/create?type=${type}&step=3`);
+                          }}
+                          className={`flex-1 ${isStep2Complete ? 'btn-primary' : 'btn-start opacity-50 cursor-not-allowed'}`}
+                        >
+                          Tiếp tục
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
@@ -1006,7 +1177,7 @@ function CreateRoommateContent() {
                   <div className="space-y-6">
                     {/* Gender */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Giới tính</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Giới tính</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "male", label: "Nam" },
@@ -1042,7 +1213,7 @@ function CreateRoommateContent() {
 
                     {/* Status */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Tình trạng</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Tình trạng</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "student", label: "Sinh viên" },
@@ -1094,7 +1265,7 @@ function CreateRoommateContent() {
 
                     {/* Schedule */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Giờ giấc</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Giờ giấc</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "early", label: "Ngủ sớm, dậy sớm" },
@@ -1129,7 +1300,7 @@ function CreateRoommateContent() {
 
                     {/* Cleanliness */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Mức độ sạch sẽ</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Mức độ sạch sẽ</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "very-clean", label: "Rất sạch sẽ" },
@@ -1164,7 +1335,7 @@ function CreateRoommateContent() {
 
                     {/* Habits */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Thói quen</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Thói quen</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "no-smoke", label: "Không hút thuốc" },
@@ -1199,7 +1370,7 @@ function CreateRoommateContent() {
 
                     {/* Pets */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Thú cưng</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Thú cưng</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "no-pet", label: "Không nuôi thú cưng" },
@@ -1234,7 +1405,7 @@ function CreateRoommateContent() {
 
                     {/* Move-in Time */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Thời gian dọn vào</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Thời gian dọn vào</label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "early-month", label: "Đầu tháng" },
@@ -1270,7 +1441,7 @@ function CreateRoommateContent() {
 
                     {/* Other */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">Khác</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">Khác</label>
                       <input
                         type="text"
                         value={prefOther}
@@ -1332,7 +1503,7 @@ function CreateRoommateContent() {
                   <div className="space-y-6">
                     {/* Phone */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Số điện thoại <span className="text-pink-500">*</span>
                       </label>
                       <input
@@ -1346,7 +1517,7 @@ function CreateRoommateContent() {
 
                     {/* Zalo */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Zalo
                       </label>
                       <input
@@ -1370,7 +1541,7 @@ function CreateRoommateContent() {
 
                     {/* Facebook */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Facebook
                       </label>
                       <input
@@ -1384,7 +1555,7 @@ function CreateRoommateContent() {
 
                     {/* Instagram */}
                     <div>
-                      <label className="block text-sm font-bold mb-2">
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
                         Instagram
                       </label>
                       <input
@@ -1422,7 +1593,12 @@ function CreateRoommateContent() {
                           type,
                           title,
                           introduction,
-                          location,
+                          city,
+                          district,
+                          specificAddress,
+                          buildingName,
+                          addressOther,
+                          location: [specificAddress, buildingName, district, city].filter(Boolean).join(', '),
                           locationNegotiable,
                           propertyTypes,
                           budget,
@@ -1470,10 +1646,20 @@ function CreateRoommateContent() {
                           userId: user?.uid,
                         };
 
-                        // Get existing listings or create new array
-                        const existingListings = JSON.parse(localStorage.getItem('roommate_listings') || '[]');
-                        existingListings.push(listingData);
-                        localStorage.setItem('roommate_listings', JSON.stringify(existingListings));
+                        try {
+                          // Get existing listings or create new array
+                          const existingListings = JSON.parse(localStorage.getItem('roommate_listings') || '[]');
+                          existingListings.push(listingData);
+
+                          // Keep only last 10 listings to prevent quota issues
+                          const limitedListings = existingListings.slice(-10);
+
+                          localStorage.setItem('roommate_listings', JSON.stringify(limitedListings));
+                        } catch (e) {
+                          console.error('localStorage quota exceeded, clearing old data');
+                          // If quota exceeded, keep only this new listing
+                          localStorage.setItem('roommate_listings', JSON.stringify([listingData]));
+                        }
 
                         // Remove draft if exists
                         localStorage.removeItem('roommate_draft');
@@ -1574,7 +1760,7 @@ function CreateRoommateContent() {
               <div className="card bg-yellow-50 !p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Lightbulb className="w-5 h-5 text-yellow-600" />
-                  <h3 className="font-bold">Mẹo & Checklist</h3>
+                  <h3 className="font-bold">Mẹo để được duyệt bài nhanh</h3>
                 </div>
                 {isHaveRoom ? (
                   <>
@@ -1615,7 +1801,11 @@ function CreateRoommateContent() {
                       type,
                       title,
                       introduction,
-                      location,
+                      city,
+                      district,
+                      specificAddress,
+                      buildingName,
+                      addressOther,
                       locationNegotiable,
                       propertyTypes,
                       budget,
@@ -1692,7 +1882,7 @@ function CreateRoommateContent() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-zinc-500">Địa chỉ</p>
-                    <p className="font-semibold">{location || "(Chưa nhập)"}</p>
+                    <p className="font-semibold">{[specificAddress, buildingName, district, city].filter(Boolean).join(', ') || "(Chưa nhập)"}</p>
                   </div>
                   {isHaveRoom && propertyTypes.length > 0 && (
                     <div>
@@ -1726,7 +1916,7 @@ function CreateRoommateContent() {
                   )}
                   {minContractDuration && (
                     <div>
-                      <p className="text-zinc-500">Hợp đồng tối thiểu</p>
+                      <p className="text-zinc-500">Thời hạn hợp đồng còn lại</p>
                       <p className="font-semibold">{minContractDuration}</p>
                     </div>
                   )}

@@ -205,7 +205,7 @@ export default function ProfilePage() {
           }}
         />
 
-        {/* Post Type Modal */}
+        {/* Roommate Type Modal */}
         <PostTypeModal
           isOpen={showPostTypeModal}
           onClose={() => setShowPostTypeModal(false)}

@@ -37,7 +37,12 @@ export interface RoomListing {
   title: string;
   author: string;
   price: string;
-  location: string;
+  location: string; // Combined address for display (backward compatible)
+  city?: string; // City/Province
+  district?: string; // District
+  specificAddress?: string; // Specific address
+  addressOther?: string; // Other address info
+  buildingName?: string; // Building/Block/Apartment name
   locationNegotiable?: boolean;
   moveInDate: string;
   timeNegotiable?: boolean;

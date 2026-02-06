@@ -33,6 +33,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profileChecked, setProfileChecked] = useState(false);
 
   useEffect(() => {
+    // If Firebase is disabled, use mock authentication
+    if (!auth) {
+      console.log("Firebase is disabled - using mock authentication");
+      // Simulate a logged-in user for UI development
+      const mockUser = {
+        uid: "mock-user-123",
+        email: "demo@example.com",
+        displayName: "Demo User",
+        photoURL: null,
+      } as User;
+
+      setUser(mockUser);
+      setIsProfileComplete(true);
+      setProfileChecked(true);
+      setIsLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setIsLoading(false);
@@ -77,6 +95,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
+    if (!auth) {
+      console.log("Firebase is disabled - mock login");
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
@@ -86,6 +108,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (!auth) {
+      console.log("Firebase is disabled - mock logout");
+      return;
+    }
     try {
       await signOut(auth);
     } catch (error) {
