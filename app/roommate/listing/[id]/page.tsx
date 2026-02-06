@@ -229,50 +229,52 @@ export default function RoommateListingDetailPage() {
 
           {/* Left Column - Details */}
           <div className="space-y-8">
-            {/* Image Gallery */}
-            <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)]">
-              {hasImages ? (
-                <div className="relative">
-                  <div className="h-72 sm:h-96 w-full">
-                    <Image
-                      src={images[currentImageIndex]}
-                      alt={`Hình ${currentImageIndex + 1}`}
-                      fill
-                      className="object-cover"
-                    />
+            {/* Image Gallery - only for have-room */}
+            {isHaveRoom && (
+              <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)]">
+                {hasImages ? (
+                  <div className="relative">
+                    <div className="h-72 sm:h-96 w-full">
+                      <Image
+                        src={images[currentImageIndex]}
+                        alt={`Hình ${currentImageIndex + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                        >
+                          <ChevronLeft className="h-6 w-6" />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                        >
+                          <ChevronRight className="h-6 w-6" />
+                        </button>
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                          {images.map((_, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setCurrentImageIndex(idx)}
+                              className={`w-3 h-3 rounded-full border-2 border-black ${idx === currentImageIndex ? 'bg-blue-400' : 'bg-white'}`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  {images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </button>
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                        {images.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(idx)}
-                            className={`w-3 h-3 rounded-full border-2 border-black ${idx === currentImageIndex ? 'bg-blue-400' : 'bg-white'}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
-                  <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
+                    <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Main Info Card */}
             <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
@@ -297,7 +299,9 @@ export default function RoommateListingDetailPage() {
 
               {/* Address Section */}
               <div className="p-6 border-b-2 border-black">
-                <h3 className="mb-4 text-sm font-bold text-zinc-500">Địa chỉ</h3>
+                <h3 className="mb-4 text-sm font-bold text-zinc-500">
+                  {isHaveRoom ? "Địa chỉ" : "Khu vực mong muốn"}
+                </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   {listing.city && (
                     <div>
@@ -339,12 +343,12 @@ export default function RoommateListingDetailPage() {
                 </div>
               </div>
 
-              {/* Room Info Section */}
-              <div className="p-6 border-b-2 border-black">
-                <h3 className="mb-4 text-sm font-bold text-zinc-500">Thông tin phòng</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 text-sm">
-                  {/* 1. Loại hình */}
-                  {isHaveRoom && (
+              {/* Room Info Section - only for have-room */}
+              {isHaveRoom && (
+                <div className="p-6 border-b-2 border-black">
+                  <h3 className="mb-4 text-sm font-bold text-zinc-500">Thông tin phòng</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 text-sm">
+                    {/* 1. Loại hình */}
                     <div>
                       <p className="text-zinc-500 mb-1">Loại hình</p>
                       <p className="font-semibold text-blue-700">
@@ -364,60 +368,91 @@ export default function RoommateListingDetailPage() {
                         )}
                       </p>
                     </div>
-                  )}
 
-
-                  {/* 2. Diện tích */}
-                  {isHaveRoom && (
+                    {/* 2. Diện tích */}
                     <div>
                       <p className="text-zinc-500 mb-1">Diện tích</p>
                       <p className="font-semibold text-blue-700">{listing.roomSize ? `${listing.roomSize} m²` : "---"}</p>
                     </div>
-                  )}
 
-                  {/* 3. Số người đang ở */}
-                  {isHaveRoom && (
+                    {/* 3. Số người đang ở */}
                     <div>
                       <p className="text-zinc-500 mb-1">Số người đang ở</p>
                       <p className="font-semibold text-blue-700">{listing.currentOccupants || "---"}</p>
                     </div>
-                  )}
 
-                  {/* 4. Dọn vào */}
-                  <div>
-                    <p className="text-zinc-500 mb-1">Dọn vào</p>
-                    <p className="font-semibold text-blue-700">{listing.moveInDate || "---"}</p>
-                  </div>
+                    {/* 4. Dọn vào */}
+                    <div>
+                      <p className="text-zinc-500 mb-1">Dọn vào</p>
+                      <p className="font-semibold text-blue-700">{listing.moveInDate || "---"}</p>
+                    </div>
 
-                  {/* 5. Hợp đồng tối thiểu */}
-                  {isHaveRoom && (
+                    {/* 5. Hợp đồng tối thiểu */}
                     <div>
                       <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
                       <p className="font-semibold text-blue-700">{listing.minContractDuration || "---"}</p>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Amenities */}
-              <div className="p-6">
-                <h3 className="mb-3 text-sm font-bold text-zinc-500">Tiện nghi</h3>
-                <div className="flex flex-wrap gap-2">
-                  {displayAmenities.map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="rounded-lg border-2 border-black bg-blue-100 px-3 py-1.5 text-sm font-medium"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                  {listing.amenitiesOther && (
-                    <span className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-sm font-medium">
-                      {listing.amenitiesOther}
-                    </span>
-                  )}
+              {/* Find Partner Info Section - only for find-partner */}
+              {!isHaveRoom && (
+                <div className="p-6 border-b-2 border-black">
+                  <h3 className="mb-4 text-sm font-bold text-zinc-500">Thông tin tìm kiếm</h3>
+                  <div className="grid grid-cols-2 gap-y-6 gap-x-4 text-sm">
+                    {/* Loại hình mong muốn */}
+                    {listing.propertyTypes && listing.propertyTypes.length > 0 && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Loại hình mong muốn</p>
+                        <p className="font-semibold text-blue-700">
+                          {listing.propertyTypes.map((type, idx) => (
+                            <span key={type}>
+                              {type === "house" && "Nhà mặt đất"}
+                              {type === "room" && "Trọ"}
+                              {type === "apartment" && "Chung cư"}
+                              {type === "service-apartment" && "Căn hộ dịch vụ"}
+                              {type === "dormitory" && "Ký túc xá"}
+                              {type === "other" && "Loại hình khác"}
+                              {idx < listing.propertyTypes!.length - 1 && ", "}
+                            </span>
+                          ))}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Thời gian mong muốn */}
+                    {listing.moveInDate && (
+                      <div>
+                        <p className="text-zinc-500 mb-1">Thời gian mong muốn</p>
+                        <p className="font-semibold text-blue-700">{listing.moveInDate}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Amenities - only for have-room */}
+              {isHaveRoom && (
+                <div className="p-6">
+                  <h3 className="mb-3 text-sm font-bold text-zinc-500">Tiện nghi</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {displayAmenities.map((amenity) => (
+                      <span
+                        key={amenity}
+                        className="rounded-lg border-2 border-black bg-blue-100 px-3 py-1.5 text-sm font-medium"
+                      >
+                        {amenity}
+                      </span>
+                    ))}
+                    {listing.amenitiesOther && (
+                      <span className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-sm font-medium">
+                        {listing.amenitiesOther}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Introduction Card - Separate */}
@@ -439,7 +474,7 @@ export default function RoommateListingDetailPage() {
               <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
                 <div className="bg-blue-50 p-6 border-b-2 border-black">
                   <h2 className="text-xl font-bold flex items-center gap-2">
-                    <Users className="h-5 w-5" /> Mong muốn đối với bạn ở cùng
+                    <Users className="h-5 w-5" /> {isHaveRoom ? "Mong muốn đối với bạn ở cùng" : "Mong muốn đối với bạn cùng thuê"}
                   </h2>
                 </div>
                 <div className="p-6 grid gap-4 sm:grid-cols-2">
@@ -501,7 +536,9 @@ export default function RoommateListingDetailPage() {
                   {/* Move-in Time */}
                   {listing.preferences.moveInTime && listing.preferences.moveInTime.length > 0 && (
                     <div>
-                      <p className="text-sm text-zinc-500 mb-1">Thời gian dọn vào</p>
+                      <p className="text-sm text-zinc-500 mb-1">
+                        {isHaveRoom ? "Thời gian dọn vào" : "Thời gian mong muốn ở cùng"}
+                      </p>
                       <p className="font-semibold text-blue-700">
                         {listing.preferences.moveInTime.map(v => preferenceLabels.moveInTime[v] || v).join(", ")}
                       </p>
@@ -523,11 +560,19 @@ export default function RoommateListingDetailPage() {
               <h2 className="mb-3 text-lg font-bold flex items-center gap-2">
                 <Lightbulb className="h-5 w-5" /> Lưu ý khi liên hệ
               </h2>
-              <ul className="space-y-1.5 text-sm text-zinc-700">
-                <li>• Xem phòng trực tiếp trước khi quyết định</li>
-                <li>• Suy nghĩ kỹ hẳn chuyển cọc</li>
-                <li>• Hỏi rõ các chi phí phát sinh</li>
-              </ul>
+              {isHaveRoom ? (
+                <ul className="space-y-1.5 text-sm text-zinc-700">
+                  <li>• Xem phòng trực tiếp trước khi quyết định</li>
+                  <li>• Suy nghĩ kỹ hẳn chuyển cọc</li>
+                  <li>• Hỏi rõ các chi phí phát sinh</li>
+                </ul>
+              ) : (
+                <ul className="space-y-1.5 text-sm text-zinc-700">
+                  <li>• Trao đổi kỹ về thói quen sinh hoạt</li>
+                  <li>• Thống nhất ngân sách và khu vực trước</li>
+                  <li>• Gặp mặt trực tiếp để hiểu nhau hơn</li>
+                </ul>
+              )}
             </div>
           </div>
 

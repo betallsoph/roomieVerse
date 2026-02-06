@@ -231,15 +231,14 @@ function CreateRoommateContent() {
   useEffect(() => {
     let rawPercent = 0;
 
-    // We want the bar to be at specific milestones based on SECTIONS (Stations)
-    // Station 1: Basic Info (0% -> 38%)
-    // Station 2: Details & Images (38% -> 72%)
-    // Station 3: Preferences (72% -> 100%)
+    // Progress milestones based on type:
+    // have-room: Step 1 (0->33%) → Step 2 (33->66%) → Step 3 (66->100%)
+    // find-partner: Step 1 (0->50%) → Step 3 (50->100%) [skip step 2]
 
     if (!showAmenities && !showPreferences) {
-      // --- STEP 1: Basic Info (Target: 38%) ---
+      // --- STEP 1: Basic Info ---
+      // have-room: Target 33% | find-partner: Target 50%
 
-      // Define total fields for Step 1
       let step1Total = 4; // title, introduction, location, propertyTypes
       if (isHaveRoom) {
         step1Total += 1; // costRent
@@ -247,7 +246,6 @@ function CreateRoommateContent() {
         step1Total += 2; // budget, moveInTime
       }
 
-      // Count filled fields
       let step1Filled = 0;
       if (title.trim()) step1Filled++;
       if (introduction.trim()) step1Filled++;
@@ -261,18 +259,16 @@ function CreateRoommateContent() {
         if (moveInTime.trim()) step1Filled++;
       }
 
-      // Calculate % of Step 1
-      // Range: 3% (start) -> 33% (reach Station 2)
       const step1Progress = (step1Filled / step1Total);
-      rawPercent = 3 + (step1Progress * (33 - 3));
+      const step1End = isHaveRoom ? 33 : 50;
+      rawPercent = 3 + (step1Progress * (step1End - 3));
 
     } else if (showAmenities && !showPreferences) {
-      // --- STEP 2: Details (Target: 66% to reach Station 3) ---
-      // Range: 33% (Station 2) -> 66% (Station 3)
+      // --- STEP 2: Details (only for have-room) ---
+      // Range: 33% -> 66%
 
       let step2Total = 1; // images (mandatory)
-      // Amenities count as 1 block
-      step2Total += 1;
+      step2Total += 1; // amenities
 
       if (isHaveRoom) {
         step2Total += 3; // roomSize, currentOccupants, minContractDuration
@@ -292,8 +288,8 @@ function CreateRoommateContent() {
       rawPercent = 33 + (step2Progress * (66 - 33));
 
     } else if (showPreferences) {
-      // --- STEP 3: Preferences (Target: 100% to reach Station 4) ---
-      // Range: 66% (Station 3) -> 100% (Station 4)
+      // --- STEP 3: Preferences ---
+      // have-room: 66% -> 100% | find-partner: 50% -> 100%
 
       let step3Total = 7;
       let step3Filled = 0;
@@ -306,7 +302,8 @@ function CreateRoommateContent() {
       if (prefMoveInTime.length > 0) step3Filled++;
 
       const step3Progress = (step3Filled / step3Total);
-      rawPercent = 66 + (step3Progress * (100 - 66));
+      const step3Start = isHaveRoom ? 66 : 50;
+      rawPercent = step3Start + (step3Progress * (100 - step3Start));
     }
 
     setProgressPercentage(rawPercent);
@@ -915,7 +912,8 @@ function CreateRoommateContent() {
                               if (costManagement.trim() === "") setCostManagement("0");
                               if (costOther.trim() === "") setCostOther("0");
                             }
-                            router.push(`/roommate/create?type=${type}&step=2`);
+                            // Skip step 2 (images & amenities) for find-partner
+                            router.push(`/roommate/create?type=${type}&step=${isHaveRoom ? '2' : '3'}`);
                           } else {
                             setShowValidationMessage(true);
                           }
@@ -1405,7 +1403,9 @@ function CreateRoommateContent() {
 
                     {/* Move-in Time */}
                     <div>
-                      <label className="block text-sm font-bold mb-2 text-blue-600">Thời gian dọn vào</label>
+                      <label className="block text-sm font-bold mb-2 text-blue-600">
+                        {isHaveRoom ? "Thời gian dọn vào" : "Thời gian mong muốn ở cùng/ thuê được phòng"}
+                      </label>
                       <div className="flex flex-wrap gap-3">
                         {[
                           { value: "early-month", label: "Đầu tháng" },
@@ -1458,7 +1458,8 @@ function CreateRoommateContent() {
                           <button
                             type="button"
                             onClick={() => {
-                              router.push(`/roommate/create?type=${type}&step=2`);
+                              // Go back to step 1 for find-partner (skipped step 2)
+                              router.push(`/roommate/create?type=${type}${isHaveRoom ? '&step=2' : ''}`);
                             }}
                             className="btn-secondary flex-1"
                           >
@@ -1486,7 +1487,7 @@ function CreateRoommateContent() {
                               ⚠️ Bạn chưa điền đủ thông tin!
                             </p>
                             <p className="text-xs text-pink-600 mt-1">
-                              Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, Thú cưng và Thời gian dọn vào.
+                              Vui lòng chọn tất cả các mục: Giới tính, Tình trạng, Giờ giấc, Mức độ sạch sẽ, Thói quen, Thú cưng và {isHaveRoom ? "Thời gian dọn vào" : "Thời gian mong muốn"}.
                             </p>
                           </div>
                         )}
@@ -1713,20 +1714,22 @@ function CreateRoommateContent() {
                       </div>
                     </div>
 
-                    {/* Station 2 */}
-                    <div className="flex gap-4 items-center group">
-                      <div className={`
-                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
-                        ${showAmenities || showPreferences ? 'border-black' : 'border-zinc-200'}
-                        ${(showAmenities && !showPreferences) ? 'scale-125 shadow-lg' : ''}
-                      `}>
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showAmenities || showPreferences ? 'bg-black' : 'bg-zinc-200'} ${(showAmenities && !showPreferences) ? 'animate-pulse' : ''}`} />
+                    {/* Station 2 - only for have-room */}
+                    {isHaveRoom && (
+                      <div className="flex gap-4 items-center group">
+                        <div className={`
+                          relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
+                          ${showAmenities || showPreferences ? 'border-black' : 'border-zinc-200'}
+                          ${(showAmenities && !showPreferences) ? 'scale-125 shadow-lg' : ''}
+                        `}>
+                          <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showAmenities || showPreferences ? 'bg-black' : 'bg-zinc-200'} ${(showAmenities && !showPreferences) ? 'animate-pulse' : ''}`} />
+                        </div>
+                        <div className={`transition-opacity duration-300 ${(showAmenities || showPreferences) ? 'opacity-100' : 'opacity-40'}`}>
+                          <p className="font-bold text-sm uppercase tracking-wide">Chi tiết</p>
+                          <p className="text-xs text-zinc-500">Tiện nghi & Ảnh</p>
+                        </div>
                       </div>
-                      <div className={`transition-opacity duration-300 ${(showAmenities || showPreferences) ? 'opacity-100' : 'opacity-40'}`}>
-                        <p className="font-bold text-sm uppercase tracking-wide">Chi tiết</p>
-                        <p className="text-xs text-zinc-500">Tiện nghi & Ảnh</p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Station 3 */}
                     <div className="flex gap-4 items-center group">
