@@ -10,9 +10,7 @@ import {
     Briefcase,
     MapPin,
     Clock,
-    Sparkles,
     Home,
-    MessageCircle,
     Shield,
     Loader2
 } from "lucide-react";
@@ -38,7 +36,6 @@ export default function UserProfilePage() {
 
             if (profileData) {
                 const userListings = await getListingsByUserId(userId);
-                console.log(`[UserProfile] Found ${userListings.length} listings for user ${userId}:`, userListings);
                 setListings(userListings);
             }
 
@@ -87,7 +84,7 @@ export default function UserProfilePage() {
             <div className="min-h-screen bg-white">
                 <MainHeader />
                 <div className="flex min-h-[60vh] items-center justify-center">
-                    <div className="rounded-xl border-2 border-black bg-white p-16 text-center shadow-[var(--shadow-primary)]">
+                    <div className="rounded-xl border-2 border-black bg-white p-16 text-center">
                         <User className="mx-auto mb-6 h-16 w-16 text-zinc-400" />
                         <h1 className="mb-4 text-3xl font-bold">Không tìm thấy người dùng</h1>
                         <p className="mb-8 text-zinc-600">Người dùng này có thể đã xóa tài khoản hoặc không tồn tại.</p>
@@ -105,38 +102,38 @@ export default function UserProfilePage() {
         <div className="min-h-screen bg-white">
             <MainHeader />
 
-            {/* Hero Section */}
-            <section className="border-b-2 border-black bg-gradient-to-br from-purple-50 to-pink-50 py-12 sm:py-16">
+            {/* Hero Section - Simple blue like listing pages */}
+            <section className="border-b-2 border-black bg-blue-50 py-12 sm:py-16">
                 <div className="mx-auto max-w-4xl px-6">
                     {/* Back Button */}
                     <button
                         onClick={() => router.back()}
-                        className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2 mb-6"
+                        className="flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-black transition-colors mb-6"
                     >
                         <ArrowLeft className="h-4 w-4" /> Quay lại
                     </button>
 
                     {/* Profile Header */}
-                    <div className="flex items-start gap-6">
-                        <div className="flex-shrink-0">
-                            {/* Avatar - No gradient/shadow, show initials */}
-                            <div className="w-24 h-24 rounded-full border-4 border-black bg-purple-200 flex items-center justify-center">
-                                {profile.photoURL ? (
-                                    <img
-                                        src={profile.photoURL}
-                                        alt={profile.displayName}
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-3xl font-extrabold text-black">
-                                        {getUserInitials(profile.displayName)}
-                                    </span>
-                                )}
-                            </div>
+                    <div className="flex items-center gap-6">
+                        {/* Avatar */}
+                        <div className="w-20 h-20 flex-shrink-0 rounded-full border-2 border-black bg-white flex items-center justify-center">
+                            {profile.photoURL ? (
+                                <img
+                                    src={profile.photoURL}
+                                    alt={profile.displayName}
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-2xl font-bold text-blue-700">
+                                    {getUserInitials(profile.displayName)}
+                                </span>
+                            )}
                         </div>
-                        <div className="flex-1">
-                            <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">{profile.displayName}</h1>
-                            <div className="flex flex-wrap gap-4 text-sm text-zinc-600">
+
+                        {/* Name & Info */}
+                        <div>
+                            <h1 className="text-3xl sm:text-4xl font-extrabold">{profile.displayName}</h1>
+                            <div className="mt-2 flex flex-wrap gap-4 text-sm text-zinc-600">
                                 <span className="flex items-center gap-1">
                                     <User className="h-4 w-4" /> {getGenderDisplay(profile.gender)}
                                 </span>
@@ -158,99 +155,147 @@ export default function UserProfilePage() {
             <div className="mx-auto max-w-4xl px-6 py-12">
                 <div className="space-y-6">
 
-                    {/* Lifestyle Card */}
-                    <div className="card bg-white">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Sparkles className="h-6 w-6 text-purple-500" />
+                    {/* Lifestyle - No wrapper card */}
+                    <div>
+                        <h2 className="text-lg font-bold mb-4 text-blue-700">
                             Lối sống
                         </h2>
 
                         {profile.lifestyle ? (
-                            <div className="space-y-6">
-                                {/* Schedule */}
-                                {profile.lifestyle.schedule && profile.lifestyle.schedule.length > 0 && (
+                            <div className="space-y-4">
+                                {/* Cleanliness - Visual slider like setup page */}
+                                {profile.lifestyle.cleanliness && profile.lifestyle.cleanliness.length > 0 && (
                                     <div>
-                                        <label className="block text-sm font-bold mb-2 flex items-center gap-2">
-                                            <Clock className="h-4 w-4" /> Giờ giấc
-                                        </label>
-                                        <div className="flex flex-wrap gap-2">
-                                            {profile.lifestyle.schedule.map((item: string) => (
-                                                <span
-                                                    key={item}
-                                                    className="px-3 py-1.5 text-sm rounded-lg border-2 border-black bg-purple-100 font-medium"
-                                                >
-                                                    {item === "early" && "Ngủ sớm, dậy sớm"}
-                                                    {item === "late" && "Cú đêm"}
-                                                    {item === "flexible" && "Linh hoạt"}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        <span className="text-sm text-zinc-500 flex items-center gap-1.5 mb-3">
+                                            <Home className="h-4 w-4" /> Mức độ sạch sẽ
+                                        </span>
+                                        {profile.lifestyle.cleanliness.map((item: string) => {
+                                            // 4 levels: messy=0, relaxed=1, normal=2, very-clean=3
+                                            const level = item === "very-clean" ? 3 : item === "normal" ? 2 : item === "relaxed" ? 1 : 0;
+                                            // Soft colors: messy=red, relaxed=pink, normal=green, very-clean=blue
+                                            const dotColors = ['bg-red-400', 'bg-pink-300', 'bg-green-300', 'bg-blue-300'];
+                                            // Gradient colors for the bar (hex values)
+                                            const hexColors = ['#f87171', '#f9a8d4', '#86efac', '#93c5fd'];
+                                            // Build gradient based on level
+                                            const gradientStops = hexColors.slice(0, level + 1).map((color, i) =>
+                                                `${color} ${(i / Math.max(level, 1)) * 100}%`
+                                            ).join(', ');
+                                            const barGradient = level === 0
+                                                ? hexColors[0]
+                                                : `linear-gradient(to right, ${gradientStops})`;
+                                            return (
+                                                <div key={item} className="px-2">
+                                                    {/* Track with dots - same structure as setup page */}
+                                                    <div className="relative h-6 flex items-center">
+                                                        {/* Track line */}
+                                                        <div className="absolute left-3 right-3 h-2 bg-zinc-200 rounded-full border-2 border-black" />
+                                                        {/* Filled track with gradient */}
+                                                        <div
+                                                            className="absolute left-3 h-2 rounded-full border-2 border-black"
+                                                            style={{
+                                                                width: `calc(${(level / 3) * 100}% - 12px)`,
+                                                                background: barGradient
+                                                            }}
+                                                        />
+                                                        {/* Dots */}
+                                                        <div className="relative w-full flex justify-between">
+                                                            {[0, 1, 2, 3].map((index) => (
+                                                                <div key={index} className="w-8 h-8 flex items-center justify-center">
+                                                                    <div
+                                                                        className={`rounded-full border-2 border-black z-10
+                                                                            ${level === index
+                                                                                ? `w-8 h-8 ${dotColors[index]} shadow-[inset_0_0_0_3px_white,2px_2px_0_0_#000]`
+                                                                                : level > index
+                                                                                    ? `w-6 h-6 ${dotColors[index]}`
+                                                                                    : 'w-6 h-6 bg-white'
+                                                                            }`}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    {/* Labels - aligned with dots using negative margin */}
+                                                    <div className="flex justify-between mt-3 -mx-6">
+                                                        {['Bừa bộn', 'Thoải mái', 'Bình thường', 'Siêu sạch sẽ'].map((label, index) => {
+                                                            const textColors = ['text-red-500', 'text-pink-400', 'text-green-500', 'text-blue-500'];
+                                                            return (
+                                                                <span
+                                                                    key={label}
+                                                                    className={`text-center w-20 text-xs whitespace-nowrap ${level === index ? `font-bold ${textColors[index]}` : 'text-zinc-400'}`}
+                                                                >
+                                                                    {label}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
 
-                                {/* Cleanliness */}
-                                {profile.lifestyle.cleanliness && profile.lifestyle.cleanliness.length > 0 && (
-                                    <div>
-                                        <label className="block text-sm font-bold mb-2 flex items-center gap-2">
-                                            <Home className="h-4 w-4" /> Mức độ sạch sẽ
-                                        </label>
-                                        <div className="flex flex-wrap gap-2">
-                                            {profile.lifestyle.cleanliness.map((item: string) => (
-                                                <span
-                                                    key={item}
-                                                    className="px-3 py-1.5 text-sm rounded-lg border-2 border-black bg-pink-100 font-medium"
-                                                >
-                                                    {item === "very-clean" && "Rất sạch sẽ"}
-                                                    {item === "normal" && "Bình thường"}
-                                                    {item === "relaxed" && "Thoải mái"}
-                                                </span>
-                                            ))}
-                                        </div>
+                                {/* Schedule */}
+                                {profile.lifestyle.schedule && profile.lifestyle.schedule.length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-sm text-zinc-500 w-28 flex items-center gap-1.5">
+                                            <Clock className="h-4 w-4" /> Giờ giấc:
+                                        </span>
+                                        {profile.lifestyle.schedule.map((item: string) => (
+                                            <span
+                                                key={item}
+                                                className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                                            >
+                                                {item === "early" && "Ngủ sớm, dậy sớm"}
+                                                {item === "late" && "Cú đêm"}
+                                                {item === "flexible" && "Linh hoạt"}
+                                            </span>
+                                        ))}
                                     </div>
                                 )}
 
                                 {/* Habits */}
                                 {profile.lifestyle.habits && profile.lifestyle.habits.length > 0 && (
-                                    <div>
-                                        <label className="block text-sm font-bold mb-2 flex items-center gap-2">
-                                            <Shield className="h-4 w-4" /> Thói quen
-                                        </label>
-                                        <div className="flex flex-wrap gap-2">
-                                            {profile.lifestyle.habits.map((item: string) => (
-                                                <span
-                                                    key={item}
-                                                    className="px-3 py-1.5 text-sm rounded-lg border-2 border-black bg-blue-100 font-medium"
-                                                >
-                                                    {item === "no-smoke" && "Không hút thuốc"}
-                                                    {item === "no-alcohol" && "Không uống rượu bia"}
-                                                    {item === "flexible" && "Linh hoạt"}
-                                                </span>
-                                            ))}
-                                        </div>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-sm text-zinc-500 w-28 flex items-center gap-1.5">
+                                            <Shield className="h-4 w-4" /> Thói quen:
+                                        </span>
+                                        {profile.lifestyle.habits.map((item: string) => (
+                                            <span
+                                                key={item}
+                                                className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                                            >
+                                                {item === "no-smoke" && "Không hút thuốc"}
+                                                {item === "no-alcohol" && "Không uống rượu bia"}
+                                                {item === "flexible" && "Linh hoạt"}
+                                            </span>
+                                        ))}
                                     </div>
                                 )}
 
                                 {/* Other Habits */}
                                 {profile.lifestyle.otherHabits && (
                                     <div>
-                                        <label className="block text-sm font-bold mb-2">Khác</label>
+                                        <p className="text-sm text-zinc-500 mb-1">Khác:</p>
                                         <p className="text-zinc-700 leading-relaxed">{profile.lifestyle.otherHabits}</p>
                                     </div>
                                 )}
                             </div>
                         ) : (
-                            <div className="text-center py-12 text-zinc-500">
-                                <Sparkles className="h-12 w-12 mx-auto mb-4 text-zinc-300" />
+                            <div className="text-center py-8 text-zinc-500">
                                 <p>Người dùng chưa cập nhật thông tin lối sống</p>
                             </div>
                         )}
                     </div>
 
-                    {/* Listings by User */}
+                    {/* Divider */}
                     {listings.length > 0 && (
-                        <div className="card bg-white">
-                            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                                <Home className="h-6 w-6 text-blue-500" />
+                        <div className="border-t border-zinc-200" />
+                    )}
+
+                    {/* Listings by User - No wrapper card */}
+                    {listings.length > 0 && (
+                        <div>
+                            <h2 className="text-lg font-bold mb-4 text-blue-700">
                                 Tin đăng ({listings.length})
                             </h2>
                             <div className="grid gap-4 sm:grid-cols-2">
@@ -258,7 +303,7 @@ export default function UserProfilePage() {
                                     <Link
                                         key={listing.id}
                                         href={`/${listing.category}/listing/${listing.id}`}
-                                        className="rounded-lg border-2 border-black bg-white p-4 transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none shadow-[var(--shadow-secondary)]"
+                                        className="rounded-lg border-2 border-black bg-white p-4 transition-colors hover:bg-blue-50"
                                     >
                                         <h3 className="font-bold mb-2 line-clamp-2">{listing.title}</h3>
                                         <div className="space-y-1 text-sm text-zinc-600">
@@ -267,7 +312,7 @@ export default function UserProfilePage() {
                                                 <span className="line-clamp-1">{listing.location}</span>
                                             </div>
                                             <div className="flex items-center justify-between">
-                                                <span className="font-bold text-blue-600">{listing.price}</span>
+                                                <span className="font-bold text-blue-700">{listing.price}</span>
                                                 <span className="text-xs">{listing.postedDate}</span>
                                             </div>
                                         </div>
@@ -276,19 +321,6 @@ export default function UserProfilePage() {
                             </div>
                         </div>
                     )}
-
-                    {/* Contact Note */}
-                    <div className="card bg-yellow-50 !p-5">
-                        <div className="flex items-start gap-3">
-                            <MessageCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3 className="font-bold mb-1">Liên hệ qua tin đăng</h3>
-                                <p className="text-sm text-zinc-600">
-                                    Để liên hệ với người dùng này, hãy tìm tin đăng của họ và sử dụng thông tin liên lạc được cung cấp.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 

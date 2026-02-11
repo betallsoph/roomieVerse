@@ -31,7 +31,7 @@ export default function FilterButtons({
             : "text-black border-2 border-transparent hover:bg-zinc-100"
             }`}
         >
-          Bạn đã có phòng
+          Đã có phòng sẵn
         </motion.button>
         <motion.button
           type="button"
@@ -43,15 +43,15 @@ export default function FilterButtons({
             : "text-black border-2 border-transparent hover:bg-zinc-100"
             }`}
         >
-          Bạn chưa có phòng
+          Chưa có phòng
         </motion.button>
       </motion.div>
 
       {/* Mode Description */}
       <p className="text-sm text-zinc-600">
         {mode === "have-room"
-          ? "Bạn có phòng/căn hộ sẵn, tìm người ở cùng"
-          : "Bạn chưa có phòng, tìm bạn cùng đi thuê"}
+          ? "Người đăng tin có phòng/căn hộ sẵn, tìm người ở cùng và chỉ việc dọn vào"
+          : "Chưa ai có phòng sẵn, tìm bạn ghép rồi cùng nhau đi thuê sau"}
       </p>
     </div>
   );

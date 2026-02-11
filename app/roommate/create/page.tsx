@@ -6,6 +6,7 @@ import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
 import { Lightbulb, MapPin, DollarSign, Eye, Loader2, NotebookPen } from "lucide-react";
+import { cities, getDistrictsByLabel } from "../../data/locations";
 
 type RoommateType = "have-room" | "find-partner";
 
@@ -561,61 +562,37 @@ function CreateRoommateContent() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {/* City */}
                           <div>
-                            {(() => {
-                              const knownCities = ["TP. Hồ Chí Minh", "Bảo Lộc", "Cam Ranh", "Cần Thơ", "Đà Lạt", "Đà Nẵng", "Dĩ An", "Hà Nội", "Hội An", "Huế", "Nha Trang", "Phan Rang", "Phan Thiết", "Quy Nhơn", "Tam Kỳ", "Tân Uyên", "Thủ Dầu Một", "Tuy Hoà"];
-                              const isCustomCity = city !== "" && !knownCities.includes(city);
-                              return (
-                                <>
-                                  <select
-                                    value={isCustomCity ? "other" : city}
-                                    onChange={(e) => setCity(e.target.value === "other" ? "" : e.target.value)}
-                                    className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
-                                  >
-                                    <option value="">Chọn thành phố</option>
-                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                                    <option value="Bảo Lộc">Bảo Lộc</option>
-                                    <option value="Cam Ranh">Cam Ranh</option>
-                                    <option value="Cần Thơ">Cần Thơ</option>
-                                    <option value="Đà Lạt">Đà Lạt</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
-                                    <option value="Dĩ An">Dĩ An</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="Hội An">Hội An</option>
-                                    <option value="Huế">Huế</option>
-                                    <option value="Nha Trang">Nha Trang</option>
-                                    <option value="Phan Rang">Phan Rang</option>
-                                    <option value="Phan Thiết">Phan Thiết</option>
-                                    <option value="Quy Nhơn">Quy Nhơn</option>
-                                    <option value="Tam Kỳ">Tam Kỳ</option>
-                                    <option value="Tân Uyên">Tân Uyên</option>
-                                    <option value="Thủ Dầu Một">Thủ Dầu Một</option>
-                                    <option value="Tuy Hoà">Tuy Hoà</option>
-                                    <option value="other">Khác</option>
-                                  </select>
-                                  {isCustomCity && (
-                                    <input
-                                      type="text"
-                                      value={city}
-                                      onChange={(e) => setCity(e.target.value)}
-                                      placeholder="Nhập tên thành phố..."
-                                      maxLength={30}
-                                      className="w-full px-4 py-3 mt-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                      autoFocus
-                                    />
-                                  )}
-                                </>
-                              );
-                            })()}
+                            <select
+                              value={city}
+                              onChange={(e) => {
+                                setCity(e.target.value);
+                                setDistrict(""); // Reset district when city changes
+                              }}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            >
+                              <option value="">Chọn thành phố</option>
+                              {cities.map((c) => (
+                                <option key={c.value} value={c.label}>
+                                  {c.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           {/* District */}
                           <div>
-                            <input
-                              type="text"
+                            <select
                               value={district}
                               onChange={(e) => setDistrict(e.target.value)}
-                              placeholder="Quận - Huyện - Xã"
-                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
+                              disabled={!city}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-zinc-100 disabled:cursor-not-allowed"
+                            >
+                              <option value="">{city ? "Chọn quận/huyện" : "Chọn thành phố trước"}</option>
+                              {city && getDistrictsByLabel(city).map((d) => (
+                                <option key={d.value} value={d.label}>
+                                  {d.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           {/* Specific Address */}
                           <div>
@@ -684,62 +661,39 @@ function CreateRoommateContent() {
                           Khu vực mong muốn ở
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {/* City */}
                           <div>
-                            {(() => {
-                              const knownCities = ["TP. Hồ Chí Minh", "Bảo Lộc", "Cam Ranh", "Cần Thơ", "Đà Lạt", "Đà Nẵng", "Dĩ An", "Hà Nội", "Hội An", "Huế", "Nha Trang", "Phan Rang", "Phan Thiết", "Quy Nhơn", "Tam Kỳ", "Tân Uyên", "Thủ Dầu Một", "Tuy Hoà"];
-                              const isCustomCity = city !== "" && !knownCities.includes(city);
-                              return (
-                                <>
-                                  <select
-                                    value={isCustomCity ? "other" : city}
-                                    onChange={(e) => setCity(e.target.value === "other" ? "" : e.target.value)}
-                                    className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
-                                  >
-                                    <option value="">Chọn thành phố</option>
-                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                                    <option value="Bảo Lộc">Bảo Lộc</option>
-                                    <option value="Cam Ranh">Cam Ranh</option>
-                                    <option value="Cần Thơ">Cần Thơ</option>
-                                    <option value="Đà Lạt">Đà Lạt</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
-                                    <option value="Dĩ An">Dĩ An</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="Hội An">Hội An</option>
-                                    <option value="Huế">Huế</option>
-                                    <option value="Nha Trang">Nha Trang</option>
-                                    <option value="Phan Rang">Phan Rang</option>
-                                    <option value="Phan Thiết">Phan Thiết</option>
-                                    <option value="Quy Nhơn">Quy Nhơn</option>
-                                    <option value="Tam Kỳ">Tam Kỳ</option>
-                                    <option value="Tân Uyên">Tân Uyên</option>
-                                    <option value="Thủ Dầu Một">Thủ Dầu Một</option>
-                                    <option value="Tuy Hoà">Tuy Hoà</option>
-                                    <option value="other">Khác</option>
-                                  </select>
-                                  {isCustomCity && (
-                                    <input
-                                      type="text"
-                                      value={city}
-                                      onChange={(e) => setCity(e.target.value)}
-                                      placeholder="Nhập tên thành phố..."
-                                      maxLength={30}
-                                      className="w-full px-4 py-3 mt-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                      autoFocus
-                                    />
-                                  )}
-                                </>
-                              );
-                            })()}
+                            <select
+                              value={city}
+                              onChange={(e) => {
+                                setCity(e.target.value);
+                                setDistrict(""); // Reset district when city changes
+                              }}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            >
+                              <option value="">Chọn thành phố</option>
+                              {cities.map((c) => (
+                                <option key={c.value} value={c.label}>
+                                  {c.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           {/* District */}
                           <div>
-                            <input
-                              type="text"
+                            <select
                               value={district}
                               onChange={(e) => setDistrict(e.target.value)}
-                              placeholder="Quận - Huyện - Xã mong muốn"
-                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            />
+                              disabled={!city}
+                              className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-zinc-100 disabled:cursor-not-allowed"
+                            >
+                              <option value="">{city ? "Chọn quận/huyện" : "Chọn thành phố trước"}</option>
+                              {city && getDistrictsByLabel(city).map((d) => (
+                                <option key={d.value} value={d.label}>
+                                  {d.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           {/* Other Address Info */}
                           <div className="col-span-2">

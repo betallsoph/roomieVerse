@@ -12,7 +12,7 @@ export const mockUsers: UserProfile[] = [
         occupation: "Software Engineer",
         lifestyle: {
             schedule: ["early"],
-            cleanliness: ["very-clean"],
+            cleanliness: ["normal"],
             habits: ["no-smoke", "no-alcohol"],
             otherHabits: "Thích đi gym buổi sáng, thích nghe nhạc indie",
         },

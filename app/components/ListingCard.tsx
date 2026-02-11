@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, MapPin, Calendar, User } from "lucide-react";
+import { Home, MapPin, Calendar, User, Wallet } from "lucide-react";
 
 interface ListingCardProps {
   listing: {
@@ -9,11 +9,15 @@ interface ListingCardProps {
     author: string;
     price: string;
     location: string;
+    city?: string;
+    district?: string;
     moveInDate: string;
     description: string;
+    introduction?: string;
     phone: string;
     postedDate: string;
     category?: "roommate" | "roomshare";
+    roommateType?: "have-room" | "find-partner";
   };
   variant?: "blue" | "pink";
   layout?: "grid" | "list";
@@ -41,6 +45,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
   const cardBg = variant === "pink" ? "bg-pink-50" : "bg-blue-50";
   const priceBadgeBg = variant === "pink" ? "bg-pink-300" : "bg-blue-300";
   const listingRoute = getListingRoute(listing);
+  const isFindPartner = listing.roommateType === "find-partner";
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,8 +54,65 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
     }, 150);
   };
 
+  // Get display location
+  const displayLocation = listing.district && listing.city
+    ? `${listing.district}, ${listing.city}`
+    : listing.location;
+
   // List layout (horizontal)
   if (layout === "list") {
+    if (isFindPartner) {
+      // Find-partner list layout - Avatar instead of room image
+      return (
+        <a
+          href={listingRoute}
+          onClick={handleCardClick}
+          className={`group flex gap-5 rounded-xl border-2 border-black ${cardBg} p-4 shadow-[var(--shadow-secondary)] card-bounce`}
+        >
+          {/* Avatar Section */}
+          <div className="h-32 w-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-black bg-blue-100 flex items-center justify-center">
+            <span className="text-4xl font-bold text-blue-600">
+              {listing.author?.charAt(0)?.toUpperCase() || "?"}
+            </span>
+          </div>
+
+          {/* Content */}
+          <div className="flex flex-1 flex-col justify-between">
+            {/* Top: Title + Budget */}
+            <div>
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <h3 className="text-lg font-bold leading-tight line-clamp-1">{listing.title}</h3>
+                <span className={`flex-shrink-0 rounded-lg border-2 border-black ${priceBadgeBg} px-3 py-1 text-sm font-bold shadow-[var(--shadow-secondary)]`}>
+                  {listing.price}
+                </span>
+              </div>
+
+              {/* Location & Move-in */}
+              <div className="flex flex-wrap gap-4 text-sm text-zinc-600">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" />
+                  {displayLocation}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  {listing.moveInDate}
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom: Author + Date */}
+            <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <User className="h-3.5 w-3.5" />
+              <span>{listing.author}</span>
+              <span>•</span>
+              <span>{listing.postedDate}</span>
+            </div>
+          </div>
+        </a>
+      );
+    }
+
+    // Have-room list layout (original)
     return (
       <a
         href={listingRoute}
@@ -100,23 +162,81 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
     );
   }
 
-  // Grid layout (default)
+  // Grid layout - Find Partner (person-focused)
+  if (isFindPartner) {
+    return (
+      <a
+        href={listingRoute}
+        onClick={handleCardClick}
+        className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-6 card-bounce"
+      >
+        {/* Header: Avatar + Author Info */}
+        <div className="mb-5 flex items-center gap-4">
+          {/* Avatar */}
+          <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2 border-blue-700 bg-white flex items-center justify-center">
+            <span className="text-2xl font-bold text-blue-700">
+              {listing.author?.charAt(0)?.toUpperCase() || "?"}
+            </span>
+          </div>
+          {/* Author name + date */}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-bold text-lg truncate">{listing.author}</h4>
+            <p className="text-xs text-zinc-500">{listing.postedDate}</p>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="mb-3 text-lg font-bold leading-tight line-clamp-2 min-h-[3.5rem] text-blue-700">{listing.title}</h3>
+
+        {/* Introduction/Description */}
+        <div className="mb-4 pb-4 border-b-2 border-gray-300">
+          <p className="line-clamp-3 text-sm leading-relaxed text-zinc-700">
+            {listing.introduction || listing.description}
+          </p>
+        </div>
+
+        {/* Location & Move-in date */}
+        <div className="mb-4 pb-4 border-b-2 border-gray-300 space-y-1.5 text-sm">
+          <p className="font-bold text-zinc-800">Địa điểm & thời gian chuyển vào mong muốn</p>
+          <p className="flex items-center gap-2 text-blue-700">
+            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{displayLocation}</span>
+          </p>
+          <p className="flex items-center gap-2 text-blue-700">
+            <Calendar className="h-4 w-4 flex-shrink-0" />
+            {listing.moveInDate}
+          </p>
+        </div>
+
+        {/* Budget */}
+        <div className="space-y-1.5 text-sm">
+          <p className="font-bold text-zinc-800">Ngân sách tối đa</p>
+          <p className="flex items-center gap-2 text-blue-700">
+            <Wallet className="h-4 w-4 flex-shrink-0" />
+            {listing.price}
+          </p>
+        </div>
+      </a>
+    );
+  }
+
+  // Grid layout - Have Room (original - room-focused)
   return (
     <a
       href={listingRoute}
       onClick={handleCardClick}
-      className={`group block rounded-xl border-2 border-black ${cardBg} p-6 shadow-[var(--shadow-secondary)] card-bounce`}
+      className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-6 card-bounce"
     >
       {/* Image Section */}
-      <div className="mb-5 h-48 w-full overflow-hidden rounded-lg border-2 border-black bg-white">
+      <div className="mb-5 h-48 w-full overflow-hidden rounded-lg border-2 border-blue-700 bg-blue-50">
         <div className="flex h-full w-full items-center justify-center">
-          <Home className="h-24 w-24 text-zinc-400" strokeWidth={1.5} />
+          <Home className="h-24 w-24 text-blue-300" strokeWidth={1.5} />
         </div>
       </div>
 
       {/* Header: Price + Author + Date */}
       <div className="mb-4 flex items-center justify-between gap-3">
-        <span className={`rounded-lg border-2 border-black ${priceBadgeBg} px-3 py-1.5 text-sm font-bold shadow-[var(--shadow-secondary)]`}>
+        <span className="text-xl font-bold text-blue-700">
           {listing.price}
         </span>
         <div className="flex items-center gap-2 text-xs text-zinc-500">
@@ -131,19 +251,19 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
       <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight line-clamp-2 min-h-[3.5rem]">{listing.title}</h3>
 
       {/* Location & Move-in date */}
-      <div className="mb-4 space-y-1.5 text-sm text-zinc-600">
-        <p className="flex items-center gap-2">
+      <div className="mb-4 space-y-1.5 text-sm">
+        <p className="flex items-center gap-2 text-blue-700">
           <MapPin className="h-4 w-4 flex-shrink-0" />
           {listing.location}
         </p>
-        <p className="flex items-center gap-2">
+        <p className="flex items-center gap-2 text-blue-700">
           <Calendar className="h-4 w-4 flex-shrink-0" />
           Dọn vào: {listing.moveInDate}
         </p>
       </div>
 
       {/* Description */}
-      <p className="mb-2 line-clamp-2 text-sm leading-relaxed text-zinc-700">
+      <p className="mb-2 line-clamp-3 text-sm leading-relaxed text-zinc-700">
         {listing.description}
       </p>
     </a>

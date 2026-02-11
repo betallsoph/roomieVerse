@@ -6,6 +6,7 @@ const COLLECTION_NAME = "users";
 
 // Get user profile by UID
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  if (!db) throw new Error("Firestore not initialized");
   const docRef = doc(db, COLLECTION_NAME, uid);
   const docSnap = await getDoc(docRef);
 
@@ -17,6 +18,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 
 // Create or update user profile
 export async function saveUserProfile(profile: UserProfile): Promise<void> {
+  if (!db) throw new Error("Firestore not initialized");
   const docRef = doc(db, COLLECTION_NAME, profile.uid);
   const docSnap = await getDoc(docRef);
 
@@ -41,6 +43,7 @@ export async function updateUserProfileFields(
   uid: string,
   fields: Partial<UserProfile>
 ): Promise<void> {
+  if (!db) throw new Error("Firestore not initialized");
   const docRef = doc(db, COLLECTION_NAME, uid);
   await updateDoc(docRef, {
     ...fields,

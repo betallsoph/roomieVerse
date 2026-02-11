@@ -23,6 +23,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     }
 
     try {
+        if (!db) throw new Error("Firestore not initialized");
         const userDocRef = doc(db, USERS_COLLECTION, userId);
         const userDoc = await getDoc(userDocRef);
 

@@ -562,6 +562,23 @@ a {
   }
 }
 
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-15deg); }
+  40% { transform: rotate(15deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+}
+
+.icon-wiggle svg {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.icon-wiggle:hover svg {
+  animation: wiggle 0.5s ease-in-out;
+}
+
 /* ===== Nav Link Sibling Spread Effect ===== */
 .nav-link {
   display: inline-block;

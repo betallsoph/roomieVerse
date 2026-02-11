@@ -39,6 +39,7 @@ export async function getListings(): Promise<RoomListing[]> {
     return mockListings;
   }
 
+  if (!db) throw new Error("Firestore not initialized");
   const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
   return querySnapshot.docs.map(docToListing);
 }
@@ -75,6 +76,7 @@ export async function getListingById(id: number | string): Promise<RoomListing |
     return mockListings.find(listing => String(listing.id) === idStr) || null;
   }
 
+  if (!db) throw new Error("Firestore not initialized");
   // Finally check Firestore
   const docRef = doc(db, COLLECTION_NAME, idStr);
   const docSnap = await getDoc(docRef);
@@ -91,6 +93,7 @@ export async function getListingsByCategory(category: "roommate" | "roomshare"):
     return mockListings.filter(listing => listing.category === category);
   }
 
+  if (!db) throw new Error("Firestore not initialized");
   // Get from Firestore
   const q = query(collection(db, COLLECTION_NAME), where("category", "==", category));
   const querySnapshot = await getDocs(q);
@@ -168,6 +171,7 @@ export async function getListingsByUserId(userId: string): Promise<RoomListing[]
     return mockListings.filter(listing => listing.userId === userId);
   }
 
+  if (!db) throw new Error("Firestore not initialized");
   // Get from Firestore
   const q = query(collection(db, COLLECTION_NAME), where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
