@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getListingsByCategory } from "../data/listings";
 import { RoomListing, PropertyType } from "../data/types";
 import MainHeader from "../components/MainHeader";
@@ -13,6 +14,7 @@ import ProfileReminderModal from "../components/ProfileReminderModal";
 import { useProfileReminder } from "../hooks/useProfileReminder";
 
 export default function RoomSharePage() {
+  const router = useRouter();
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [listings, setListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,17 +23,38 @@ export default function RoomSharePage() {
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
-      const data = await getListingsByCategory("roomshare");
-      setListings(data);
+      // Fetch all listings, we will filter client-side for now to ensure we get everything
+      // In a real app, we should filter by category/type in the query
+      const roommateData = await getListingsByCategory("roommate");
+      const roomshareData = await getListingsByCategory("roomshare");
+
+      // Combine and filter for 'have-room' (users offering a room)
+      const allListings = [...roommateData, ...roomshareData].filter(
+        item => item.roommateType === "have-room"
+      );
+
+      // Remove duplicates by ID
+      const uniqueListings = Array.from(new Map(allListings.map(item => [item.id, item])).values());
+
+      setListings(uniqueListings);
       setIsLoading(false);
     }
     fetchData();
   }, []);
 
-  // Filter listings
-  const allFilteredListings = listings.filter(
-    (listing) => listing.propertyType === propertyType
-  );
+  // Filter listings by property type
+  const allFilteredListings = listings.filter((listing) => {
+    // Map existing propertyTypes array to single propertyType for filtering if needed
+    // or check if propertyTypes includes the active type
+    if (listing.propertyTypes && listing.propertyTypes.length > 0) {
+      if (propertyType === "house") {
+        return listing.propertyTypes.some(t => t === "house" || t === "room"); // Include 'house' and 'room' under House tab
+      } else {
+        return listing.propertyTypes.some(t => t === "apartment" || t === "service-apartment" || t === "dormitory"); // Include others under Apartment tab
+      }
+    }
+    return listing.propertyType === propertyType;
+  });
 
   // Limit to 9 cards
   const displayedListings = allFilteredListings.slice(0, 9);
@@ -39,8 +62,8 @@ export default function RoomSharePage() {
 
   const getListingTitle = () => {
     return propertyType === "house"
-      ? "Phòng riêng trong nhà mặt đất"
-      : "Phòng riêng trong chung cư";
+      ? "Share phòng trong nhà nguyên căn"
+      : "Share phòng dư trong chung cư";
   };
 
   return (
@@ -51,34 +74,39 @@ export default function RoomSharePage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="bg-pink-lighter py-16 sm:py-24">
+      <section className="bg-pink-50 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-6">
-          <h1 className="mb-6 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
-            Tìm Phòng Trống
+          <h1 className="mb-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl text-pink-900">
+            Tìm phòng dư cho thuê lại
           </h1>
-          <p className="mb-8 max-w-2xl text-base sm:text-lg text-zinc-700">
-            Tìm phòng trống trong căn hộ hoặc nhà ở ghép
+          <p className="mb-8 max-w-3xl text-sm sm:text-base text-zinc-700">
+            Dành cho các bạn đang thuê nhà nguyên căn/căn hộ có dư phòng và muốn tìm người ở phòng dư đó để đỡ tiền nhà
           </p>
 
           <FilterTabs
             activeType={propertyType}
             onTypeChange={setPropertyType}
+            description={
+              <span>
+                <span className="font-bold text-pink-600">Lưu ý:</span> Không dành cho môi giới, cho thuê phòng trọ chuyên nghiệp hoặc cho thuê nguyên căn.
+              </span>
+            }
           />
         </div>
       </section>
 
       {/* Blur transition from hero to listing */}
-      <div className="h-16 bg-gradient-to-b from-[rgb(254,248,252)] to-white" />
+      <div className="h-8 bg-gradient-to-b from-pink-50 to-white" />
 
       <div className="mx-auto max-w-7xl px-6 pb-16">
 
         {/* Danh sách tin đăng */}
         <div>
-          <div className="mb-8 space-y-3">
+          <div className="mb-8 space-y-2">
             <span className="text-sm font-medium text-zinc-600">
-              {allFilteredListings.length} kết quả
+              {allFilteredListings.length} tin đăng
             </span>
-            <h2 className="text-3xl font-bold">{getListingTitle()}</h2>
+            <h2 className="text-2xl font-bold">{getListingTitle()}</h2>
           </div>
 
           {displayedListings.length > 0 ? (
@@ -88,9 +116,11 @@ export default function RoomSharePage() {
               ))}
             </div>
           ) : (
-            <div className="py-16 text-center">
-              <p className="text-lg text-zinc-500">Chưa có tin đăng nào trong mục này</p>
-              <p className="mt-2 text-sm text-zinc-400">Hãy là người đầu tiên đăng tin!</p>
+            <div className="py-16 text-center bg-zinc-50 rounded-xl border-2 border-dashed border-zinc-200">
+              <p className="text-lg font-bold text-zinc-500">Chưa có phòng nào đang tìm người ở ghép :(</p>
+              <p className="mt-2 text-sm text-zinc-400">
+                Bạn có phòng trống? <Link href="/roommate/create?type=have-room" className="text-pink-500 underline font-bold">Đăng tin ngay</Link>
+              </p>
             </div>
           )}
 
@@ -112,13 +142,17 @@ export default function RoomSharePage() {
         <div className="my-16 border-t-2 border-black" />
 
         <SplitCTASection
-          leftHeading="Bạn có phòng muốn share?"
-          leftSubheading="Đăng tin share phòng ngay!"
-          leftButton="Đăng tin ngay"
-          leftReturnUrl="/roomshare"
-          rightHeading="Hoặc bạn đang tìm roommate?"
-          rightButton="Tìm roommate"
+          leftHeading="Bạn có phòng dư muốn share?"
+          leftSubheading=""
+          leftButton="Đăng tin share phòng"
+          leftReturnUrl="/roomshare/create"
+          onPostClick={() => {
+            router.push("/roomshare/create");
+          }}
+          rightHeading="Hay là đang tìm bạn ở cùng?"
+          rightButton="Tìm bạn ở cùng ngay"
           rightLink="/roommate"
+          rightSubheading=""
           variant="pink"
         />
       </div>

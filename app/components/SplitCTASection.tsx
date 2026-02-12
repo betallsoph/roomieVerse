@@ -12,9 +12,11 @@ interface SplitCTASectionProps {
   onPostClick?: () => void;
 
   // Right side - other page
+  // Right side - other page
   rightHeading: string;
   rightButton: string;
   rightLink: string;
+  rightSubheading?: string;
 
   // Theme variant
   variant?: "blue" | "pink";
@@ -29,6 +31,7 @@ export default function SplitCTASection({
   rightHeading,
   rightButton,
   rightLink,
+  rightSubheading = "Khám phá thêm nhiều lựa chọn khác!",
   variant = "blue",
 }: SplitCTASectionProps) {
   const { isAuthenticated } = useAuth();
@@ -47,23 +50,25 @@ export default function SplitCTASection({
       {/* Left side - Post */}
       <div className={`rounded-xl border-2 border-black ${leftBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{leftHeading}</h2>
-        <p className="mb-6 text-base text-zinc-700">
-          {leftSubheading}
-        </p>
+        {leftSubheading && (
+          <p className="mb-6 text-base text-zinc-700">
+            {leftSubheading}
+          </p>
+        )}
         {isAuthenticated ? (
           <button
             onClick={() => {
               onPostClick?.();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="btn-secondary text-base w-full max-w-[200px] mx-auto"
+            className="btn-secondary text-base w-auto px-8 whitespace-nowrap mx-auto"
           >
             {leftButton}
           </button>
         ) : (
           <Link
             href={`/auth?returnUrl=${leftReturnUrl}`}
-            className="btn-secondary text-base block w-full max-w-[200px] mx-auto"
+            className="btn-secondary text-base block w-auto px-8 whitespace-nowrap mx-auto"
           >
             Đăng nhập để đăng tin
           </Link>
@@ -73,12 +78,14 @@ export default function SplitCTASection({
       {/* Right side - Switch */}
       <div className={`rounded-xl border-2 border-black ${rightBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
         <h2 className="mb-4 text-2xl font-bold">{rightHeading}</h2>
-        <p className="mb-6 text-base text-zinc-700">
-          Khám phá thêm nhiều lựa chọn khác!
-        </p>
+        {rightSubheading && (
+          <p className="mb-6 text-base text-zinc-700">
+            {rightSubheading}
+          </p>
+        )}
         <Link
           href={rightLink}
-          className="btn-secondary text-base block w-full max-w-[200px] mx-auto"
+          className="btn-secondary text-base block w-auto px-8 whitespace-nowrap mx-auto"
         >
           {rightButton}
         </Link>

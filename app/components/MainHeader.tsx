@@ -50,13 +50,13 @@ export default function MainHeader() {
               href="/whats-hot"
               className="text-white text-sm font-bold hidden sm:block"
             >
-              What's Hot
+              Có gì mới?
             </NavLink>
             <NavLink
               href="/community"
               className="text-white text-sm font-bold hidden sm:block"
             >
-              Community
+              Cộng đồng
             </NavLink>
             {isAuthenticated ? (
               <Link

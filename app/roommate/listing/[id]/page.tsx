@@ -520,12 +520,9 @@ export default function RoommateListingDetailPage() {
             </div>
 
             {/* Right Column - Contact & Actions (have-room) */}
-            <div className="space-y-4">
-              {/* Contact Card - Sticky */}
-              <div className="lg:sticky lg:top-32 rounded-xl border-2 border-black bg-blue-50 p-6 shadow-[var(--shadow-secondary)]">
-                <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-zinc-600">
-                  Liên hệ ngay
-                </h3>
+            <div className="lg:sticky lg:top-24 space-y-4">
+              {/* Contact Card */}
+              <div className="rounded-xl border-2 border-black bg-blue-50 p-6 shadow-[var(--shadow-secondary)]">
                 <p className="mb-5 text-xl font-bold">{listing.author}</p>
 
                 {isAuthenticated ? (
@@ -609,29 +606,39 @@ export default function RoommateListingDetailPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onClick={toggleFavorite}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
-                    ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
-                >
-                  <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
-                  {isFavorited ? 'Đã lưu' : 'Lưu'}
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
-                  <Share2 className="h-4 w-4" /> Chia sẻ
-                </button>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={toggleFavorite}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
+                      ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
+                  >
+                    <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+                    {isFavorited ? 'Đã lưu' : 'Lưu'}
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
+                    <Share2 className="h-4 w-4" /> Chia sẻ
+                  </button>
+                </div>
                 <button
                   onClick={() => setShowReportModal(true)}
-                  className="flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
                 >
-                  <Flag className="h-4 w-4" />
+                  <Flag className="h-4 w-4" /> Báo cáo
                 </button>
+              </div>
+
+              {/* Ad Placeholder */}
+              <div className="p-4 rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 text-center">
+                <p className="text-xs text-zinc-400 mb-2">Quảng cáo</p>
+                <div className="h-[250px] flex items-center justify-center text-zinc-300 text-sm">
+                  Google Ads
+                </div>
               </div>
 
               {/* Similar Listings */}
               {similarListings.length > 0 && (
-                <div className="rounded-xl border-2 border-black bg-white p-5 shadow-[var(--shadow-secondary)]">
+                <div className="pt-4 border-t border-zinc-200">
                   <h3 className="text-sm font-bold text-zinc-500 mb-3">Tin tương tự</h3>
                   <div className="space-y-3">
                     {similarListings.map((item) => (
@@ -717,7 +724,7 @@ export default function RoommateListingDetailPage() {
                     )}
                     {listing.moveInDate && (
                       <div>
-                        <p className="text-zinc-500 mb-1">Thời gian</p>
+                        <p className="text-zinc-500 mb-1">Thời gian kiếm ra phòng</p>
                         <p className="font-semibold text-zinc-800">{listing.moveInDate}</p>
                       </div>
                     )}
@@ -816,7 +823,7 @@ export default function RoommateListingDetailPage() {
             </div>
 
             {/* Right Column - Contact & Actions */}
-            <div className="lg:sticky lg:top-32 space-y-5">
+            <div className="lg:sticky lg:top-24 space-y-5">
               {/* Profile Avatar - Centered */}
               <div className="text-center">
                 {listing.userId ? (

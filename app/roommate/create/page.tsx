@@ -317,8 +317,72 @@ function CreateRoommateContent() {
     prefGender, prefStatus, prefSchedule, prefCleanliness, prefHabits, prefPets, prefMoveInTime
   ]);
 
+  // Dev auto-fill - fills ALL fields across ALL steps
+  const autoFill = () => {
+    if (isHaveRoom) {
+      // Step 1
+      setTitle("Tìm bạn ở ghép căn hộ 2PN Vinhomes Grand Park Q9");
+      setIntroduction("Mình là nữ, 25 tuổi, đang làm văn phòng ở Quận 1. Sinh hoạt điều độ, thích gọn gàng sạch sẽ. Không hút thuốc, không nuôi thú cưng. Cuối tuần hay nấu ăn và đọc sách.");
+      setPropertyTypes(["apartment"]);
+      setCity("Hồ Chí Minh");
+      setDistrict("Quận 9");
+      setSpecificAddress("Vinhomes Grand Park, Nguyễn Xiển, P. Long Thạnh Mỹ");
+      setBuildingName("Tháp S3.02 - Tầng 12");
+      setRoomSize("20");
+      setCurrentOccupants("1");
+      setMinContractDuration("6 tháng");
+      // Step 2
+      setCostRent("3.500.000");
+      setCostDeposit("1 tháng tiền phòng");
+      setCostElectricity("3.500đ/kWh");
+      setCostWater("100.000đ/người");
+      setCostInternet("Wifi miễn phí (đã bao gồm)");
+      setCostService("Bao gồm trong phí quản lý");
+      setCostParking("Xe máy miễn phí");
+      setCostManagement("8.000đ/m²");
+      setCostOther("Dọn vệ sinh chung 2 lần/tuần");
+      // Amenities
+      setAmenities(["ac", "wifi", "washing", "fridge", "kitchen", "parking", "security", "furnished"]);
+    } else {
+      // find-partner
+      setTitle("Tìm bạn cùng thuê căn hộ khu Thảo Điền - Q2");
+      setIntroduction("Mình là nữ, 24 tuổi, làm marketing ở Quận 1. Thích nấu ăn, sạch sẽ gọn gàng. Không hút thuốc, thích nuôi mèo. Đang tìm bạn nữ cùng thuê căn hộ 2PN để chia sẻ chi phí.");
+      setCity("Hồ Chí Minh");
+      setDistrict("Quận 2 (Thủ Đức)");
+      setSpecificAddress("Khu vực Thảo Điền hoặc lân cận");
+      setPropertyTypes(["apartment", "service-apartment"]);
+      setBudget("4-5 triệu/người/tháng");
+      setMoveInTime("Đầu tháng 3/2026");
+    }
+    // Step 3 - Preferences (shared)
+    setPrefGender(["female"]);
+    setPrefStatus(["working"]);
+    setPrefSchedule(["early"]);
+    setPrefCleanliness(["very-clean"]);
+    setPrefHabits(["no-smoke"]);
+    setPrefPets(["no-pet"]);
+    setPrefMoveInTime(["asap"]);
+    setPrefOther("Ưu tiên bạn đi làm giờ hành chính, không mang bạn về khuya.");
+    // Step 4 - Contact
+    setContactPhone("0909123456");
+    setContactZalo("0909123456");
+    setSameAsPhone(true);
+    setContactFacebook("facebook.com/linh.tran");
+    setContactInstagram("@linh.tran");
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Dev Auto-Fill Button */}
+      {process.env.NODE_ENV === "development" && (
+        <button
+          onClick={autoFill}
+          className="fixed bottom-6 right-6 z-50 bg-blue-400 text-black px-4 py-2 rounded-full shadow-lg hover:bg-blue-500 transition-colors text-sm font-bold flex items-center gap-2 border-2 border-black"
+          title="Auto-fill all fields with sample data"
+        >
+          🤖 Auto Fill
+        </button>
+      )}
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -448,41 +512,6 @@ function CreateRoommateContent() {
                 <div className="card bg-white">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">Thông tin cơ bản</h2>
-                    {/* Dev: Auto-fill button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isHaveRoom) {
-                          setTitle("Tìm bạn ở ghép căn hộ 2PN Vinhomes Grand Park Q9");
-                          setIntroduction("Mình là nữ, 25 tuổi, làm văn phòng ở Quận 1. Thói quen sinh hoạt điều độ, thích gọn gàng sạch sẽ. Không hút thuốc, không nuôi thú cưng.");
-                          setPropertyTypes(["apartment"]);
-                          setCity("TP. Hồ Chí Minh");
-                          setDistrict("Quận 9");
-                          setSpecificAddress("Vinhomes Grand Park, Tháp S3.02, Phòng 1202");
-                          // Cost fields
-                          setCostRent("3.500.000");
-                          setCostDeposit("1 tháng tiền phòng");
-                          setCostElectricity("3.500đ/kWh");
-                          setCostWater("100.000đ/người");
-                          setCostInternet("Chia đều");
-                          setCostService("Bao gồm");
-                          setCostParking("Miễn phí");
-                          setCostManagement("Không có");
-                        } else {
-                          setTitle("Tìm bạn cùng thuê phòng khu Thảo Điền");
-                          setIntroduction("Mình là nữ, 25 tuổi, làm văn phòng ở Quận 1. Thói quen sinh hoạt điều độ, thích gọn gàng sạch sẽ. Không hút thuốc, không nuôi thú cưng.");
-                          setCity("TP. Hồ Chí Minh");
-                          setDistrict("Quận 2, Bình Thạnh");
-                          setSpecificAddress("Khu vực Thảo Điền hoặc lân cận");
-                          setPropertyTypes(["apartment", "service-apartment"]);
-                          setBudget("4-5 triệu/tháng");
-                          setMoveInTime("Trong tháng 1/2025");
-                        }
-                      }}
-                      className="text-xs px-3 py-1 bg-yellow-200 border border-black rounded hover:bg-yellow-300"
-                    >
-                      Auto-fill (Dev)
-                    </button>
                   </div>
                   <div className="space-y-6">
                     {/* Title */}
@@ -1109,22 +1138,6 @@ function CreateRoommateContent() {
                 <div className="card bg-white">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold">Mong muốn đối với bạn ở cùng</h2>
-                    {/* Dev: Auto-fill button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPrefGender(["female"]);
-                        setPrefStatus(["working"]);
-                        setPrefSchedule(["early"]);
-                        setPrefCleanliness(["very-clean"]);
-                        setPrefHabits(["no-smoke"]);
-                        setPrefPets(["no-pet"]);
-                        setPrefOther("Ưu tiên người cùng công ty hoặc làm việc gần");
-                      }}
-                      className="text-xs px-3 py-1 bg-yellow-200 border border-black rounded hover:bg-yellow-300"
-                    >
-                      Auto-fill (Dev)
-                    </button>
                   </div>
                   <div className="space-y-6">
                     {/* Gender */}

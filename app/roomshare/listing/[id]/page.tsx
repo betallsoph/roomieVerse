@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Flag,
   MapPin,
@@ -17,45 +18,56 @@ import {
   User,
   Lightbulb,
   AlertTriangle,
-  Check,
   Search,
-  Loader2
+  Loader2,
+  MessageCircle,
+  Facebook,
+  Instagram,
+  Users,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  Droplets,
+  Wifi,
+  Car,
+  Building2,
+  Receipt
 } from "lucide-react";
 import MainHeader from "../../../components/MainHeader";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
-import { getListingById } from "../../../data/listings";
+import { getListingById, getListingsByCategory } from "../../../data/listings";
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
 
-// Helper function to get category badge
-function getCategoryBadge(listing: RoomListing) {
-  if (listing.propertyType === "house") return { text: "Nhà trọ", color: "bg-pink-300" };
-  return { text: "Chung cư", color: "bg-pink-200" };
-}
+// Helper to map amenity value to label
+const amenityLabels: Record<string, string> = {
+  ac: "Điều hòa",
+  wifi: "Wifi",
+  washing: "Máy giặt",
+  fridge: "Tủ lạnh",
+  kitchen: "Bếp",
+  parking: "Chỗ đậu xe",
+  pool: "Hồ bơi",
+  gym: "Gym",
+  elevator: "Thang máy",
+  security: "Bảo vệ 24/7",
+  balcony: "Ban công",
+  furnished: "Nội thất",
+  "private-wc": "WC riêng",
+};
 
-// Generate mock amenities based on description
-function getAmenities(listing: RoomListing): string[] {
-  const amenities: string[] = [];
-  const desc = listing.description.toLowerCase();
-
-  if (desc.includes("máy lạnh") || desc.includes("điều hòa")) amenities.push("Máy lạnh");
-  if (desc.includes("tủ lạnh")) amenities.push("Tủ lạnh");
-  if (desc.includes("máy giặt")) amenities.push("Máy giặt");
-  if (desc.includes("wifi") || desc.includes("internet")) amenities.push("Wifi");
-  if (desc.includes("bếp") || desc.includes("nấu ăn")) amenities.push("Bếp");
-  if (desc.includes("ban công")) amenities.push("Ban công");
-  if (desc.includes("view")) amenities.push("View đẹp");
-  if (desc.includes("nội thất")) amenities.push("Full nội thất");
-  if (desc.includes("gym") || desc.includes("hồ bơi")) amenities.push("Tiện ích cao cấp");
-
-  // Default amenities if none found
-  if (amenities.length === 0) {
-    amenities.push("Wifi", "Máy lạnh");
-  }
-
-  return amenities;
-}
+// Helper to map preference values to labels
+const preferenceLabels: Record<string, Record<string, string>> = {
+  gender: { male: "Nam", female: "Nữ", any: "Không quan trọng" },
+  status: { student: "Sinh viên", working: "Đã đi làm", both: "Vừa học vừa làm", other: "Khác" },
+  schedule: { early: "Ngủ sớm, dậy sớm", late: "Cú đêm", flexible: "Linh hoạt" },
+  cleanliness: { "very-clean": "Rất sạch sẽ", normal: "Bình thường", relaxed: "Thoải mái" },
+  habits: { "no-smoke": "Không hút thuốc", "no-alcohol": "Không uống rượu bia", flexible: "Linh hoạt" },
+  pets: { "no-pet": "Không nuôi thú cưng", "pet-ok": "Có thể nuôi thú cưng", any: "Không quan trọng" },
+  moveInTime: { "early-month": "Đầu tháng", "end-month": "Cuối tháng", any: "Thời gian bất kỳ", asap: "Càng sớm càng tốt" },
+};
 
 export default function RoomshareListingDetailPage() {
   const params = useParams();
@@ -63,22 +75,30 @@ export default function RoomshareListingDetailPage() {
   const id = params.id as string;
   const { isAuthenticated } = useAuth();
   const [listing, setListing] = useState<RoomListing | null>(null);
+  const [similarListings, setSimilarListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch listing data
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       const data = await getListingById(id);
-      // Verify this is a roomshare listing
       if (data && data.category !== "roomshare") {
-        // Redirect to correct route
         router.replace(`/roommate/listing/${id}`);
         return;
       }
       setListing(data);
+
+      // Fetch similar listings
+      const allListings = await getListingsByCategory("roomshare");
+      const similar = allListings
+        .filter(item => String(item.id) !== String(id))
+        .slice(0, 3);
+      setSimilarListings(similar);
+
       setIsLoading(false);
     }
     fetchData();
@@ -97,15 +117,39 @@ export default function RoomshareListingDetailPage() {
   const toggleFavorite = () => {
     const savedFavorites = localStorage.getItem('favorites');
     let favoriteIds: (string | number)[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-
     if (isFavorited) {
       favoriteIds = favoriteIds.filter(fid => fid !== id);
     } else {
       favoriteIds.push(id);
     }
-
     localStorage.setItem('favorites', JSON.stringify(favoriteIds));
     setIsFavorited(!isFavorited);
+  };
+
+  // Get amenities from listing data
+  const getDisplayAmenities = (): string[] => {
+    if (listing?.amenities && listing.amenities.length > 0) {
+      return listing.amenities.map(a => amenityLabels[a] || a);
+    }
+    // Fallback: parse from description
+    const fallback: string[] = [];
+    const desc = (listing?.description || "").toLowerCase();
+    if (desc.includes("máy lạnh") || desc.includes("điều hòa")) fallback.push("Điều hòa");
+    if (desc.includes("wifi")) fallback.push("Wifi");
+    if (desc.includes("máy giặt")) fallback.push("Máy giặt");
+    if (desc.includes("tủ lạnh")) fallback.push("Tủ lạnh");
+    if (desc.includes("bếp")) fallback.push("Bếp");
+    if (fallback.length === 0) fallback.push("Wifi", "Điều hòa");
+    return fallback;
+  };
+
+  const nextImage = () => {
+    const images = listing?.images || [];
+    setCurrentImageIndex(prev => (prev + 1) % images.length);
+  };
+  const prevImage = () => {
+    const images = listing?.images || [];
+    setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
   };
 
   if (isLoading) {
@@ -139,14 +183,16 @@ export default function RoomshareListingDetailPage() {
     );
   }
 
-  const badge = getCategoryBadge(listing);
-  const amenities = getAmenities(listing);
+  const displayAmenities = getDisplayAmenities();
+  const images = listing.images || [];
+  const hasImages = images.length > 0;
+  const costs = listing.costs;
 
   return (
     <div className="min-h-screen bg-white">
       <MainHeader />
 
-      {/* Hero Section - Pink theme for roomshare */}
+      {/* Hero Section - Pink theme */}
       <section className="border-b-2 border-black bg-pink-50 py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-6">
           {/* Breadcrumb */}
@@ -158,29 +204,22 @@ export default function RoomshareListingDetailPage() {
             <span className="text-black font-medium">Chi tiết</span>
           </div>
 
-          {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2 mb-6"
-          >
-            <ArrowLeft className="h-4 w-4" /> Quay lại
-          </button>
-
-          <h1 className="mb-6 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            {listing.title}
-          </h1>
-
-          <div className="flex flex-wrap gap-6 text-sm sm:text-base text-zinc-700">
-            <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> {listing.location}
-            </span>
-            <span className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" /> Dọn vào: {listing.moveInDate}
-            </span>
-            <span className="flex items-center gap-2">
+          {/* Back Button + Posted Date */}
+          <div className="flex items-center gap-4 mb-6">
+            <button
+              onClick={() => router.back()}
+              className="btn-secondary !inline-flex !py-2 !px-6 items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" /> Quay lại
+            </button>
+            <span className="flex items-center gap-2 text-sm text-zinc-600">
               <Clock className="h-4 w-4" /> Đăng {listing.postedDate}
             </span>
           </div>
+
+          <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+            {listing.title}
+          </h1>
         </div>
       </section>
 
@@ -190,59 +229,325 @@ export default function RoomshareListingDetailPage() {
 
           {/* Left Column - Details */}
           <div className="space-y-8">
-            {/* Image Placeholder */}
+            {/* Image Gallery */}
             <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)]">
-              <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
-                <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
-              </div>
+              {hasImages ? (
+                <div className="relative">
+                  <div className="h-72 sm:h-96 w-full">
+                    <Image
+                      src={images[currentImageIndex]}
+                      alt={`Hình ${currentImageIndex + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 border-2 border-black shadow-md hover:bg-white"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {images.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentImageIndex(idx)}
+                            className={`w-3 h-3 rounded-full border-2 border-black ${idx === currentImageIndex ? 'bg-pink-400' : 'bg-white'}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex h-72 sm:h-96 w-full items-center justify-center bg-zinc-50">
+                  <Home className="h-32 w-32 text-zinc-300" strokeWidth={1} />
+                </div>
+              )}
             </div>
 
-            {/* Main Info Card */}
-            <div className="rounded-xl border-2 border-black bg-white shadow-[var(--shadow-secondary)] overflow-hidden">
-              {/* Price Header */}
-              <div className="bg-pink-50 p-6 border-b-2 border-black">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Introduction Card */}
+            <div className="rounded-xl border-2 border-black bg-white p-6">
+              <h3 className="text-lg font-bold mb-3 text-pink-700">
+                Về người đăng
+              </h3>
+              <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
+                {listing.introduction || listing.description}
+              </p>
+              {listing.othersIntro && (
+                <div className="pt-4 mt-4 border-t border-zinc-200">
+                  <h4 className="text-sm font-bold text-zinc-500 mb-2">Về những người ở phòng khác</h4>
+                  <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
+                    {listing.othersIntro}
+                  </p>
+                </div>
+              )}
+              {listing.userId && (
+                <Link
+                  href={`/user/${listing.userId}`}
+                  className="inline-flex items-center gap-2 mt-4 text-sm font-bold text-pink-600 hover:underline"
+                >
+                  <User className="h-4 w-4" /> Xem hồ sơ lối sống của {listing.author}
+                </Link>
+              )}
+            </div>
+
+            {/* Room Info Card */}
+            <div className="rounded-xl border-2 border-black bg-white p-6">
+              <h3 className="text-lg font-bold mb-4 text-pink-700">
+                Thông tin phòng
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 text-sm">
+                <div>
+                  <p className="text-zinc-500 mb-1">Tiền thuê</p>
+                  <p className="text-xl font-bold text-pink-600">{listing.price}</p>
+                </div>
+                {(listing.city || listing.district) && (
                   <div>
-                    <p className="text-sm font-medium text-zinc-700 mb-1">Giá thuê/tháng</p>
-                    <p className="text-3xl sm:text-4xl font-extrabold">{listing.price}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-zinc-700 mb-1">Đăng bởi</p>
-                    <p className="text-xl font-bold flex items-center justify-end gap-2">
-                      <User className="h-5 w-5" /> {listing.author}
+                    <p className="text-zinc-500 mb-1">Khu vực</p>
+                    <p className="font-semibold text-zinc-800">
+                      {[listing.district, listing.city].filter(Boolean).join(", ")}
                     </p>
                   </div>
+                )}
+                <div>
+                  <p className="text-zinc-500 mb-1">Loại hình</p>
+                  <p className="font-semibold text-zinc-800">
+                    {listing.propertyType === "house" ? "Nhà trọ" : "Chung cư"}
+                  </p>
                 </div>
+                {listing.specificAddress && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Địa chỉ</p>
+                    <p className="font-semibold text-zinc-800">{listing.specificAddress}</p>
+                  </div>
+                )}
+                {listing.buildingName && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Toà nhà/Block</p>
+                    <p className="font-semibold text-zinc-800">{listing.buildingName}</p>
+                  </div>
+                )}
+                {listing.totalRooms && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Tổng số phòng</p>
+                    <p className="font-semibold text-zinc-800">{listing.totalRooms} phòng</p>
+                  </div>
+                )}
+                {listing.roomSize && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Diện tích phòng dư</p>
+                    <p className="font-semibold text-zinc-800">{listing.roomSize} m²</p>
+                  </div>
+                )}
+                {listing.currentOccupants && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Số người đang ở</p>
+                    <p className="font-semibold text-zinc-800">{listing.currentOccupants} người</p>
+                  </div>
+                )}
+                {listing.moveInDate && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Dọn vào</p>
+                    <p className="font-semibold text-zinc-800">{listing.moveInDate}</p>
+                  </div>
+                )}
+                {listing.minContractDuration && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
+                    <p className="font-semibold text-zinc-800">{listing.minContractDuration}</p>
+                  </div>
+                )}
+                {costs?.deposit && (
+                  <div>
+                    <p className="text-zinc-500 mb-1">Tiền cọc</p>
+                    <p className="font-semibold text-zinc-800">{costs.deposit}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Description */}
-              <div className="p-6 border-b-2 border-black">
-                <h2 className="mb-4 text-xl font-bold">Mô tả chi tiết</h2>
-                <p className="text-base leading-relaxed text-zinc-700 whitespace-pre-line">
-                  {listing.description}
-                </p>
-              </div>
+              {/* Costs inline */}
+              {costs && (costs.electricity || costs.water || costs.internet || costs.parking || costs.management || costs.service || costs.other) && (
+                <div className="mt-6 pt-4 border-t border-zinc-100">
+                  <p className="text-sm font-bold text-zinc-500 mb-3">Chi phí sinh hoạt</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-4 text-sm">
+                    {costs.electricity && (
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Điện</p>
+                          <p className="font-semibold text-zinc-800">{costs.electricity}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.water && (
+                      <div className="flex items-center gap-2">
+                        <Droplets className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Nước</p>
+                          <p className="font-semibold text-zinc-800">{costs.water}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.internet && (
+                      <div className="flex items-center gap-2">
+                        <Wifi className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Internet</p>
+                          <p className="font-semibold text-zinc-800">{costs.internet}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.service && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Dịch vụ</p>
+                          <p className="font-semibold text-zinc-800">{costs.service}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.parking && (
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Gửi xe</p>
+                          <p className="font-semibold text-zinc-800">{costs.parking}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.management && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Phí quản lý</p>
+                          <p className="font-semibold text-zinc-800">{costs.management}</p>
+                        </div>
+                      </div>
+                    )}
+                    {costs.other && (
+                      <div className="flex items-center gap-2 col-span-2">
+                        <Receipt className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-zinc-500 text-xs">Khác</p>
+                          <p className="font-semibold text-zinc-800">{costs.other}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-              {/* Amenities */}
-              <div className="p-6">
-                <h2 className="mb-4 text-xl font-bold">Tiện nghi</h2>
+              {/* Amenities inline */}
+              <div className="mt-6 pt-4 border-t border-zinc-100">
+                <p className="text-sm font-bold text-zinc-500 mb-3">Tiện nghi</p>
                 <div className="flex flex-wrap gap-2">
-                  {amenities.map((amenity) => (
+                  {displayAmenities.map((amenity) => (
                     <span
                       key={amenity}
-                      className="rounded-lg border-2 border-black bg-pink-100 px-3 py-1.5 text-sm font-medium"
+                      className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium"
                     >
                       {amenity}
                     </span>
                   ))}
+                  {listing.amenitiesOther && (
+                    <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-sm font-medium">
+                      {listing.amenitiesOther}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
+            {/* Preferences Card */}
+            {listing.preferences && (
+              <div className="rounded-xl border-2 border-black bg-white p-6">
+                <h3 className="text-lg font-bold mb-4 text-pink-700">
+                  Yêu cầu đối với bạn thuê phòng
+                </h3>
+                <div className="space-y-3">
+                  {listing.preferences.gender && listing.preferences.gender.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Giới tính:</span>
+                      {listing.preferences.gender.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.gender[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.status && listing.preferences.status.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Tình trạng:</span>
+                      {listing.preferences.status.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.status[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.schedule && listing.preferences.schedule.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Giờ giấc:</span>
+                      {listing.preferences.schedule.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.schedule[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.cleanliness && listing.preferences.cleanliness.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Sạch sẽ:</span>
+                      {listing.preferences.cleanliness.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.cleanliness[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.habits && listing.preferences.habits.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Thói quen:</span>
+                      {listing.preferences.habits.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.habits[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.pets && listing.preferences.pets.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-zinc-500 w-24">Thú cưng:</span>
+                      {listing.preferences.pets.map(v => (
+                        <span key={v} className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-sm font-medium">
+                          {preferenceLabels.pets[v] || v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {listing.preferences.other && (
+                    <div className="pt-3 mt-2 border-t border-zinc-100">
+                      <p className="text-sm text-zinc-500 mb-1">Yêu cầu khác:</p>
+                      <p className="text-zinc-800">{listing.preferences.other}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Tips */}
             <div className="rounded-xl border-2 border-black bg-red-50 p-5 shadow-[var(--shadow-secondary)]">
-              <h2 className="mb-3 text-lg font-bold flex items-center gap-2">
-                <Lightbulb className="h-5 w-5" /> Lưu ý khi liên hệ
+              <h2 className="mb-3 text-lg font-bold">
+                Lưu ý khi liên hệ
               </h2>
               <ul className="space-y-1.5 text-sm text-zinc-700">
                 <li>• Xem phòng trực tiếp trước khi quyết định</li>
@@ -253,21 +558,67 @@ export default function RoomshareListingDetailPage() {
           </div>
 
           {/* Right Column - Contact & Actions */}
-          <div className="space-y-4">
-            {/* Contact Card - Sticky */}
-            <div className="lg:sticky lg:top-32 rounded-xl border-2 border-black bg-pink-50 p-6 shadow-[var(--shadow-secondary)]">
-              <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-zinc-600">
-                Liên hệ ngay
-              </h3>
+          <div className="lg:sticky lg:top-24 space-y-4">
+            {/* Contact Card */}
+            <div className="rounded-xl border-2 border-black bg-pink-50 p-6 shadow-[var(--shadow-secondary)]">
               <p className="mb-5 text-xl font-bold">{listing.author}</p>
 
               {isAuthenticated ? (
-                <a
-                  href={`tel:${listing.phone.replace(/\s/g, "")}`}
-                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 text-lg font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-                >
-                  <Phone className="h-5 w-5" /> {listing.phone}
-                </a>
+                <>
+                  <a
+                    href={`tel:${listing.phone.replace(/\s/g, "")}`}
+                    className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 text-lg font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                  >
+                    <Phone className="h-5 w-5" /> {listing.phone}
+                  </a>
+
+                  {listing.zalo ? (
+                    <a
+                      href={`https://zalo.me/${listing.zalo.replace(/\s/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                    >
+                      <MessageCircle className="h-5 w-5" /> Zalo
+                    </a>
+                  ) : (
+                    <div className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
+                      <MessageCircle className="h-5 w-5" /> Zalo
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 mb-4">
+                    {listing.facebook ? (
+                      <a
+                        href={listing.facebook.startsWith('http') ? listing.facebook : `https://facebook.com/${listing.facebook}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                      >
+                        <Facebook className="h-5 w-5" /> Facebook
+                      </a>
+                    ) : (
+                      <div className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
+                        <Facebook className="h-5 w-5" /> Facebook
+                      </div>
+                    )}
+
+                    {listing.instagram ? (
+                      <a
+                        href={listing.instagram.startsWith('http') ? listing.instagram : `https://instagram.com/${listing.instagram}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                      >
+                        <Instagram className="h-5 w-5" /> Instagram
+                      </a>
+                    ) : (
+                      <div className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
+                        <Instagram className="h-5 w-5" /> Instagram
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <Link
                   href={`/auth?returnUrl=/roomshare/listing/${id}`}
@@ -281,36 +632,72 @@ export default function RoomshareListingDetailPage() {
                 <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 roomieVerse không chịu trách nhiệm cho các giao dịch giữa người dùng.
               </p>
+
+              {listing.userId && (
+                <Link
+                  href={`/user/${listing.userId}`}
+                  className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-purple-100 px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                >
+                  <User className="h-5 w-5" /> Xem hồ sơ người đăng
+                </Link>
+              )}
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={toggleFavorite}
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
-                  ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
-              >
-                <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
-                {isFavorited ? 'Đã lưu' : 'Lưu'}
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
-                <Share2 className="h-4 w-4" /> Chia sẻ
-              </button>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={toggleFavorite}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
+                    ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
+                >
+                  <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
+                  {isFavorited ? 'Đã lưu' : 'Lưu'}
+                </button>
+                <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
+                  <Share2 className="h-4 w-4" /> Chia sẻ
+                </button>
+              </div>
               <button
                 onClick={() => setShowReportModal(true)}
-                className="flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
               >
-                <Flag className="h-4 w-4" />
+                <Flag className="h-4 w-4" /> Báo cáo
               </button>
             </div>
 
-            {/* View More Button */}
-            <Link
-              href="/roomshare/all"
-              className="flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-            >
-              Xem thêm tin khác
-            </Link>
+            {/* Ad Placeholder */}
+            <div className="p-4 rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 text-center">
+              <p className="text-xs text-zinc-400 mb-2">Quảng cáo</p>
+              <div className="h-[250px] flex items-center justify-center text-zinc-300 text-sm">
+                Google Ads
+              </div>
+            </div>
+
+            {/* Similar Listings */}
+            {similarListings.length > 0 && (
+              <div className="pt-4 border-t border-zinc-200">
+                <h3 className="text-sm font-bold text-zinc-500 mb-3">Tin tương tự</h3>
+                <div className="space-y-3">
+                  {similarListings.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/roomshare/listing/${item.id}`}
+                      className="block p-3 rounded-lg border-2 border-black bg-white hover:bg-pink-50 transition-colors"
+                    >
+                      <p className="font-bold text-sm line-clamp-2 mb-1">{item.title}</p>
+                      <div className="flex items-center justify-between text-xs text-zinc-500">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {item.district || item.city || "Chưa rõ"}
+                        </span>
+                        <span className="font-bold text-pink-600">{item.price}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

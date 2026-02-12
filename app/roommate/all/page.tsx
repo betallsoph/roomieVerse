@@ -45,10 +45,26 @@ export default function RoommateAllPage() {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [mode]);
 
-  // Filter listings based on mode
-  const filteredListings = listings.filter((listing) => {
-    return listing.roommateType === mode;
-  });
+  // Parse relative Vietnamese date to a sortable number (lower = more recent)
+  const parsePostedDate = (dateStr: string): number => {
+    if (dateStr === "Hôm nay") return 0;
+    if (dateStr === "Hôm qua") return 1;
+    const match = dateStr.match(/(\d+)\s*(giờ|ngày|tuần|tháng)/);
+    if (match) {
+      const num = parseInt(match[1]);
+      const unit = match[2];
+      if (unit === "giờ") return num / 24;
+      if (unit === "ngày") return num;
+      if (unit === "tuần") return num * 7;
+      if (unit === "tháng") return num * 30;
+    }
+    return 999; // Unknown format → push to end
+  };
+
+  // Filter listings based on mode, then sort newest first
+  const filteredListings = listings
+    .filter((listing) => listing.roommateType === mode)
+    .sort((a, b) => parsePostedDate(a.postedDate) - parsePostedDate(b.postedDate));
 
   // Get visible listings
   const visibleListings = filteredListings.slice(0, visibleCount);
@@ -69,10 +85,10 @@ export default function RoommateAllPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-blue-50">
       <MainHeader />
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div className="mx-auto max-w-7xl px-6 py-8 bg-blue-50">
         {/* Back link */}
         <Link
           href="/roommate"

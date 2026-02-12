@@ -69,6 +69,8 @@ export interface RoomListing {
   // Room details (for have-room)
   roomSize?: string; // m²
   currentOccupants?: string; // Number of people currently living
+  totalRooms?: string; // Total number of rooms
+  othersIntro?: string; // Introduction of other people in the room
   minContractDuration?: string; // Minimum contract duration
   // Draft status
   isDraft?: boolean;

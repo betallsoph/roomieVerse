@@ -96,9 +96,8 @@ export default function RoommatePage() {
                   onClick={() => { closeAllFilters(); setShowFilter(!showFilter); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${
-                    showFilter ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showFilter ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                    }`}
                 >
                   Khu vực
                 </motion.button>
@@ -106,9 +105,8 @@ export default function RoommatePage() {
                   onClick={() => { closeAllFilters(); setShowDistrict(!showDistrict); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${
-                    showDistrict ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showDistrict ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                    }`}
                 >
                   Quận
                 </motion.button>
@@ -116,9 +114,8 @@ export default function RoommatePage() {
                   onClick={() => { closeAllFilters(); setShowPrice(!showPrice); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${
-                    showPrice ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showPrice ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                    }`}
                 >
                   Giá
                 </motion.button>
@@ -126,9 +123,8 @@ export default function RoommatePage() {
                   onClick={() => { closeAllFilters(); setShowSearch(!showSearch); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${
-                    showSearch ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showSearch ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                    }`}
                 >
                   <Search className="h-4 w-4" />
                   Tìm kiếm
@@ -375,12 +371,14 @@ export default function RoommatePage() {
         {/* CTA Section */}
         <SplitCTASection
           leftHeading={getCTAHeading()}
+          leftSubheading=""
           leftButton="Đăng tin ngay"
           leftReturnUrl="/roommate"
           onPostClick={() => setShowPostTypeModal(true)}
           rightHeading="Hoặc bạn đang tìm phòng?"
           rightButton="Tìm phòng"
           rightLink="/roomshare"
+          rightSubheading=""
           variant="blue"
         />
       </div>
