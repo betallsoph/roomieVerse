@@ -628,68 +628,74 @@ function CreateRoomshareContent() {
                                         <button
                                             type="button"
                                             disabled={contactPhone.trim() === ""}
-                                            onClick={() => {
-                                                const listingData = {
-                                                    id: `rs-${Date.now()}`,
-                                                    type: "have-room",
-                                                    category: "roomshare",
-                                                    propertyType,
-                                                    title,
-                                                    introduction,
-                                                    othersIntro,
-                                                    city,
-                                                    district,
-                                                    specificAddress,
-                                                    buildingName: isApartment ? buildingName : "",
-                                                    addressOther,
-                                                    location: [specificAddress, buildingName, district, city].filter(Boolean).join(', '),
-                                                    totalRooms,
-                                                    roomSize,
-                                                    currentOccupants,
-                                                    price: rentPrice,
-                                                    minLeaseDuration,
-                                                    costs: {
-                                                        rent: rentPrice,
-                                                        deposit,
-                                                        electricity: costElectricity,
-                                                        water: costWater,
-                                                        internet: costInternet,
-                                                        service: isApartment ? costService : "",
-                                                        parking: costParking,
-                                                        management: isApartment ? costManagement : "",
-                                                        other: costOther,
-                                                    },
-                                                    images,
-                                                    amenities,
-                                                    amenitiesOther,
-                                                    preferences: {
-                                                        gender: prefGender,
-                                                        status: prefStatus,
-                                                        statusOther: prefStatusOther,
-                                                        schedule: prefSchedule,
-                                                        cleanliness: prefCleanliness,
-                                                        habits: prefHabits,
-                                                        pets: prefPets,
-                                                        moveInTime: prefMoveInTime,
-                                                        other: prefOther,
-                                                    },
-                                                    contact: {
+                                            onClick={async () => {
+                                                try {
+                                                    const { uploadImages } = await import('../../lib/imageUpload');
+                                                    const listingId = `rs-${Date.now()}`;
+                                                    const uploadedImages = images.length > 0
+                                                        ? await uploadImages(images, "listings", listingId)
+                                                        : [];
+
+                                                    const { createListing } = await import('../../data/listings');
+                                                    await createListing({
+                                                        category: "roomshare",
+                                                        roommateType: "have-room",
+                                                        propertyType: propertyType as "house" | "apartment",
+                                                        title,
+                                                        introduction,
+                                                        description: introduction,
+                                                        othersIntro,
+                                                        city,
+                                                        district,
+                                                        specificAddress,
+                                                        buildingName: isApartment ? buildingName : "",
+                                                        addressOther,
+                                                        location: [specificAddress, buildingName, district, city].filter(Boolean).join(', '),
+                                                        totalRooms,
+                                                        roomSize,
+                                                        currentOccupants,
+                                                        price: rentPrice,
+                                                        minContractDuration: minLeaseDuration,
+                                                        costs: {
+                                                            rent: rentPrice,
+                                                            deposit,
+                                                            electricity: costElectricity,
+                                                            water: costWater,
+                                                            internet: costInternet,
+                                                            service: isApartment ? costService : "",
+                                                            parking: costParking,
+                                                            management: isApartment ? costManagement : "",
+                                                            other: costOther,
+                                                        },
+                                                        images: uploadedImages,
+                                                        amenities,
+                                                        amenitiesOther,
+                                                        moveInDate: "Linh hoạt",
+                                                        author: user?.displayName || "Ẩn danh",
+                                                        preferences: {
+                                                            gender: prefGender,
+                                                            status: prefStatus,
+                                                            statusOther: prefStatusOther,
+                                                            schedule: prefSchedule,
+                                                            cleanliness: prefCleanliness,
+                                                            habits: prefHabits,
+                                                            pets: prefPets,
+                                                            moveInTime: prefMoveInTime,
+                                                            other: prefOther,
+                                                        },
                                                         phone: contactPhone,
                                                         zalo: contactZalo,
                                                         facebook: contactFacebook,
                                                         instagram: contactInstagram,
-                                                    },
-                                                    createdAt: new Date().toISOString(),
-                                                    userId: user?.uid,
-                                                };
-                                                try {
-                                                    const existing = JSON.parse(localStorage.getItem('roomshare_listings') || '[]');
-                                                    existing.push(listingData);
-                                                    localStorage.setItem('roomshare_listings', JSON.stringify(existing.slice(-10)));
-                                                } catch {
-                                                    localStorage.setItem('roomshare_listings', JSON.stringify([listingData]));
+                                                        userId: user?.uid || "",
+                                                    });
+
+                                                    localStorage.removeItem('roomshare_draft');
+                                                    setShowSuccessModal(true);
+                                                } catch (error) {
+                                                    console.error("Error creating listing:", error);
+                                                    alert("Có lỗi khi đăng tin. Vui lòng thử lại.");
                                                 }
-                                                setShowSuccessModal(true);
                                             }}
                                             className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-pink'}`}
                                         >Đăng tin</button>

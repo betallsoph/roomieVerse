@@ -1554,85 +1554,78 @@ function CreateRoommateContent() {
                     <button
                       type="button"
                       disabled={contactPhone.trim() === ""}
-                      onClick={() => {
-                        // Save to localStorage for testing
-                        const listingData = {
-                          id: `rm-${Date.now()}`,
-                          type,
-                          title,
-                          introduction,
-                          city,
-                          district,
-                          specificAddress,
-                          buildingName,
-                          addressOther,
-                          location: [specificAddress, buildingName, district, city].filter(Boolean).join(', '),
-                          locationNegotiable,
-                          propertyTypes,
-                          budget,
-                          moveInTime,
-                          timeNegotiable,
-                          // Images & Amenities
-                          images,
-                          amenities,
-                          amenitiesOther,
-                          // Room details (for have-room)
-                          ...(isHaveRoom && {
-                            roomSize,
-                            currentOccupants,
-                            minContractDuration,
-                            costs: {
-                              rent: costRent,
-                              deposit: costDeposit,
-                              electricity: costElectricity,
-                              water: costWater,
-                              internet: costInternet,
-                              service: costService,
-                              parking: costParking,
-                              management: costManagement,
-                              other: costOther,
+                      onClick={async () => {
+                        try {
+                          // Upload images to R2 (falls back to base64 if R2 not configured)
+                          const { uploadImages } = await import('../../lib/imageUpload');
+                          const listingId = `rm-${Date.now()}`;
+                          const uploadedImages = images.length > 0
+                            ? await uploadImages(images, "listings", listingId)
+                            : [];
+
+                          const { createListing } = await import('../../data/listings');
+                          await createListing({
+                            category: "roommate",
+                            roommateType: type as "have-room" | "find-partner",
+                            title,
+                            introduction,
+                            description: introduction,
+                            city,
+                            district,
+                            specificAddress,
+                            buildingName,
+                            addressOther,
+                            location: [specificAddress, buildingName, district, city].filter(Boolean).join(', '),
+                            locationNegotiable,
+                            propertyTypes,
+                            price: isHaveRoom ? costRent : budget,
+                            moveInDate: moveInTime,
+                            timeNegotiable,
+                            images: uploadedImages,
+                            amenities,
+                            amenitiesOther,
+                            author: user?.displayName || "Ẩn danh",
+                            ...(isHaveRoom && {
+                              roomSize,
+                              currentOccupants,
+                              minContractDuration,
+                              costs: {
+                                rent: costRent,
+                                deposit: costDeposit,
+                                electricity: costElectricity,
+                                water: costWater,
+                                internet: costInternet,
+                                service: costService,
+                                parking: costParking,
+                                management: costManagement,
+                                other: costOther,
+                              },
+                            }),
+                            preferences: {
+                              gender: prefGender,
+                              status: prefStatus,
+                              statusOther: prefStatusOther,
+                              schedule: prefSchedule,
+                              cleanliness: prefCleanliness,
+                              habits: prefHabits,
+                              pets: prefPets,
+                              moveInTime: prefMoveInTime,
+                              other: prefOther,
                             },
-                          }),
-                          preferences: {
-                            gender: prefGender,
-                            status: prefStatus,
-                            statusOther: prefStatusOther,
-                            schedule: prefSchedule,
-                            cleanliness: prefCleanliness,
-                            habits: prefHabits,
-                            pets: prefPets,
-                            moveInTime: prefMoveInTime,
-                            other: prefOther,
-                          },
-                          contact: {
                             phone: contactPhone,
                             zalo: contactZalo,
                             facebook: contactFacebook,
                             instagram: contactInstagram,
-                          },
-                          createdAt: new Date().toISOString(),
-                          userId: user?.uid,
-                        };
+                            userId: user?.uid || "",
+                          });
 
-                        try {
-                          // Get existing listings or create new array
-                          const existingListings = JSON.parse(localStorage.getItem('roommate_listings') || '[]');
-                          existingListings.push(listingData);
-
-                          // Keep only last 10 listings to prevent quota issues
-                          const limitedListings = existingListings.slice(-10);
-
-                          localStorage.setItem('roommate_listings', JSON.stringify(limitedListings));
-                        } catch (e) {
-                          console.error('localStorage quota exceeded, clearing old data');
-                          // If quota exceeded, keep only this new listing
-                          localStorage.setItem('roommate_listings', JSON.stringify([listingData]));
+                          // Remove draft if exists
+                          localStorage.removeItem('roommate_draft');
+                          setShowSuccessModal(true);
+                        } catch (error) {
+                          console.error("Error creating listing:", error);
+                          alert("Có lỗi khi đăng tin. Vui lòng thử lại.");
                         }
-
-                        // Remove draft if exists
-                        localStorage.removeItem('roommate_draft');
-
-                        setShowSuccessModal(true);
                       }}
                       className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-primary'}`}
                     >

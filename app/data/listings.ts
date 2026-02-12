@@ -1,47 +1,86 @@
-import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore";
+import {
+  collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc,
+  query, where, orderBy, limit, serverTimestamp, Timestamp,
+} from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { FIREBASE_ENABLED, MODERATION_ENABLED } from "../lib/config";
 import { mockListings } from "./mockListings";
-import { RoomListing } from "./types";
-
-// Toggle between mock data and real Firestore data
-export const USE_MOCK_DATA = true;
+import { RoomListing, ListingStatus } from "./types";
 
 const COLLECTION_NAME = "listings";
 
-// Convert Firestore document to RoomListing
+// ============================================================
+// Helpers
+// ============================================================
+
+function timestampToString(ts: unknown): string {
+  if (!ts) return new Date().toISOString();
+  if (ts instanceof Timestamp) return ts.toDate().toISOString();
+  if (typeof ts === "string") return ts;
+  return new Date().toISOString();
+}
+
+// Convert Firestore document → RoomListing
 function docToListing(docSnap: { id: string; data: () => Record<string, unknown> }): RoomListing {
-  const data = docSnap.data();
+  const d = docSnap.data();
+  const contact = (d.contact as Record<string, string>) || {};
+
   return {
-    id: docSnap.id || (data.id as string | number),
-    title: data.title as string,
-    author: data.author as string,
-    price: data.price as string,
-    location: data.location as string,
-    moveInDate: data.moveInDate as string,
-    description: data.description as string,
-    phone: data.phone as string,
-    zalo: data.zalo as string | undefined,
-    facebook: data.facebook as string | undefined,
-    instagram: data.instagram as string | undefined,
-    postedDate: data.postedDate as string,
-    category: data.category as "roommate" | "roomshare",
-    roommateType: data.roommateType as RoomListing["roommateType"],
-    propertyType: data.propertyType as RoomListing["propertyType"],
-    image: data.image as string | undefined,
-    userId: data.userId as string | undefined,
-    status: data.status as RoomListing["status"],
+    id: docSnap.id,
+    title: (d.title as string) || "",
+    author: (d.authorName as string) || (d.author as string) || "",
+    price: (d.price as string) || (d.costs as Record<string, string>)?.rent || "",
+    location: (d.location as string) || "",
+    city: d.city as string | undefined,
+    district: d.district as string | undefined,
+    specificAddress: d.specificAddress as string | undefined,
+    buildingName: d.buildingName as string | undefined,
+    addressOther: d.addressOther as string | undefined,
+    locationNegotiable: d.locationNegotiable as boolean | undefined,
+    moveInDate: (d.moveInDate as string) || "",
+    timeNegotiable: d.timeNegotiable as boolean | undefined,
+    description: (d.description as string) || "",
+    introduction: d.introduction as string | undefined,
+    propertyTypes: d.propertyTypes as string[] | undefined,
+    phone: contact.phone || (d.phone as string) || "",
+    zalo: contact.zalo || (d.zalo as string) || undefined,
+    facebook: contact.facebook || (d.facebook as string) || undefined,
+    instagram: contact.instagram || (d.instagram as string) || undefined,
+    postedDate: d.postedDate as string || formatDate(timestampToString(d.createdAt)),
+    category: (d.category as "roommate" | "roomshare") || "roommate",
+    roommateType: d.roommateType as RoomListing["roommateType"],
+    propertyType: d.propertyType as RoomListing["propertyType"],
+    image: d.image as string | undefined,
+    images: d.images as string[] | undefined,
+    amenities: d.amenities as string[] | undefined,
+    amenitiesOther: d.amenitiesOther as string | undefined,
+    userId: d.userId as string | undefined,
+    status: (d.status as ListingStatus) || "active",
+    preferences: d.preferences as RoomListing["preferences"],
+    costs: d.costs as RoomListing["costs"],
+    roomSize: d.roomSize as string | undefined,
+    currentOccupants: d.currentOccupants as string | undefined,
+    totalRooms: d.totalRooms as string | undefined,
+    othersIntro: d.othersIntro as string | undefined,
+    minContractDuration: d.minContractDuration as string | undefined,
+    isDraft: d.isDraft as boolean | undefined,
+    createdAt: timestampToString(d.createdAt),
+    updatedAt: timestampToString(d.updatedAt),
+    moderatedBy: d.moderatedBy as string | undefined,
+    moderatedAt: d.moderatedAt ? timestampToString(d.moderatedAt) : undefined,
+    rejectionReason: d.rejectionReason as string | undefined,
+    moderationNote: d.moderationNote as string | undefined,
+    viewCount: (d.viewCount as number) || 0,
+    favoriteCount: (d.favoriteCount as number) || 0,
   };
 }
 
-// Get all listings
-export async function getListings(): Promise<RoomListing[]> {
-  if (USE_MOCK_DATA) {
-    return mockListings;
+function formatDate(isoString: string): string {
+  try {
+    return new Date(isoString).toLocaleDateString("vi-VN");
+  } catch {
+    return isoString;
   }
-
-  if (!db) throw new Error("Firestore not initialized");
-  const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
-  return querySnapshot.docs.map(docToListing);
 }
 
 // Helper: Get category from ID prefix
@@ -51,80 +90,21 @@ function getCategoryFromId(id: string): "roommate" | "roomshare" | null {
   return null;
 }
 
-// Get listing by ID
-export async function getListingById(id: number | string): Promise<RoomListing | null> {
-  const idStr = String(id);
-
-  // Always check localStorage first (for newly created listings)
-  const prefixCategory = getCategoryFromId(idStr);
-  if (prefixCategory) {
-    const localListings = getLocalStorageListings(prefixCategory);
-    const found = localListings.find(l => l.id === idStr);
-    if (found) return found;
-  } else {
-    // No prefix, check both localStorage stores
-    const localRoommateListings = getLocalStorageListings("roommate");
-    const localRoomshareListings = getLocalStorageListings("roomshare");
-    const localListing = [...localRoommateListings, ...localRoomshareListings].find(l => l.id === idStr);
-    if (localListing) {
-      return localListing;
-    }
-  }
-
-  // Then check mock data if enabled
-  if (USE_MOCK_DATA) {
-    return mockListings.find(listing => String(listing.id) === idStr) || null;
-  }
-
-  if (!db) throw new Error("Firestore not initialized");
-  // Finally check Firestore
-  const docRef = doc(db, COLLECTION_NAME, idStr);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    return docToListing(docSnap);
-  }
-  return null;
-}
-
-// Get listings by category
-export async function getListingsByCategory(category: "roommate" | "roomshare"): Promise<RoomListing[]> {
-  if (USE_MOCK_DATA) {
-    return mockListings.filter(listing => listing.category === category);
-  }
-
-  if (!db) throw new Error("Firestore not initialized");
-  // Get from Firestore
-  const q = query(collection(db, COLLECTION_NAME), where("category", "==", category));
-  const querySnapshot = await getDocs(q);
-  const firestoreListings = querySnapshot.docs.map(docToListing);
-
-  // Also get from localStorage (for dev/testing)
-  const localListings = getLocalStorageListings(category);
-
-  // Merge: local listings first (newest), then Firestore
-  return [...localListings, ...firestoreListings];
-}
-
-// Helper: Get listings from localStorage (for dev/testing before Firestore integration)
+// Helper: Get listings from localStorage (fallback for dev/testing)
 function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListing[] {
   if (typeof window === "undefined") return [];
-
   try {
     const storageKey = category === "roommate" ? "roommate_listings" : "roomshare_listings";
     const stored = localStorage.getItem(storageKey);
     if (!stored) return [];
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const localData = JSON.parse(stored) as any[];
-
-    // Convert localStorage format to RoomListing format
     return localData.map((item) => ({
       id: item.id,
       title: item.title,
-      author: "Bạn", // Current user
+      author: "Bạn",
       price: item.costs?.rent || item.budget || "Thương lượng",
-      location: item.location,
+      location: item.location || "",
       locationNegotiable: item.locationNegotiable,
       moveInDate: item.moveInTime || "Linh hoạt",
       timeNegotiable: item.timeNegotiable,
@@ -137,23 +117,20 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
       instagram: item.contact?.instagram,
       postedDate: new Date(item.createdAt).toLocaleDateString("vi-VN"),
       category: category,
-      roommateType: item.type === "have-room" ? "have-room" : "find-partner",
+      roommateType: item.type === "have-room" ? "have-room" as const : "find-partner" as const,
       propertyType: "apartment" as const,
       userId: item.userId,
       status: "active" as const,
-      // New fields
       images: item.images,
       amenities: item.amenities,
       amenitiesOther: item.amenitiesOther,
       costs: item.costs,
       preferences: item.preferences,
-      // Address fields
       city: item.city,
       district: item.district,
       specificAddress: item.specificAddress,
       buildingName: item.buildingName,
       addressOther: item.addressOther,
-      // Room details
       roomSize: item.roomSize,
       currentOccupants: item.currentOccupants,
       minContractDuration: item.minContractDuration,
@@ -164,23 +141,236 @@ function getLocalStorageListings(category: "roommate" | "roomshare"): RoomListin
   }
 }
 
-// Get listings by user ID
-export async function getListingsByUserId(userId: string): Promise<RoomListing[]> {
-  if (USE_MOCK_DATA) {
-    // Filter mock listings by userId
-    return mockListings.filter(listing => listing.userId === userId);
+// ============================================================
+// READ operations
+// ============================================================
+
+// Get all active listings
+export async function getListings(): Promise<RoomListing[]> {
+  if (!FIREBASE_ENABLED || !db) {
+    return [...getLocalStorageListings("roommate"), ...getLocalStorageListings("roomshare"), ...mockListings];
   }
 
-  if (!db) throw new Error("Firestore not initialized");
-  // Get from Firestore
-  const q = query(collection(db, COLLECTION_NAME), where("userId", "==", userId));
-  const querySnapshot = await getDocs(q);
-  const firestoreListings = querySnapshot.docs.map(docToListing);
+  const q = query(
+    collection(db, COLLECTION_NAME),
+    where("status", "==", "active"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToListing);
+}
 
-  // Also get from localStorage (for dev/testing)
-  const localRoommateListings = getLocalStorageListings("roommate").filter(l => l.userId === userId);
-  const localRoomshareListings = getLocalStorageListings("roomshare").filter(l => l.userId === userId);
+// Get listing by ID
+export async function getListingById(id: number | string): Promise<RoomListing | null> {
+  const idStr = String(id);
 
-  // Merge all sources
-  return [...localRoommateListings, ...localRoomshareListings, ...firestoreListings];
+  // Check localStorage first (for recently created listings before sync)
+  const prefixCategory = getCategoryFromId(idStr);
+  if (prefixCategory) {
+    const found = getLocalStorageListings(prefixCategory).find(l => l.id === idStr);
+    if (found) return found;
+  } else {
+    const localAll = [...getLocalStorageListings("roommate"), ...getLocalStorageListings("roomshare")];
+    const found = localAll.find(l => l.id === idStr);
+    if (found) return found;
+  }
+
+  if (!FIREBASE_ENABLED || !db) {
+    return mockListings.find(listing => String(listing.id) === idStr) || null;
+  }
+
+  const docRef = doc(db, COLLECTION_NAME, idStr);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docToListing(docSnap);
+  }
+  return null;
+}
+
+// Get listings by category (only active)
+export async function getListingsByCategory(category: "roommate" | "roomshare"): Promise<RoomListing[]> {
+  if (!FIREBASE_ENABLED || !db) {
+    const local = getLocalStorageListings(category);
+    const mock = mockListings.filter(listing => listing.category === category);
+    return [...local, ...mock];
+  }
+
+  const q = query(
+    collection(db, COLLECTION_NAME),
+    where("category", "==", category),
+    where("status", "==", "active"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToListing);
+}
+
+// Get listings by user ID (all statuses - for user's own dashboard)
+export async function getListingsByUserId(userId: string): Promise<RoomListing[]> {
+  if (!FIREBASE_ENABLED || !db) {
+    const localRoommate = getLocalStorageListings("roommate").filter(l => l.userId === userId);
+    const localRoomshare = getLocalStorageListings("roomshare").filter(l => l.userId === userId);
+    const mock = mockListings.filter(listing => listing.userId === userId);
+    return [...localRoommate, ...localRoomshare, ...mock];
+  }
+
+  const q = query(
+    collection(db, COLLECTION_NAME),
+    where("userId", "==", userId),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToListing);
+}
+
+// Get pending listings (for admin moderation)
+export async function getPendingListings(): Promise<RoomListing[]> {
+  if (!FIREBASE_ENABLED || !db) return [];
+
+  const q = query(
+    collection(db, COLLECTION_NAME),
+    where("status", "==", "pending"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToListing);
+}
+
+// ============================================================
+// WRITE operations
+// ============================================================
+
+// Create a new listing
+export async function createListing(data: Partial<RoomListing> & { userId: string }): Promise<string> {
+  // Determine ID prefix
+  const prefix = data.category === "roomshare" ? "rs" : "rm";
+  const id = `${prefix}-${Date.now()}`;
+
+  // Determine initial status
+  const status: ListingStatus = MODERATION_ENABLED ? "pending" : "active";
+
+  if (!FIREBASE_ENABLED || !db) {
+    // Fallback: save to localStorage
+    const category = data.category || "roommate";
+    const storageKey = category === "roommate" ? "roommate_listings" : "roomshare_listings";
+    const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    existing.push({ ...data, id, status, createdAt: new Date().toISOString() });
+    localStorage.setItem(storageKey, JSON.stringify(existing.slice(-10)));
+    return id;
+  }
+
+  const docRef = doc(db, COLLECTION_NAME, id);
+  await setDoc(docRef, {
+    ...data,
+    id,
+    status,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    viewCount: 0,
+    favoriteCount: 0,
+  });
+
+  return id;
+}
+
+// Update a listing
+export async function updateListing(id: string, data: Partial<RoomListing>): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) {
+    console.warn("Firebase disabled - cannot update listing");
+    return;
+  }
+
+  const docRef = doc(db, COLLECTION_NAME, id);
+  await updateDoc(docRef, {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// Delete a listing (soft delete)
+export async function deleteListing(id: string): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) {
+    console.warn("Firebase disabled - cannot delete listing");
+    return;
+  }
+
+  const docRef = doc(db, COLLECTION_NAME, id);
+  await updateDoc(docRef, {
+    status: "deleted",
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// Hard delete (admin only)
+export async function hardDeleteListing(id: string): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) return;
+  await deleteDoc(doc(db, COLLECTION_NAME, id));
+}
+
+// ============================================================
+// MODERATION operations
+// ============================================================
+
+// Approve a listing
+export async function approveListing(listingId: string, adminUid: string): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) return;
+
+  const docRef = doc(db, COLLECTION_NAME, listingId);
+  await updateDoc(docRef, {
+    status: "active",
+    moderatedBy: adminUid,
+    moderatedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// Reject a listing
+export async function rejectListing(
+  listingId: string,
+  adminUid: string,
+  reason: string,
+  note?: string
+): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) return;
+
+  const docRef = doc(db, COLLECTION_NAME, listingId);
+  await updateDoc(docRef, {
+    status: "rejected",
+    moderatedBy: adminUid,
+    moderatedAt: serverTimestamp(),
+    rejectionReason: reason,
+    moderationNote: note || null,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// Resubmit a rejected listing (user edits and resubmits)
+export async function resubmitListing(listingId: string, data: Partial<RoomListing>): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) return;
+
+  const docRef = doc(db, COLLECTION_NAME, listingId);
+  await updateDoc(docRef, {
+    ...data,
+    status: MODERATION_ENABLED ? "pending" : "active",
+    rejectionReason: null,
+    moderationNote: null,
+    moderatedBy: null,
+    moderatedAt: null,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// ============================================================
+// STATS operations
+// ============================================================
+
+export async function incrementViewCount(listingId: string): Promise<void> {
+  if (!FIREBASE_ENABLED || !db) return;
+
+  const docRef = doc(db, COLLECTION_NAME, listingId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const current = (docSnap.data().viewCount as number) || 0;
+    await updateDoc(docRef, { viewCount: current + 1 });
+  }
 }

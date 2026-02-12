@@ -9,7 +9,8 @@ import {
   signOut
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
-import { getUserProfile } from "../data/users";
+import { FIREBASE_ENABLED } from "../lib/config";
+import { getUserProfile, saveUserProfile } from "../data/users";
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,7 @@ interface AuthContextType {
   isLoading: boolean;
   isProfileComplete: boolean;
   profileChecked: boolean;
+  isAdmin: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   checkProfileComplete: () => Promise<boolean>;
@@ -31,12 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [profileChecked, setProfileChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // If Firebase is disabled, use mock authentication
-    if (!auth) {
+    if (!FIREBASE_ENABLED || !auth) {
       console.log("Firebase is disabled - using mock authentication");
-      // Simulate a logged-in user for UI development
       const mockUser = {
         uid: "mock-user-123",
         email: "demo@example.com",
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(mockUser);
       setIsProfileComplete(true);
       setProfileChecked(true);
+      setIsAdmin(false);
       setIsLoading(false);
       return;
     }
@@ -56,24 +59,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
 
       if (user) {
-        // Check if profile is complete
         try {
-          const profile = await getUserProfile(user.uid);
+          let profile = await getUserProfile(user.uid);
 
-          // If no profile exists in database, this is a new/reset user
-          // Clear the reminder dismissal so the modal shows again
+          // Auto-create profile for new users
           if (!profile) {
             localStorage.removeItem('profileReminderDismissed');
+            const newProfile = {
+              uid: user.uid,
+              email: user.email || "",
+              displayName: user.displayName || "",
+              photoURL: user.photoURL || undefined,
+            };
+            await saveUserProfile(newProfile);
+            profile = newProfile;
+          }
+
+          // Check admin status via server API (emails stay server-side)
+          let adminStatus = profile?.role === "admin";
+          if (!adminStatus) {
+            try {
+              const idToken = await user.getIdToken();
+              const res = await fetch("/api/auth/promote", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${idToken}` },
+              });
+              if (res.ok) {
+                const data = await res.json();
+                adminStatus = data.isAdmin === true;
+                if (adminStatus) {
+                  // Refresh profile to get updated role
+                  profile = await getUserProfile(user.uid);
+                }
+              }
+            } catch {
+              // API not available (e.g., Firebase Admin not configured) - skip
+            }
           }
 
           const complete = !!(profile?.gender && profile?.birthYear && profile?.occupation);
           setIsProfileComplete(complete);
+          setIsAdmin(adminStatus);
         } catch (error) {
           console.error("Error checking profile:", error);
           setIsProfileComplete(false);
+          setIsAdmin(false);
         }
       } else {
         setIsProfileComplete(false);
+        setIsAdmin(false);
       }
       setProfileChecked(true);
     });
@@ -95,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    if (!auth) {
+    if (!FIREBASE_ENABLED || !auth) {
       console.log("Firebase is disabled - mock login");
       return;
     }
@@ -108,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    if (!auth) {
+    if (!FIREBASE_ENABLED || !auth) {
       console.log("Firebase is disabled - mock logout");
       return;
     }
@@ -131,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isProfileComplete,
       profileChecked,
+      isAdmin,
       loginWithGoogle,
       logout,
       checkProfileComplete

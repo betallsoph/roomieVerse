@@ -3,7 +3,10 @@ export type RoommateType = "have-room" | "find-partner";
 export type PropertyType = "house" | "apartment";
 
 // Listing status
-export type ListingStatus = "active" | "hidden" | "deleted";
+export type ListingStatus = "active" | "pending" | "rejected" | "hidden" | "deleted";
+
+// User role
+export type UserRole = "user" | "admin";
 
 // Roommate preferences interface
 export interface RoommatePreferences {
@@ -74,6 +77,17 @@ export interface RoomListing {
   minContractDuration?: string; // Minimum contract duration
   // Draft status
   isDraft?: boolean;
+  // Metadata
+  createdAt?: string;
+  updatedAt?: string;
+  // Moderation
+  moderatedBy?: string;      // Admin UID who reviewed
+  moderatedAt?: string;
+  rejectionReason?: string;
+  moderationNote?: string;   // Internal admin note
+  // Stats
+  viewCount?: number;
+  favoriteCount?: number;
 }
 
 // Lifestyle preferences interface (for user profile)
@@ -94,6 +108,28 @@ export interface UserProfile {
   birthYear?: string;
   occupation?: string;
   lifestyle?: LifestylePreferences;
+  role?: UserRole;
   createdAt?: string;
   updatedAt?: string;
+}
+
+// Report interface
+export interface Report {
+  id?: string;
+  listingId: string;
+  reportedBy: string;       // UID
+  reason: string;
+  details?: string;
+  status: "pending" | "reviewed" | "resolved";
+  reviewedBy?: string;      // Admin UID
+  createdAt?: string;
+  reviewedAt?: string;
+}
+
+// Favorite interface
+export interface Favorite {
+  id?: string;
+  userId: string;
+  listingId: string;
+  createdAt?: string;
 }
