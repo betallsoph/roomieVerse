@@ -48,8 +48,10 @@ export async function saveUserProfile(profile: UserProfile): Promise<void> {
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
+    const existingData = docSnap.data();
     await updateDoc(docRef, {
       ...profile,
+      role: existingData.role || "user",
       updatedAt: new Date().toISOString(),
     });
   } else {

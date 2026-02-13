@@ -45,7 +45,12 @@ service cloud.firestore {
       // (role can only be changed by Admin SDK via /api/auth/promote)
       allow update: if request.auth != null
                     && request.auth.uid == userId
-                    && request.resource.data.role == resource.data.role;
+                    && (
+                      // If role exists in current doc, it must stay the same
+                      ("role" in resource.data && request.resource.data.role == resource.data.role)
+                      // If role doesn't exist yet, allow setting it to "user" or not setting it
+                      || (!("role" in resource.data) && (!("role" in request.resource.data) || request.resource.data.role == "user"))
+                    );
     }
 
     // === REPORTS ===
