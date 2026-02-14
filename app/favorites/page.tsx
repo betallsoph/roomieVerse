@@ -8,8 +8,10 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { getListings } from "../data/listings";
 import { RoomListing } from "../data/types";
 import { Heart, MapPin, Calendar, Home, HeartOff, Users } from "lucide-react";
+import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
 export default function FavoritesPage() {
+  useAdminRedirect();
   const [favorites, setFavorites] = useState<RoomListing[]>([]);
   const [activeTab, setActiveTab] = useState<"all" | "roommate" | "roomshare">("all");
 

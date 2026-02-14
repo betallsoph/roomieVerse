@@ -11,12 +11,14 @@ import ShareFooter from "../../components/ShareFooter";
 import FilterButtons from "../../components/FilterButtons";
 import ListingCard from "../../components/ListingCard";
 import ButtonV2 from "../../components/ButtonV2";
+import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 type FilterMode = "have-room" | "find-partner";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function RoommateAllPage() {
+  useAdminRedirect();
   const searchParams = useSearchParams();
   const initialMode = (searchParams.get("mode") as FilterMode) || "have-room";
   const [mode, setMode] = useState<FilterMode>(initialMode);

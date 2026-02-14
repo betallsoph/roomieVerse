@@ -12,12 +12,14 @@ import SplitCTASection from "../components/SplitCTASection";
 import ProfileReminderModal from "../components/ProfileReminderModal";
 import PostTypeModal from "../components/PostTypeModal";
 import { useProfileReminder } from "../hooks/useProfileReminder";
+import { useAdminRedirect } from "../hooks/useAdminRedirect";
 import { Search, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 type FilterMode = "have-room" | "find-partner";
 
 export default function RoommatePage() {
+  useAdminRedirect();
   const [mode, setMode] = useState<FilterMode>("have-room");
   const [listings, setListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);

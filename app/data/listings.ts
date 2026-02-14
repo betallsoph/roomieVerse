@@ -1,6 +1,6 @@
 import {
   collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc,
-  query, where, orderBy, limit, serverTimestamp, Timestamp,
+  query, where, orderBy, limit, serverTimestamp, Timestamp, increment,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { FIREBASE_ENABLED, MODERATION_ENABLED } from "../lib/config";
@@ -259,16 +259,21 @@ export async function createListing(data: Partial<RoomListing> & { userId: strin
     return id;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, id);
-  await setDoc(docRef, {
-    ...data,
-    id,
-    status,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    viewCount: 0,
-    favoriteCount: 0,
-  });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await setDoc(docRef, {
+      ...data,
+      id,
+      status,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      viewCount: 0,
+      favoriteCount: 0,
+    });
+  } catch (error) {
+    console.error("Error creating listing:", error);
+    throw error;
+  }
 
   return id;
 }
@@ -280,11 +285,16 @@ export async function updateListing(id: string, data: Partial<RoomListing>): Pro
     return;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, id);
-  await updateDoc(docRef, {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error updating listing:", error);
+    throw error;
+  }
 }
 
 // Delete a listing (soft delete)
@@ -294,11 +304,16 @@ export async function deleteListing(id: string): Promise<void> {
     return;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, id);
-  await updateDoc(docRef, {
-    status: "deleted",
-    updatedAt: serverTimestamp(),
-  });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await updateDoc(docRef, {
+      status: "deleted",
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    throw error;
+  }
 }
 
 // Hard delete (admin only)
@@ -367,10 +382,10 @@ export async function resubmitListing(listingId: string, data: Partial<RoomListi
 export async function incrementViewCount(listingId: string): Promise<void> {
   if (!FIREBASE_ENABLED || !db) return;
 
-  const docRef = doc(db, COLLECTION_NAME, listingId);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    const current = (docSnap.data().viewCount as number) || 0;
-    await updateDoc(docRef, { viewCount: current + 1 });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, listingId);
+    await updateDoc(docRef, { viewCount: increment(1) });
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
   }
 }

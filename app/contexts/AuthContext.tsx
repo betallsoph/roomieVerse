@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   profile = await getUserProfile(user.uid);
                 }
               }
-            } catch {
-              // API not available (e.g., Firebase Admin not configured) - skip
+            } catch (promoteErr) {
+              console.error("Admin promote check failed:", promoteErr);
             }
           }
 

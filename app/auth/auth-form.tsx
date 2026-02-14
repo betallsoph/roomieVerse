@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { SparklesText } from "../components/sparkles-text";
@@ -19,9 +19,22 @@ export default function AuthForm({ bounceKey = 0, onModeChange }: AuthFormProps)
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, isAuthenticated, isAdmin, profileChecked } = useAuth();
+  const justLoggedIn = useRef(false);
 
   const returnUrl = searchParams.get("returnUrl") || "/home";
+
+  // Redirect after login — wait for admin status to be resolved
+  useEffect(() => {
+    if (!justLoggedIn.current || !isAuthenticated || !profileChecked) return;
+    justLoggedIn.current = false;
+
+    if (isAdmin) {
+      router.push("/admin");
+    } else {
+      router.push(returnUrl);
+    }
+  }, [isAuthenticated, isAdmin, profileChecked, router, returnUrl]);
 
   function handleModeChange(newMode: AuthMode) {
     setMode(newMode);
@@ -40,7 +53,8 @@ export default function AuthForm({ bounceKey = 0, onModeChange }: AuthFormProps)
     setError(null);
     try {
       await loginWithGoogle();
-      router.push(returnUrl);
+      // Don't redirect here — useEffect will handle it after admin status is resolved
+      justLoggedIn.current = true;
     } catch (err: unknown) {
       // Ignore error when user closes popup
       const firebaseError = err as { code?: string };
@@ -48,8 +62,8 @@ export default function AuthForm({ bounceKey = 0, onModeChange }: AuthFormProps)
         console.error("Google login error:", err);
         setError("Đăng nhập thất bại. Vui lòng thử lại.");
       }
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   function handlePhoneLogin() {

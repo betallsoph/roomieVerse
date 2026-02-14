@@ -7,8 +7,10 @@ import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
 import ProfileReminderModal from "./components/ProfileReminderModal";
 import { useProfileReminder } from "./hooks/useProfileReminder";
+import { useAdminRedirect } from "./hooks/useAdminRedirect";
 
 export default function LandingPage() {
+  useAdminRedirect();
   const { showReminder, dismissReminder } = useProfileReminder();
 
   return (

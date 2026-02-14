@@ -7,6 +7,7 @@ import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
 import { MapPin, DollarSign, Eye, Loader2, Camera, Users, Phone } from "lucide-react";
 import { cities, getDistrictsByLabel } from "../../data/locations";
+import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 function CreateRoomshareContent() {
     const searchParams = useSearchParams();
@@ -743,6 +744,7 @@ function CreateRoomshareContent() {
 }
 
 export default function CreateRoomsharePage() {
+    useAdminRedirect();
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
             <CreateRoomshareContent />

@@ -1,0 +1,61 @@
+[debug] [2026-02-13T15:41:50.175Z] ----------------------------------------------------------------------
+[debug] [2026-02-13T15:41:50.176Z] Command:       /opt/homebrew/Cellar/node/24.8.0/bin/node /Users/antt/.local/bin/firebase use --add
+[debug] [2026-02-13T15:41:50.176Z] CLI Version:   14.17.0
+[debug] [2026-02-13T15:41:50.176Z] Platform:      darwin
+[debug] [2026-02-13T15:41:50.176Z] Node Version:  v24.8.0
+[debug] [2026-02-13T15:41:50.176Z] Time:          Fri Feb 13 2026 22:41:50 GMT+0700 (Indochina Time)
+[debug] [2026-02-13T15:41:50.176Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-13T15:41:50.239Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-13T15:41:50.240Z] > authorizing via signed-in user (hugoddt1234.50@gmail.com)
+[debug] [2026-02-13T15:41:50.240Z] Checked if tokens are valid: false, expires at: 1762363184505
+[debug] [2026-02-13T15:41:50.240Z] Checked if tokens are valid: false, expires at: 1762363184505
+[debug] [2026-02-13T15:41:50.240Z] > refreshing access token with scopes: []
+[debug] [2026-02-13T15:41:50.241Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-13T15:41:50.241Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-13T15:41:50.549Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-02-13T15:41:50.550Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-13T15:41:50.565Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-02-13T15:41:51.255Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-02-13T15:41:51.255Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2026-02-13T15:41:51.499Z] ValidationError: [select prompt] No selectable choices. All choices are disabled.
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/select/dist/commonjs/index.js:60:19
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/use-memo.js:11:27
+    at withPointer (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:79:25)
+    at useMemo (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/use-memo.js:6:45)
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/select/dist/commonjs/index.js:56:39
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:120:38
+    at store.handleChange (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:31:17)
+    at cycle (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:33:19)
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:118:13
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:35:16
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-02-13T15:43:19.633Z] ----------------------------------------------------------------------
+[debug] [2026-02-13T15:43:19.634Z] Command:       /opt/homebrew/Cellar/node/24.8.0/bin/node /Users/antt/.local/bin/firebase use --add
+[debug] [2026-02-13T15:43:19.634Z] CLI Version:   15.6.0
+[debug] [2026-02-13T15:43:19.634Z] Platform:      darwin
+[debug] [2026-02-13T15:43:19.634Z] Node Version:  v24.8.0
+[debug] [2026-02-13T15:43:19.634Z] Time:          Fri Feb 13 2026 22:43:19 GMT+0700 (Indochina Time)
+[debug] [2026-02-13T15:43:19.634Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-13T15:43:19.696Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-13T15:43:19.696Z] > authorizing via signed-in user (hugoddt1234.50@gmail.com)
+[debug] [2026-02-13T15:43:19.697Z] Checked if tokens are valid: true, expires at: 1771000909550
+[debug] [2026-02-13T15:43:19.697Z] Checked if tokens are valid: true, expires at: 1771000909550
+[debug] [2026-02-13T15:43:19.697Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-02-13T15:43:20.331Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-02-13T15:43:20.331Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2026-02-13T15:43:20.566Z] ValidationError: [select prompt] No selectable choices. All choices are disabled.
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/select/dist/commonjs/index.js:67:19
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/use-memo.js:11:27
+    at withPointer (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:79:25)
+    at useMemo (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/use-memo.js:6:45)
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/select/dist/commonjs/index.js:63:39
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:120:38
+    at store.handleChange (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:31:17)
+    at cycle (/Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:33:19)
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:118:13
+    at /Users/antt/.local/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/hook-engine.js:35:16
+[error] 
+[error] Error: An unexpected error has occurred.

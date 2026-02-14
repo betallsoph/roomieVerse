@@ -12,8 +12,10 @@ import ListingCard from "../components/ListingCard";
 import SplitCTASection from "../components/SplitCTASection";
 import ProfileReminderModal from "../components/ProfileReminderModal";
 import { useProfileReminder } from "../hooks/useProfileReminder";
+import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
 export default function RoomSharePage() {
+  useAdminRedirect();
   const router = useRouter();
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [listings, setListings] = useState<RoomListing[]>([]);

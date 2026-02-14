@@ -8,7 +8,7 @@ import HeaderLogo from "./HeaderLogo";
 import NavLink from "./NavLink";
 
 export default function MainHeader() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isAdmin, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -17,6 +17,48 @@ export default function MainHeader() {
     router.push("/auth");
   };
 
+  // Admin navigation
+  if (isAdmin) {
+    return (
+      <header className="sticky top-0 z-50 border-b-2 border-black bg-black backdrop-blur-md">
+        <div className="wrapper py-4 md:py-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <HeaderLogo className="h-28" />
+              <NavLink href="/admin" className="text-white text-sm font-bold hidden sm:block">
+                Trang chính
+              </NavLink>
+              <NavLink href="/admin/moderation" className="text-white text-sm font-bold hidden sm:block">
+                Duyệt tin đăng
+              </NavLink>
+              <NavLink href="/admin/community" className="text-white text-sm font-bold hidden sm:block">
+                Duyệt cộng đồng
+              </NavLink>
+              <NavLink href="/admin/blog" className="text-white text-sm font-bold hidden sm:block">
+                Blog
+              </NavLink>
+              <NavLink href="/admin/management" className="text-white text-sm font-bold hidden sm:block">
+                Quản lý
+              </NavLink>
+            </div>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span className="text-xs font-bold text-blue-300 bg-blue-300/20 px-3 py-1 rounded-full hidden sm:block">
+                Admin
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-white text-sm font-bold hover:text-red-300 transition-colors"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // User navigation
   return (
     <header className="sticky top-0 z-50 border-b-2 border-black bg-black backdrop-blur-md">
       <div className="wrapper py-4 md:py-5">

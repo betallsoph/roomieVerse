@@ -15,8 +15,10 @@ import { Heart, Loader2, Check, MapPin, Calendar, Home, HeartOff } from "lucide-
 import { getUserProfile, saveUserProfile } from "../data/users";
 import { getListings, getListingsByUserId } from "../data/listings";
 import { UserProfile, RoomListing } from "../data/types";
+import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
 export default function ProfilePage() {
+  useAdminRedirect();
   const { user, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -557,7 +559,8 @@ export default function ProfilePage() {
         <section className="bg-blue-50 pt-10 pb-16">
           <div className="mx-auto max-w-7xl px-6">
             <div className="border-t-2 border-zinc-300 mb-12" />
-            <h2 className="mb-8 text-3xl sm:text-4xl font-extrabold">Bài đăng của tôi & Bài đã lưu</h2>
+            <h2 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">Bài đăng của tôi & Bài đã lưu</h2>
+            <p className="mb-8 max-w-2xl text-base sm:text-lg text-zinc-700">Bài đăng của bạn ở trên. Những bài bạn đã lưu nằm ở dưới, hãy kéo xuống để xem.</p>
             <div className="card bg-white p-8">
 
               {/* My Listings */}

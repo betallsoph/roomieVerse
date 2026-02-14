@@ -9,8 +9,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { getUserProfile, saveUserProfile } from "../../data/users";
 import { UserProfile } from "../../data/types";
+import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 export default function LifestylePage() {
+  useAdminRedirect();
   const { user } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);

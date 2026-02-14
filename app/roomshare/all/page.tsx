@@ -11,10 +11,12 @@ import ShareFooter from "../../components/ShareFooter";
 import FilterTabs from "../../components/FilterTabs";
 import ListingCard from "../../components/ListingCard";
 import ButtonV2 from "../../components/ButtonV2";
+import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function RoomshareAllPage() {
+  useAdminRedirect();
   const searchParams = useSearchParams();
   const initialType = (searchParams.get("type") as PropertyType) || "house";
   const [propertyType, setPropertyType] = useState<PropertyType>(initialType);

@@ -37,9 +37,10 @@ import {
 import MainHeader from "../../../components/MainHeader";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
-import { getListingById, getListingsByCategory } from "../../../data/listings";
+import { getListingById, getListingsByCategory, incrementViewCount } from "../../../data/listings";
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
 
 // Helper to map amenity value to label
 const amenityLabels: Record<string, string> = {
@@ -70,6 +71,7 @@ const preferenceLabels: Record<string, Record<string, string>> = {
 };
 
 export default function RoomshareListingDetailPage() {
+  useAdminRedirect();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -100,6 +102,11 @@ export default function RoomshareListingDetailPage() {
       setSimilarListings(similar);
 
       setIsLoading(false);
+
+      // Track view
+      if (data) {
+        incrementViewCount(String(data.id));
+      }
     }
     fetchData();
   }, [id, router]);

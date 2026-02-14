@@ -7,6 +7,7 @@ import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
 import { Lightbulb, MapPin, DollarSign, Eye, Loader2, NotebookPen } from "lucide-react";
 import { cities, getDistrictsByLabel } from "../../data/locations";
+import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 type RoommateType = "have-room" | "find-partner";
 
@@ -1994,6 +1995,7 @@ function CreateRoommateContent() {
 }
 
 export default function CreateRoommatePage() {
+  useAdminRedirect();
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white flex items-center justify-center">
