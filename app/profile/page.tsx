@@ -11,9 +11,9 @@ import EditProfileModal from "../components/EditProfileModal";
 import PostTypeModal from "../components/PostTypeModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Heart, Loader2, Check, MapPin, Calendar, Home, HeartOff } from "lucide-react";
+import { Heart, Loader2, Check, MapPin, Calendar, Home, HeartOff, EyeOff, Eye, Trash2 } from "lucide-react";
 import { getUserProfile, saveUserProfile } from "../data/users";
-import { getListings, getListingsByUserId } from "../data/listings";
+import { getListings, getListingsByUserId, deleteListing, updateListing } from "../data/listings";
 import { UserProfile, RoomListing } from "../data/types";
 import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
@@ -233,6 +233,10 @@ export default function ProfilePage() {
     switch (status) {
       case 'active':
         return { text: 'Đang hiển thị', color: 'bg-green-200' };
+      case 'pending':
+        return { text: 'Chờ duyệt', color: 'bg-orange-200' };
+      case 'rejected':
+        return { text: 'Bị từ chối', color: 'bg-red-200' };
       case 'hidden':
         return { text: 'Đã ẩn', color: 'bg-yellow-200' };
       case 'deleted':
@@ -240,6 +244,36 @@ export default function ProfilePage() {
       default:
         return { text: 'Đang hiển thị', color: 'bg-green-200' };
     }
+  };
+
+  const getListingRoute = (listing: RoomListing) => {
+    const cat = listing.category === "sublease" ? "sublease" : listing.category === "short-term" ? "short-term" : listing.category === "roomshare" ? "roomshare" : "roommate";
+    return `/${cat}/listing/${listing.id}`;
+  };
+
+  const getCategoryColor = (category?: string) => {
+    switch (category) {
+      case "roomshare": return "bg-pink-300";
+      case "short-term": return "bg-yellow-300";
+      case "sublease": return "bg-emerald-300";
+      default: return "bg-blue-300";
+    }
+  };
+
+  const handleHideListing = async (id: string) => {
+    await updateListing(id, { status: "hidden" });
+    setMyListings(prev => prev.map(l => String(l.id) === id ? { ...l, status: "hidden" as const } : l));
+  };
+
+  const handleUnhideListing = async (id: string) => {
+    await updateListing(id, { status: "active" });
+    setMyListings(prev => prev.map(l => String(l.id) === id ? { ...l, status: "active" as const } : l));
+  };
+
+  const handleDeleteListing = async (id: string) => {
+    if (!confirm("Bạn có chắc muốn xóa bài đăng này?")) return;
+    await deleteListing(id);
+    setMyListings(prev => prev.filter(l => String(l.id) !== id));
   };
 
   if (isLoading) {
@@ -579,27 +613,28 @@ export default function ProfilePage() {
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {myListings.map((listing) => {
                       const statusDisplay = getStatusDisplay(listing.status);
+                      const route = getListingRoute(listing);
+                      const catColor = getCategoryColor(listing.category);
+                      const listingId = String(listing.id);
                       return (
-                        <Link
+                        <div
                           key={listing.id}
-                          href={listing.category === "roommate"
-                            ? `/roommate/listing/${listing.id}`
-                            : `/roomshare/listing/${listing.id}`
-                          }
-                          className="rounded-lg border-2 border-black bg-white p-4 shadow-[3px_3px_0_0_#000] hover:shadow-[1px_1px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                          className="rounded-lg border-2 border-black bg-white p-4 shadow-[3px_3px_0_0_#000] transition-all"
                         >
                           <div className="mb-3 flex items-start justify-between gap-2">
-                            <span className={`rounded-md border-2 border-black ${listing.category === "roommate" ? "bg-blue-300" : "bg-pink-300"} px-3 py-1 text-xs font-bold`}>
+                            <span className={`rounded-md border-2 border-black ${catColor} px-3 py-1 text-xs font-bold`}>
                               {listing.price}
                             </span>
                             <span className={`rounded-md border-2 border-black ${statusDisplay.color} px-2 py-0.5 text-xs font-bold`}>
                               {statusDisplay.text}
                             </span>
                           </div>
-                          <h4 className="mb-2 text-sm font-bold leading-tight line-clamp-2">
-                            {listing.title}
-                          </h4>
-                          <div className="space-y-1 text-xs text-zinc-500">
+                          <Link href={route}>
+                            <h4 className="mb-2 text-sm font-bold leading-tight line-clamp-2 hover:text-blue-600 transition-colors">
+                              {listing.title}
+                            </h4>
+                          </Link>
+                          <div className="space-y-1 text-xs text-zinc-500 mb-3">
                             <p className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
                               {listing.location}
@@ -609,7 +644,39 @@ export default function ProfilePage() {
                               {listing.moveInDate}
                             </p>
                           </div>
-                        </Link>
+                          {/* Actions */}
+                          <div className="flex items-center gap-1.5 border-t border-zinc-100 pt-3">
+                            <Link
+                              href={route}
+                              className="flex-1 text-center text-xs font-bold px-2 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 transition-colors"
+                            >
+                              Xem
+                            </Link>
+                            {listing.status === "hidden" ? (
+                              <button
+                                onClick={() => handleUnhideListing(listingId)}
+                                className="flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded-md border border-zinc-200 hover:bg-blue-50 text-blue-600 transition-colors"
+                              >
+                                <Eye className="h-3 w-3" /> Hiện
+                              </button>
+                            ) : listing.status === "active" ? (
+                              <button
+                                onClick={() => handleHideListing(listingId)}
+                                className="flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded-md border border-zinc-200 hover:bg-yellow-50 text-yellow-700 transition-colors"
+                              >
+                                <EyeOff className="h-3 w-3" /> Ẩn
+                              </button>
+                            ) : null}
+                            {listing.status !== "deleted" && (
+                              <button
+                                onClick={() => handleDeleteListing(listingId)}
+                                className="flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded-md border border-zinc-200 hover:bg-red-50 text-red-500 transition-colors"
+                              >
+                                <Trash2 className="h-3 w-3" /> Xóa
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -645,11 +712,12 @@ export default function ProfilePage() {
                 {favorites.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {favorites.map((listing) => {
-                      const isMate = listing.category === "roommate";
+                      const catColor = getCategoryColor(listing.category);
+                      const route = getListingRoute(listing);
                       return (
                         <div key={listing.id} className="rounded-lg border-2 border-black bg-white p-4 shadow-[3px_3px_0_0_#000]">
                           <div className="mb-3 flex items-start justify-between gap-2">
-                            <span className={`rounded-md border-2 border-black ${isMate ? "bg-blue-300" : "bg-pink-300"} px-3 py-1 text-xs font-bold`}>
+                            <span className={`rounded-md border-2 border-black ${catColor} px-3 py-1 text-xs font-bold`}>
                               {listing.price}
                             </span>
                             <button
@@ -661,10 +729,7 @@ export default function ProfilePage() {
                             </button>
                           </div>
 
-                          <Link href={listing.category === "roommate"
-                            ? `/roommate/listing/${listing.id}`
-                            : `/roomshare/listing/${listing.id}`
-                          }>
+                          <Link href={route}>
                             <h4 className="mb-2 text-sm font-bold leading-tight hover:text-blue-600 transition-colors line-clamp-2">
                               {listing.title}
                             </h4>

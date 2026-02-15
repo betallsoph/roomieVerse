@@ -35,7 +35,7 @@ export default function UserProfilePage() {
             setProfile(profileData);
 
             if (profileData) {
-                const userListings = await getListingsByUserId(userId);
+                const userListings = await getListingsByUserId(userId, true);
                 setListings(userListings);
             }
 

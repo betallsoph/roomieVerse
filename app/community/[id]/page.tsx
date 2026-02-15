@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
@@ -13,6 +13,9 @@ import {
   togglePostLike,
   isPostLiked,
   incrementPostViewCount,
+  deleteCommunityPost,
+  hardDeleteCommunityPost,
+  deleteComment,
 } from "../../data/community";
 import { CommunityPost, CommunityComment, CommunityCategory } from "../../data/types";
 import {
@@ -30,6 +33,7 @@ import {
   Flame,
   ShoppingBag,
   BookOpen,
+  Trash2,
 } from "lucide-react";
 
 const categoryConfig: Record<CommunityCategory, { label: string; icon: typeof Lightbulb; color: string; bgColor: string }> = {
@@ -55,7 +59,8 @@ function timeAgo(dateStr?: string): string {
 export default function CommunityPostDetailPage() {
   const params = useParams();
   const postId = params.id as string;
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
+  const router = useRouter();
 
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [comments, setComments] = useState<CommunityComment[]>([]);
@@ -128,6 +133,28 @@ export default function CommunityPostDetailPage() {
     } finally {
       setIsSubmittingComment(false);
     }
+  };
+
+  const isPostAuthor = !!(user?.uid && post?.authorId && user.uid === post.authorId);
+  const canManagePost = isPostAuthor || isAdmin;
+
+  const handleDeletePost = async () => {
+    if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
+    await deleteCommunityPost(postId);
+    router.push("/community");
+  };
+
+  const handleHardDeletePost = async () => {
+    if (!confirm("Xóa vĩnh viễn bài viết này? Hành động không thể hoàn tác.")) return;
+    await hardDeleteCommunityPost(postId);
+    router.push("/community");
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm("Xóa bình luận này?")) return;
+    await deleteComment(commentId, postId);
+    setComments(prev => prev.filter(c => c.id !== commentId));
+    if (post) setPost({ ...post, comments: post.comments - 1 });
   };
 
   if (isLoading) {
@@ -250,6 +277,26 @@ export default function CommunityPostDetailPage() {
               <Share2 className="h-5 w-5" />
               Chia sẻ
             </button>
+            {canManagePost && (
+              <>
+                <button
+                  onClick={handleDeletePost}
+                  className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-700 transition-colors"
+                >
+                  <Trash2 className="h-5 w-5" />
+                  Xóa
+                </button>
+                {isAdmin && (
+                  <button
+                    onClick={handleHardDeletePost}
+                    className="flex items-center gap-2 text-sm font-bold text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                    Xóa vĩnh viễn
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           {/* Comments section */}
@@ -303,6 +350,15 @@ export default function CommunityPostDetailPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <Link href={`/user/${comment.authorId}`} className="text-sm font-bold hover:text-orange-600 transition-colors">{comment.authorName}</Link>
                         <span className="text-xs text-zinc-400">{timeAgo(comment.createdAt)}</span>
+                        {(user?.uid === comment.authorId || isAdmin) && (
+                          <button
+                            onClick={() => handleDeleteComment(comment.id!)}
+                            className="text-zinc-300 hover:text-red-500 transition-colors ml-auto"
+                            title="Xóa bình luận"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                       </div>
                       <p className="text-sm text-zinc-700 leading-relaxed">{comment.content}</p>
                     </div>

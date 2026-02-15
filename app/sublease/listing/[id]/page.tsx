@@ -22,11 +22,14 @@ import {
   ChevronRight,
   FileText,
   User,
+  EyeOff,
+  Eye,
+  Trash2,
 } from "lucide-react";
 import MainHeader from "../../../components/MainHeader";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
-import { getListingById, getListingsByCategory, incrementViewCount } from "../../../data/listings";
+import { getListingById, getListingsByCategory, incrementViewCount, deleteListing, updateListing, hardDeleteListing } from "../../../data/listings";
 import { toggleFavorite as toggleFav, isFavorited as checkFav } from "../../../data/favorites";
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -54,7 +57,7 @@ export default function SubleaseListingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isAdmin } = useAuth();
   const [listing, setListing] = useState<RoomListing | null>(null);
   const [similarListings, setSimilarListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,6 +100,33 @@ export default function SubleaseListingDetailPage() {
     if (!user?.uid) return;
     const newState = await toggleFav(user.uid, id);
     setIsFavorited(newState);
+  };
+
+  const isOwner = !!(user?.uid && listing?.userId && user.uid === listing.userId);
+  const canManage = isOwner || isAdmin;
+
+  const handleHideListing = async () => {
+    if (!listing) return;
+    await updateListing(String(listing.id), { status: "hidden" });
+    router.push("/profile");
+  };
+
+  const handleUnhideListing = async () => {
+    if (!listing) return;
+    await updateListing(String(listing.id), { status: "active" });
+    setListing({ ...listing, status: "active" });
+  };
+
+  const handleDeleteListing = async () => {
+    if (!listing || !confirm("Bạn có chắc muốn xóa bài đăng này?")) return;
+    await deleteListing(String(listing.id));
+    router.push("/profile");
+  };
+
+  const handleHardDelete = async () => {
+    if (!listing || !confirm("Xóa vĩnh viễn bài đăng này? Hành động không thể hoàn tác.")) return;
+    await hardDeleteListing(String(listing.id));
+    router.push("/sublease");
   };
 
   const getDisplayAmenities = (): string[] => {
@@ -389,6 +419,46 @@ export default function SubleaseListingDetailPage() {
                 <Flag className="h-4 w-4" /> Báo cáo
               </button>
             </div>
+
+            {/* Owner / Admin Actions */}
+            {canManage && listing && (
+              <div className="rounded-xl border-2 border-black bg-zinc-50 p-4 space-y-2">
+                <p className="text-xs font-bold text-zinc-500 mb-2">
+                  {isAdmin && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
+                </p>
+                {listing.status === "hidden" ? (
+                  <button
+                    onClick={handleUnhideListing}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-blue-100 px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  >
+                    <Eye className="h-4 w-4" /> Hiện lại bài đăng
+                  </button>
+                ) : listing.status !== "deleted" ? (
+                  <button
+                    onClick={handleHideListing}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-yellow-100 px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  >
+                    <EyeOff className="h-4 w-4" /> Ẩn bài đăng
+                  </button>
+                ) : null}
+                {listing.status !== "deleted" && (
+                  <button
+                    onClick={handleDeleteListing}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-100 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  >
+                    <Trash2 className="h-4 w-4" /> Xóa bài đăng
+                  </button>
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={handleHardDelete}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-500 text-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  >
+                    <Trash2 className="h-4 w-4" /> Xóa vĩnh viễn
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Ad Placeholder */}
             <div className="p-4 rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 text-center">

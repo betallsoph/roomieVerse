@@ -210,19 +210,24 @@ export async function getListingsByCategory(category: "roommate" | "roomshare" |
 }
 
 // Get listings by user ID (all statuses - for user's own dashboard)
-export async function getListingsByUserId(userId: string): Promise<RoomListing[]> {
+export async function getListingsByUserId(userId: string, onlyActive = false): Promise<RoomListing[]> {
   if (!FIREBASE_ENABLED || !db) {
     const localRoommate = getLocalStorageListings("roommate").filter(l => l.userId === userId);
     const localRoomshare = getLocalStorageListings("roomshare").filter(l => l.userId === userId);
     const mock = mockListings.filter(listing => listing.userId === userId);
-    return [...localRoommate, ...localRoomshare, ...mock];
+    const all = [...localRoommate, ...localRoomshare, ...mock];
+    return onlyActive ? all.filter(l => !l.status || l.status === "active") : all;
   }
 
-  const q = query(
-    collection(db, COLLECTION_NAME),
+  const constraints: any[] = [
     where("userId", "==", userId),
-    orderBy("createdAt", "desc")
-  );
+  ];
+  if (onlyActive) {
+    constraints.push(where("status", "==", "active"));
+  }
+  constraints.push(orderBy("createdAt", "desc"));
+
+  const q = query(collection(db, COLLECTION_NAME), ...constraints);
   const snapshot = await getDocs(q);
   return snapshot.docs.map(docToListing);
 }

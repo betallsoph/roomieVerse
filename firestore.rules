@@ -19,10 +19,16 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid;
 
-      // Authors can update their own (but can't self-approve)
+      // Authors can update their own listings
+      // BUT cannot self-approve (pending/rejected → active)
       allow update: if request.auth != null
                     && resource.data.userId == request.auth.uid
-                    && request.resource.data.status != "active";
+                    && !(resource.data.status in ["pending", "rejected"]
+                         && request.resource.data.status == "active");
+
+      // Any authenticated user can increment viewCount/favoriteCount only
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["viewCount", "favoriteCount"]);
 
       // Admins can update any listing (for moderation)
       allow update: if isAdmin();
@@ -63,6 +69,71 @@ service cloud.firestore {
     match /favorites/{favId} {
       allow read: if request.auth != null
                   && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.userId == request.auth.uid;
+    }
+
+    // === COMMUNITY POSTS ===
+    match /community_posts/{postId} {
+      // Anyone can read active posts
+      allow read: if resource.data.status == "active";
+
+      // Authors can read their own posts (any status)
+      allow read: if request.auth != null
+                  && resource.data.authorId == request.auth.uid;
+
+      // Admins can read all
+      allow read: if isAdmin();
+
+      // Authenticated users can create
+      allow create: if request.auth != null
+                    && request.resource.data.authorId == request.auth.uid;
+
+      // Any authenticated user can update likes/views/comments counters only
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["likes", "views", "comments"]);
+
+      // Authors can update their own posts
+      // BUT cannot self-approve (pending/rejected → active)
+      allow update: if request.auth != null
+                    && resource.data.authorId == request.auth.uid
+                    && !(resource.data.status in ["pending", "rejected"]
+                         && request.resource.data.status == "active");
+
+      // Admins can update/delete any post
+      allow update, delete: if isAdmin();
+    }
+
+    // === COMMUNITY COMMENTS ===
+    match /community_comments/{commentId} {
+      // Anyone can read comments
+      allow read: if true;
+
+      // Authenticated users can create
+      allow create: if request.auth != null
+                    && request.resource.data.authorId == request.auth.uid;
+
+      // Authors can update their own comments
+      allow update: if request.auth != null
+                    && resource.data.authorId == request.auth.uid;
+
+      // Any authenticated user can update likes only
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["likes"]);
+
+      // Admins can update/delete any comment
+      allow update, delete: if isAdmin();
+    }
+
+    // === COMMUNITY LIKES ===
+    match /community_likes/{likeId} {
+      // Users can read their own likes
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+
+      // Users can create/delete their own likes
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid;
       allow delete: if request.auth != null
