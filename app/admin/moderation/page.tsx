@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 // Listing sub-filter
-type ListingFilter = "all" | "have-room" | "find-partner" | "roomshare-house" | "roomshare-apartment";
+type ListingFilter = "all" | "have-room" | "find-partner" | "roomshare-house" | "roomshare-apartment" | "short-term" | "sublease";
 
 const listingFilters: { key: ListingFilter; label: string; icon: React.ElementType }[] = [
   { key: "all", label: "Tất cả", icon: Shield },
@@ -22,9 +22,13 @@ const listingFilters: { key: ListingFilter; label: string; icon: React.ElementTy
   { key: "find-partner", label: "Tìm bạn ở ghép", icon: UserSearch },
   { key: "roomshare-house", label: "Phòng nhà mặt đất", icon: Building2 },
   { key: "roomshare-apartment", label: "Phòng chung cư", icon: Building2 },
+  { key: "short-term", label: "Ngắn ngày", icon: Clock },
+  { key: "sublease", label: "Sang lại", icon: Home },
 ];
 
 function getListingFlowLabel(post: RoomListing): string {
+  if (post.category === "sublease") return "Sang lại";
+  if (post.category === "short-term") return "Ngắn ngày";
   if (post.category === "roommate") {
     return post.roommateType === "have-room" ? "Có phòng sẵn" : "Tìm bạn ở ghép";
   }
@@ -34,6 +38,8 @@ function getListingFlowLabel(post: RoomListing): string {
 }
 
 function getListingFlowColor(post: RoomListing): string {
+  if (post.category === "sublease") return "bg-emerald-100 border-emerald-300";
+  if (post.category === "short-term") return "bg-yellow-100 border-yellow-300";
   if (post.category === "roommate") {
     return post.roommateType === "have-room" ? "bg-blue-100 border-blue-300" : "bg-purple-100 border-purple-300";
   }
@@ -47,6 +53,8 @@ function matchesFilter(post: RoomListing, filter: ListingFilter): boolean {
   if (filter === "find-partner") return post.category === "roommate" && post.roommateType === "find-partner";
   if (filter === "roomshare-house") return post.category === "roomshare" && !post.propertyTypes?.includes("apartment");
   if (filter === "roomshare-apartment") return post.category === "roomshare" && (post.propertyTypes?.includes("apartment") ?? false);
+  if (filter === "short-term") return post.category === "short-term";
+  if (filter === "sublease") return post.category === "sublease";
   return true;
 }
 
@@ -98,9 +106,13 @@ export default function ModerationPage() {
       "find-partner": 0,
       "roomshare-house": 0,
       "roomshare-apartment": 0,
+      "short-term": 0,
+      "sublease": 0,
     };
     for (const p of pendingPosts) {
-      if (p.category === "roommate" && p.roommateType === "have-room") counts["have-room"]++;
+      if (p.category === "sublease") counts["sublease"]++;
+      else if (p.category === "short-term") counts["short-term"]++;
+      else if (p.category === "roommate" && p.roommateType === "have-room") counts["have-room"]++;
       else if (p.category === "roommate") counts["find-partner"]++;
       else if (p.propertyTypes?.includes("apartment")) counts["roomshare-apartment"]++;
       else counts["roomshare-house"]++;
@@ -225,7 +237,11 @@ export default function ModerationPage() {
                     const postId = String(post.id);
                     const isRejecting = rejectingId === postId;
                     const isActionLoading = actionLoading === postId;
-                    const detailRoute = post.category === "roomshare"
+                    const detailRoute = post.category === "sublease"
+                      ? `/sublease/listing/${postId}`
+                      : post.category === "short-term"
+                      ? `/short-term/listing/${postId}`
+                      : post.category === "roomshare"
                       ? `/roomshare/listing/${postId}`
                       : `/roommate/listing/${postId}`;
 

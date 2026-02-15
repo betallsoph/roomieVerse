@@ -38,8 +38,10 @@ import MainHeader from "../../../components/MainHeader";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
 import { getListingById, getListingsByCategory, incrementViewCount } from "../../../data/listings";
+import { toggleFavorite as toggleFav, isFavorited as checkFav } from "../../../data/favorites";
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
+import { createReport } from "../../../data/reports";
 import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
 
 // Helper to map amenity value to label
@@ -75,7 +77,7 @@ export default function RoomshareListingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [listing, setListing] = useState<RoomListing | null>(null);
   const [similarListings, setSimilarListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,24 +115,15 @@ export default function RoomshareListingDetailPage() {
 
   // Check if listing is favorited
   useEffect(() => {
-    const savedFavorites = localStorage.getItem('favorites');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as (string | number)[];
-      setIsFavorited(favoriteIds.includes(id));
-    }
-  }, [id]);
+    if (!user?.uid) return;
+    checkFav(user.uid, id).then(setIsFavorited).catch(() => {});
+  }, [id, user?.uid]);
 
   // Toggle favorite
-  const toggleFavorite = () => {
-    const savedFavorites = localStorage.getItem('favorites');
-    let favoriteIds: (string | number)[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-    if (isFavorited) {
-      favoriteIds = favoriteIds.filter(fid => fid !== id);
-    } else {
-      favoriteIds.push(id);
-    }
-    localStorage.setItem('favorites', JSON.stringify(favoriteIds));
-    setIsFavorited(!isFavorited);
+  const toggleFavorite = async () => {
+    if (!user?.uid) return;
+    const newState = await toggleFav(user.uid, id);
+    setIsFavorited(newState);
   };
 
   // Get amenities from listing data
@@ -568,7 +561,19 @@ export default function RoomshareListingDetailPage() {
           <div className="lg:sticky lg:top-24 space-y-4">
             {/* Contact Card */}
             <div className="rounded-xl border-2 border-black bg-pink-50 p-6 shadow-[var(--shadow-secondary)]">
-              <p className="mb-5 text-xl font-bold">{listing.author}</p>
+              {listing.userId ? (
+                <Link href={`/user/${listing.userId}`} className="mb-5 flex items-center gap-3 group">
+                  <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center border-2 border-black group-hover:border-pink-600 transition-colors">
+                    <span className="text-lg font-bold text-pink-700">{listing.author?.charAt(0)?.toUpperCase() || "?"}</span>
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold group-hover:text-pink-700 transition-colors">{listing.author}</p>
+                    <p className="text-xs text-zinc-500 flex items-center gap-1"><User className="h-3 w-3" /> Xem hồ sơ</p>
+                  </div>
+                </Link>
+              ) : (
+                <p className="mb-5 text-xl font-bold">{listing.author}</p>
+              )}
 
               {isAuthenticated ? (
                 <>
@@ -715,8 +720,13 @@ export default function RoomshareListingDetailPage() {
           listingId={listing.id}
           listingTitle={listing.title}
           onClose={() => setShowReportModal(false)}
-          onSubmit={(data) => {
-            console.log("Report submitted:", data);
+          onSubmit={async (data) => {
+            await createReport({
+              listingId: String(data.listingId),
+              reportedBy: user?.uid || "anonymous",
+              reason: data.reason,
+              details: data.details || undefined,
+            });
           }}
         />
       )}

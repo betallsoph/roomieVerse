@@ -82,7 +82,19 @@ export default function MainHeader() {
               href="/roomshare"
               className="text-white text-sm font-bold hidden sm:block"
             >
-              Tìm phòng
+              Tìm phòng share
+            </NavLink>
+            <NavLink
+              href="/short-term"
+              className="text-white text-sm font-bold hidden sm:block"
+            >
+              Phòng ngắn ngày
+            </NavLink>
+            <NavLink
+              href="/sublease"
+              className="text-white text-sm font-bold hidden sm:block"
+            >
+              Phòng sang lại
             </NavLink>
           </div>
 

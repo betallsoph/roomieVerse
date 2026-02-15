@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { X, Flag, AlertTriangle, Megaphone, ShieldAlert, Ban, Copy, XCircle, MessageSquare, CheckCircle } from "lucide-react";
+import { createReport } from "../data/reports";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ReportModalProps {
   listingId: number | string;
@@ -62,6 +64,7 @@ export default function ReportModal({
   onClose,
   onSubmit,
 }: ReportModalProps) {
+  const { user } = useAuth();
   const [selectedReason, setSelectedReason] = useState<string>("");
   const [details, setDetails] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -78,32 +81,26 @@ export default function ReportModal({
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    const reportData: ReportData = {
-      listingId,
-      reason: selectedReason,
-      details,
-      reporterEmail: email || undefined,
-    };
+    try {
+      await createReport({
+        listingId: String(listingId),
+        reportedBy: user?.uid || "anonymous",
+        reason: selectedReason,
+        details: details || undefined,
+      });
 
-    // Call custom handler if provided
-    if (onSubmit) {
-      onSubmit(reportData);
+      if (onSubmit) {
+        onSubmit({ listingId, reason: selectedReason, details, reporterEmail: email || undefined });
+      }
+
+      setIsSuccess(true);
+      setTimeout(() => onClose(), 2000);
+    } catch (error) {
+      console.error("Report error:", error);
+      alert("Gửi báo cáo thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Simulate delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // TODO: Replace with actual API call
-    console.log("Report submitted:", reportData);
-
-    setIsSubmitting(false);
-    setIsSuccess(true);
-
-    // Auto close after success
-    setTimeout(() => {
-      onClose();
-    }, 2000);
   };
 
   return (

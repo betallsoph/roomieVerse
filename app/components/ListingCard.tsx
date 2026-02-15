@@ -16,10 +16,10 @@ interface ListingCardProps {
     introduction?: string;
     phone: string;
     postedDate: string;
-    category?: "roommate" | "roomshare";
+    category?: "roommate" | "roomshare" | "short-term" | "sublease";
     roommateType?: "have-room" | "find-partner";
   };
-  variant?: "blue" | "pink";
+  variant?: "blue" | "pink" | "yellow" | "green";
   layout?: "grid" | "list";
 }
 
@@ -33,21 +33,33 @@ function getListingRoute(listing: ListingCardProps["listing"]): string {
   if (id.startsWith("rs-")) {
     return `/roomshare/listing/${id}`;
   }
+  if (id.startsWith("st-")) {
+    return `/short-term/listing/${id}`;
+  }
+  if (id.startsWith("sl-")) {
+    return `/sublease/listing/${id}`;
+  }
   // Fall back to category
   if (listing.category === "roomshare") {
     return `/roomshare/listing/${id}`;
+  }
+  if (listing.category === "short-term") {
+    return `/short-term/listing/${id}`;
+  }
+  if (listing.category === "sublease") {
+    return `/sublease/listing/${id}`;
   }
   // Default to roommate
   return `/roommate/listing/${id}`;
 }
 
 export default function ListingCard({ listing, variant = "blue", layout = "grid" }: ListingCardProps) {
-  const cardBg = variant === "pink" ? "bg-pink-50" : "bg-white";
-  const priceBadgeBg = variant === "pink" ? "bg-pink-300" : "bg-blue-300";
-  const accentColor = variant === "pink" ? "text-pink-600" : "text-blue-700";
-  const accentBorder = variant === "pink" ? "border-pink-600" : "border-blue-700";
-  const accentBg = variant === "pink" ? "bg-pink-100" : "bg-blue-100";
-  const accentIconColor = variant === "pink" ? "text-pink-400" : "text-blue-300";
+  const cardBg = variant === "pink" ? "bg-pink-50" : variant === "yellow" ? "bg-yellow-50" : variant === "green" ? "bg-emerald-50" : "bg-white";
+  const priceBadgeBg = variant === "pink" ? "bg-pink-300" : variant === "yellow" ? "bg-yellow-300" : variant === "green" ? "bg-emerald-300" : "bg-blue-300";
+  const accentColor = variant === "pink" ? "text-pink-600" : variant === "yellow" ? "text-amber-600" : variant === "green" ? "text-green-600" : "text-blue-700";
+  const accentBorder = variant === "pink" ? "border-pink-600" : variant === "yellow" ? "border-amber-500" : variant === "green" ? "border-green-500" : "border-blue-700";
+  const accentBg = variant === "pink" ? "bg-pink-100" : variant === "yellow" ? "bg-amber-100" : variant === "green" ? "bg-emerald-100" : "bg-blue-100";
+  const accentIconColor = variant === "pink" ? "text-pink-400" : variant === "yellow" ? "text-amber-400" : variant === "green" ? "text-emerald-400" : "text-blue-300";
   const listingRoute = getListingRoute(listing);
   const isFindPartner = listing.roommateType === "find-partner";
 

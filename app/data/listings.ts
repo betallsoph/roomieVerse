@@ -47,7 +47,7 @@ function docToListing(docSnap: { id: string; data: () => Record<string, unknown>
     facebook: contact.facebook || (d.facebook as string) || undefined,
     instagram: contact.instagram || (d.instagram as string) || undefined,
     postedDate: d.postedDate as string || formatDate(timestampToString(d.createdAt)),
-    category: (d.category as "roommate" | "roomshare") || "roommate",
+    category: (d.category as "roommate" | "roomshare" | "short-term" | "sublease") || "roommate",
     roommateType: d.roommateType as RoomListing["roommateType"],
     propertyType: d.propertyType as RoomListing["propertyType"],
     image: d.image as string | undefined,
@@ -84,9 +84,11 @@ function formatDate(isoString: string): string {
 }
 
 // Helper: Get category from ID prefix
-function getCategoryFromId(id: string): "roommate" | "roomshare" | null {
+function getCategoryFromId(id: string): "roommate" | "roomshare" | "short-term" | "sublease" | null {
   if (id.startsWith("rm-")) return "roommate";
   if (id.startsWith("rs-")) return "roomshare";
+  if (id.startsWith("st-")) return "short-term";
+  if (id.startsWith("sl-")) return "sublease";
   return null;
 }
 
@@ -165,11 +167,12 @@ export async function getListingById(id: number | string): Promise<RoomListing |
   const idStr = String(id);
 
   // Check localStorage first (for recently created listings before sync)
+  // short-term doesn't use localStorage fallback
   const prefixCategory = getCategoryFromId(idStr);
-  if (prefixCategory) {
+  if (prefixCategory && prefixCategory !== "short-term" && prefixCategory !== "sublease") {
     const found = getLocalStorageListings(prefixCategory).find(l => l.id === idStr);
     if (found) return found;
-  } else {
+  } else if (!prefixCategory) {
     const localAll = [...getLocalStorageListings("roommate"), ...getLocalStorageListings("roomshare")];
     const found = localAll.find(l => l.id === idStr);
     if (found) return found;
@@ -188,8 +191,9 @@ export async function getListingById(id: number | string): Promise<RoomListing |
 }
 
 // Get listings by category (only active)
-export async function getListingsByCategory(category: "roommate" | "roomshare"): Promise<RoomListing[]> {
+export async function getListingsByCategory(category: "roommate" | "roomshare" | "short-term" | "sublease"): Promise<RoomListing[]> {
   if (!FIREBASE_ENABLED || !db) {
+    if (category === "short-term" || category === "sublease") return []; // no localStorage fallback
     const local = getLocalStorageListings(category);
     const mock = mockListings.filter(listing => listing.category === category);
     return [...local, ...mock];
@@ -243,7 +247,7 @@ export async function getPendingListings(): Promise<RoomListing[]> {
 // Create a new listing
 export async function createListing(data: Partial<RoomListing> & { userId: string }): Promise<string> {
   // Determine ID prefix
-  const prefix = data.category === "roomshare" ? "rs" : "rm";
+  const prefix = data.category === "sublease" ? "sl" : data.category === "short-term" ? "st" : data.category === "roomshare" ? "rs" : "rm";
   const id = `${prefix}-${Date.now()}`;
 
   // Determine initial status

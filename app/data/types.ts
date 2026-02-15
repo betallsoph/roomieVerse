@@ -56,7 +56,7 @@ export interface RoomListing {
   facebook?: string;
   instagram?: string;
   postedDate: string;
-  category: "roommate" | "roomshare";
+  category: "roommate" | "roomshare" | "short-term" | "sublease";
   roommateType?: RoommateType;
   propertyType?: PropertyType;
   image?: string;
@@ -131,5 +131,49 @@ export interface Favorite {
   id?: string;
   userId: string;
   listingId: string;
+  createdAt?: string;
+}
+
+// Community post category
+export type CommunityCategory = "tips" | "drama" | "review" | "pass-do" | "blog";
+
+// Community post status
+export type CommunityStatus = "active" | "pending" | "hidden" | "deleted";
+
+// Community post interface
+export interface CommunityPost {
+  id?: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  category: CommunityCategory;
+  title: string;
+  content: string;
+  preview: string;
+  likes: number;
+  comments: number;
+  views: number;
+  hot?: boolean;
+  location?: string;
+  rating?: number;
+  price?: string;
+  images?: string[];
+  status: CommunityStatus;
+  moderatedBy?: string;
+  rejectionReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Community comment interface
+export interface CommunityComment {
+  id?: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  content: string;
+  likes: number;
+  status: "active" | "hidden" | "deleted";
   createdAt?: string;
 }

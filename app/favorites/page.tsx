@@ -5,43 +5,48 @@ import Link from "next/link";
 import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { getListings } from "../data/listings";
+import { getListingById } from "../data/listings";
+import { getUserFavorites, toggleFavorite } from "../data/favorites";
 import { RoomListing } from "../data/types";
-import { Heart, MapPin, Calendar, Home, HeartOff, Users } from "lucide-react";
+import { Heart, MapPin, Calendar, Home, HeartOff, Users, Loader2 } from "lucide-react";
 import { useAdminRedirect } from "../hooks/useAdminRedirect";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function FavoritesPage() {
   useAdminRedirect();
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState<RoomListing[]>([]);
-  const [activeTab, setActiveTab] = useState<"all" | "roommate" | "roomshare">("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"all" | "roommate" | "roomshare" | "short-term" | "sublease">("all");
 
-  // Load favorites from localStorage
+  // Load favorites from Firestore
   useEffect(() => {
     async function loadFavorites() {
-      const savedFavorites = localStorage.getItem('favorites');
-      if (savedFavorites) {
-        const favoriteIds = JSON.parse(savedFavorites) as (number | string)[];
-        const allListings = await getListings();
-        const favoritedListings = allListings.filter(listing =>
-          favoriteIds.includes(listing.id as number) || favoriteIds.includes(listing.id as string)
+      if (!user?.uid) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const favoriteIds = await getUserFavorites(user.uid);
+        // Fetch each listing
+        const listings = await Promise.all(
+          favoriteIds.map((id) => getListingById(id))
         );
-        setFavorites(favoritedListings);
+        setFavorites(listings.filter((l): l is RoomListing => l !== null));
+      } catch (error) {
+        console.error("Error loading favorites:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadFavorites();
-  }, []);
+  }, [user?.uid]);
 
   // Remove from favorites
-  const handleRemoveFavorite = (id: number | string) => {
-    const savedFavorites = localStorage.getItem('favorites');
-    if (savedFavorites) {
-      const favoriteIds = JSON.parse(savedFavorites) as (number | string)[];
-      const updatedIds = favoriteIds.filter(fid => fid !== id);
-      localStorage.setItem('favorites', JSON.stringify(updatedIds));
-
-      // Update UI
-      setFavorites(prev => prev.filter(listing => listing.id !== id));
-    }
+  const handleRemoveFavorite = async (id: number | string) => {
+    if (!user?.uid) return;
+    await toggleFavorite(user.uid, String(id));
+    setFavorites(prev => prev.filter(listing => listing.id !== id));
   };
 
   // Filter favorites based on active tab
@@ -144,6 +149,26 @@ export default function FavoritesPage() {
               >
                 Phòng trống
               </button>
+              <button
+                onClick={() => setActiveTab("short-term")}
+                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                  ${activeTab === "short-term"
+                    ? 'bg-yellow-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
+                    : 'bg-white hover:bg-yellow-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
+                  }`}
+              >
+                Ngắn ngày
+              </button>
+              <button
+                onClick={() => setActiveTab("sublease")}
+                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                  ${activeTab === "sublease"
+                    ? 'bg-emerald-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
+                    : 'bg-white hover:bg-emerald-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
+                  }`}
+              >
+                Sang lại
+              </button>
             </div>
 
             {/* Listings Grid */}
@@ -176,13 +201,14 @@ function FavoriteCard({
   listing: RoomListing;
   onRemove: (id: number | string) => void;
 }) {
-  const imageBg = listing.category === "roomshare" ? "bg-pink-100" : "bg-blue-100";
-  const priceBadgeBg = listing.category === "roomshare" ? "bg-pink-300" : "bg-blue-300";
+  const imageBg = listing.category === "roomshare" ? "bg-pink-100" : listing.category === "short-term" ? "bg-yellow-100" : listing.category === "sublease" ? "bg-emerald-100" : "bg-blue-100";
+  const priceBadgeBg = listing.category === "roomshare" ? "bg-pink-300" : listing.category === "short-term" ? "bg-yellow-300" : listing.category === "sublease" ? "bg-emerald-300" : "bg-blue-300";
+  const listingRoute = listing.category === "sublease" ? "sublease" : listing.category === "short-term" ? "short-term" : listing.category === "roomshare" ? "roomshare" : "roommate";
 
   return (
     <div className="card bg-white p-6">
       {/* Image Section */}
-      <Link href={`/listing/${listing.id}`}>
+      <Link href={`/${listingRoute}/listing/${listing.id}`}>
         <div className={`mb-6 h-48 w-full overflow-hidden rounded-lg border-2 border-black ${imageBg}`}>
           <div className="flex h-full w-full items-center justify-center">
             <Home className="h-16 w-16 text-zinc-400" />
@@ -197,7 +223,7 @@ function FavoriteCard({
         <span className="text-xs text-zinc-500">{listing.postedDate}</span>
       </div>
 
-      <Link href={`/listing/${listing.id}`}>
+      <Link href={`/${listingRoute}/listing/${listing.id}`}>
         <h3 className="mb-3 text-lg font-bold leading-tight hover:text-blue-600 transition-colors">
           {listing.title}
         </h3>
@@ -220,7 +246,7 @@ function FavoriteCard({
 
       <div className="flex items-center gap-2 border-t-2 border-gray-100 pt-4">
         <Link
-          href={`/listing/${listing.id}`}
+          href={`/${listingRoute}/listing/${listing.id}`}
           className="flex-1 btn-primary text-xs text-center"
         >
           Xem chi tiết
