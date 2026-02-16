@@ -83,52 +83,51 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
         <a
           href={listingRoute}
           onClick={handleCardClick}
-          className={`group flex gap-5 rounded-xl border-2 border-black ${cardBg} p-4 shadow-[var(--shadow-secondary)] card-bounce`}
+          className={`group flex gap-3 sm:gap-5 rounded-xl border-2 border-black ${cardBg} p-3 sm:p-4 shadow-[var(--shadow-secondary)] card-bounce`}
         >
           {/* Avatar Section */}
-          <div className={`h-32 w-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-black ${accentBg} flex items-center justify-center`}>
-            <span className={`text-4xl font-bold ${accentColor}`}>
+          <div className={`h-20 w-20 sm:h-32 sm:w-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-black ${accentBg} flex items-center justify-center`}>
+            <span className={`text-2xl sm:text-4xl font-bold ${accentColor}`}>
               {listing.author?.charAt(0)?.toUpperCase() || "?"}
             </span>
           </div>
 
           {/* Content */}
-          <div className="flex flex-1 gap-5">
+          <div className="flex flex-1 gap-5 min-w-0">
             {/* Left Column: Info */}
             <div className="flex flex-1 flex-col justify-between min-w-0">
               {/* Top: Title */}
               <div>
-                <h3 className="text-lg font-bold leading-tight line-clamp-1 mb-2">{listing.title}</h3>
+                <h3 className="text-base sm:text-lg font-bold leading-tight line-clamp-1 mb-1 sm:mb-2">{listing.title}</h3>
 
                 {/* Location & Move-in */}
                 <div className="mt-1 space-y-0.5">
-                  <p className="text-xs font-bold text-zinc-500">Địa điểm & thời gian mong muốn</p>
-                  <span className="flex items-center gap-1.5 text-sm text-blue-700">
-                    <MapPin className="h-4 w-4" />
-                    {displayLocation}
+                  <p className="text-xs font-bold text-zinc-500 hidden sm:block">Địa điểm & thời gian mong muốn</p>
+                  <span className="flex items-center gap-1.5 text-xs sm:text-sm text-blue-700">
+                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{displayLocation}</span>
                   </span>
-                  <span className="flex items-center gap-1.5 text-sm text-blue-700">
-                    <Calendar className="h-4 w-4" />
+                  <span className="flex items-center gap-1.5 text-xs sm:text-sm text-blue-700">
+                    <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
                     {listing.moveInDate}
                   </span>
                 </div>
               </div>
 
               {/* Bottom: Author + Date + Price */}
-              <div className="flex items-end justify-between">
-                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                  <User className="h-3.5 w-3.5" />
-                  <span>{listing.author}</span>
+              <div className="flex items-end justify-between mt-2 sm:mt-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-zinc-500">
+                  <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="truncate max-w-[80px] sm:max-w-none">{listing.author}</span>
                   <span>•</span>
                   <span>{listing.postedDate}</span>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-bold text-zinc-500">Ngân sách</p>
                   <span className="inline-flex items-end gap-1">
-                    <span className="text-xl font-bold text-blue-700">
+                    <span className="text-base sm:text-xl font-bold text-blue-700">
                       {listing.price}
                     </span>
-                    <span className="text-xs text-zinc-400 mb-0.5">/ tháng</span>
+                    <span className="text-[10px] sm:text-xs text-zinc-400 mb-0.5">/ tháng</span>
                   </span>
                 </div>
               </div>
@@ -154,46 +153,48 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
       <a
         href={listingRoute}
         onClick={handleCardClick}
-        className={`group flex gap-5 rounded-xl border-2 border-black ${cardBg} p-4 shadow-[var(--shadow-secondary)] card-bounce`}
+        className={`group flex gap-3 sm:gap-5 rounded-xl border-2 border-black ${cardBg} p-3 sm:p-4 shadow-[var(--shadow-secondary)] card-bounce`}
       >
         {/* Image Section */}
-        <div className="h-32 w-40 flex-shrink-0 overflow-hidden rounded-lg border-2 border-black bg-white">
+        <div className="h-24 w-28 sm:h-32 sm:w-40 flex-shrink-0 overflow-hidden rounded-lg border-2 border-black bg-white">
           <div className="flex h-full w-full items-center justify-center">
-            <Home className="h-12 w-12 text-zinc-400" strokeWidth={1.5} />
+            <Home className="h-8 w-8 sm:h-12 sm:w-12 text-zinc-400" strokeWidth={1.5} />
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex flex-1 flex-col justify-between">
+        <div className="flex flex-1 flex-col justify-between min-w-0">
           {/* Top: Title + Price */}
           <div>
-            <div className="mb-2 flex items-start justify-between gap-3">
-              <h3 className="text-lg font-bold leading-tight line-clamp-1">{listing.title}</h3>
-              <span className="flex-shrink-0 text-xl font-bold text-blue-700">
+            <div className="mb-1 sm:mb-2 flex items-start justify-between gap-2 sm:gap-3">
+              <h3 className="text-base sm:text-lg font-bold leading-tight line-clamp-1">{listing.title}</h3>
+              <span className="flex-shrink-0 text-base sm:text-xl font-bold text-blue-700">
                 {listing.price}
               </span>
             </div>
 
             {/* Location */}
-            <div className="text-sm">
+            <div className="text-xs sm:text-sm">
               <span className="flex items-center gap-1.5 text-blue-700">
-                <MapPin className="h-4 w-4" />
-                {listing.location}
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="truncate">{listing.location}</span>
               </span>
             </div>
             {/* Move-in */}
-            <div className="text-sm text-zinc-500">
+            <div className="text-xs sm:text-sm text-zinc-500">
               <span className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                Mong muốn bạn dọn vào: <span className="text-blue-700">{listing.moveInDate}</span>
+                <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Mong muốn bạn dọn vào: </span>
+                <span className="sm:hidden">Dọn vào: </span>
+                <span className="text-blue-700">{listing.moveInDate}</span>
               </span>
             </div>
           </div>
 
           {/* Bottom: Author + Date */}
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <User className="h-3.5 w-3.5" />
-            <span>{listing.author}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-zinc-500 mt-2 sm:mt-0">
+            <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="truncate max-w-[80px] sm:max-w-none">{listing.author}</span>
             <span>•</span>
             <span>{listing.postedDate}</span>
           </div>
@@ -208,7 +209,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
       <a
         href={listingRoute}
         onClick={handleCardClick}
-        className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-6 card-bounce"
+        className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce"
       >
         {/* Header: Avatar + Author Info */}
         <div className="mb-5 flex items-center gap-4">
@@ -265,7 +266,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
     <a
       href={listingRoute}
       onClick={handleCardClick}
-      className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-6 card-bounce"
+      className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce"
     >
       {/* Image Section */}
       <div className={`mb-5 h-48 w-full overflow-hidden rounded-lg border-2 ${accentBorder} ${cardBg}`}>

@@ -321,22 +321,23 @@ export default function ProfilePage() {
         />
 
         {/* Hero Section */}
-        <section className="bg-blue-50 pt-16 sm:pt-24 pb-6">
-          <div className="mx-auto max-w-7xl px-6">
+        <section className="bg-blue-50 pt-8 sm:pt-16 md:pt-24 pb-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
-            <div className="mb-8">
-              <h1 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="mb-2 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
                 Hồ sơ của bạn
               </h1>
-              <p className="max-w-2xl text-base sm:text-lg text-zinc-700">
+              <p className="max-w-2xl text-sm sm:text-lg text-zinc-700">
                 Quản lý thông tin cá nhân và các bài đăng của bạn
               </p>
             </div>
 
             {/* Profile Info Card */}
-            <div className="rounded-xl border-[6px] border-black bg-white p-8">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
+            <div className="rounded-xl border-[6px] border-black bg-white p-5 sm:p-8">
+              <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
+                {/* Avatar + Info: stacked on mobile, horizontal on desktop */}
+                <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
                   {photoURL ? (
                     <Image
                       src={photoURL}
@@ -350,16 +351,16 @@ export default function ProfilePage() {
                       {displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div>
-                    <h2 className="text-2xl font-bold">{displayName}</h2>
+                  <div className="text-center sm:text-left">
+                    <h2 className="text-xl sm:text-2xl font-bold">{displayName}</h2>
                     {user?.email && (
-                      <p className="text-sm text-zinc-500">{user.email}</p>
+                      <p className="text-xs sm:text-sm text-zinc-500 break-all">{user.email}</p>
                     )}
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="btn-red btn-click-sink text-base px-6 py-3"
+                  className="btn-red btn-click-sink text-sm sm:text-base px-6 py-2.5 sm:py-3 w-full sm:w-auto"
                 >
                   Đăng xuất
                 </button>
@@ -367,7 +368,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Personal Info Section */}
-            <div className="mt-6 card bg-white p-8">
+            <div className="mt-4 sm:mt-6 card bg-white p-5 sm:p-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold">Thông tin cá nhân</h3>
                 <button
@@ -590,12 +591,12 @@ export default function ProfilePage() {
         </section>
 
         {/* Listings & Favorites Section */}
-        <section className="bg-blue-50 pt-10 pb-16">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="border-t-2 border-zinc-300 mb-12" />
-            <h2 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">Bài đăng của tôi & Bài đã lưu</h2>
-            <p className="mb-8 max-w-2xl text-base sm:text-lg text-zinc-700">Bài đăng của bạn ở trên. Những bài bạn đã lưu nằm ở dưới, hãy kéo xuống để xem.</p>
-            <div className="card bg-white p-8">
+        <section className="bg-blue-50 pt-8 sm:pt-10 pb-12 sm:pb-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="border-t-2 border-zinc-300 mb-8 sm:mb-12" />
+            <h2 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">Bài đăng của tôi & Bài đã lưu</h2>
+            <p className="mb-6 sm:mb-8 max-w-2xl text-sm sm:text-lg text-zinc-700">Bài đăng của bạn ở trên. Những bài bạn đã lưu nằm ở dưới, hãy kéo xuống để xem.</p>
+            <div className="card bg-white p-4 sm:p-8">
 
               {/* My Listings */}
               <div className="mb-8">

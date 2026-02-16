@@ -76,12 +76,12 @@ export default function RoomSharePage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="bg-pink-50 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-6">
-          <h1 className="mb-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl text-pink-900">
+      <section className="bg-pink-50 py-8 sm:py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h1 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-4xl md:text-5xl text-pink-900">
             Tìm phòng dư cho thuê lại
           </h1>
-          <p className="mb-8 max-w-3xl text-sm sm:text-base text-zinc-700">
+          <p className="mb-6 sm:mb-8 max-w-3xl text-xs sm:text-base text-zinc-700">
             Dành cho các bạn đang thuê nhà nguyên căn/căn hộ có dư phòng và muốn tìm người ở phòng dư đó để đỡ tiền nhà
           </p>
 
@@ -98,9 +98,9 @@ export default function RoomSharePage() {
       </section>
 
       {/* Blur transition from hero to listing */}
-      <div className="h-8 bg-gradient-to-b from-pink-50 to-white" />
+      <div className="h-6 sm:h-8 bg-gradient-to-b from-pink-50 to-white" />
 
-      <div className="mx-auto max-w-7xl px-6 pb-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-16">
 
         {/* Danh sách tin đăng */}
         <div>
