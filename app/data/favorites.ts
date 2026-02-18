@@ -1,7 +1,7 @@
 import {
-  collection, doc, getDoc, getDocs, setDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp, Timestamp, increment,
-  updateDoc,
+  collection, doc, getDoc, getDocs,
+  query, where, orderBy, serverTimestamp, increment,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { FIREBASE_ENABLED } from "../lib/config";
@@ -23,7 +23,6 @@ function compositeId(userId: string, listingId: string): string {
 /** Get all favorite listing IDs for a user */
 export async function getUserFavorites(userId: string): Promise<string[]> {
   if (!FIREBASE_ENABLED || !db) {
-    // Fallback to localStorage
     if (typeof window === "undefined") return [];
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
@@ -35,7 +34,9 @@ export async function getUserFavorites(userId: string): Promise<string[]> {
     orderBy("createdAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data().listingId as string);
+  return snap.docs
+    .map((d) => d.data().listingId)
+    .filter((id): id is string => typeof id === "string");
 }
 
 /** Check if a listing is favorited by a user */
@@ -53,10 +54,9 @@ export async function isFavorited(userId: string, listingId: string): Promise<bo
   return snap.exists();
 }
 
-/** Toggle favorite — returns new favorited state */
+/** Toggle favorite — returns new favorited state (uses transaction to prevent race conditions) */
 export async function toggleFavorite(userId: string, listingId: string): Promise<boolean> {
   if (!FIREBASE_ENABLED || !db) {
-    // Fallback to localStorage
     if (typeof window === "undefined") return false;
     const saved = localStorage.getItem("favorites");
     let ids: (string | number)[] = saved ? JSON.parse(saved) : [];
@@ -71,30 +71,40 @@ export async function toggleFavorite(userId: string, listingId: string): Promise
   }
 
   const docId = compositeId(userId, listingId);
-  const docRef = doc(db, COLLECTION_NAME, docId);
-  const snap = await getDoc(docRef);
+  const favRef = doc(db, COLLECTION_NAME, docId);
+  const listingRef = doc(db, "listings", listingId);
 
-  if (snap.exists()) {
-    // Remove favorite
-    await deleteDoc(docRef);
-    // Decrement favoriteCount on listing
-    try {
-      const listingRef = doc(db, "listings", listingId);
-      await updateDoc(listingRef, { favoriteCount: increment(-1) });
-    } catch { /* listing may not exist */ }
-    return false;
-  } else {
-    // Add favorite
-    await setDoc(docRef, {
-      userId,
-      listingId,
-      createdAt: serverTimestamp(),
-    });
-    // Increment favoriteCount on listing
-    try {
-      const listingRef = doc(db, "listings", listingId);
-      await updateDoc(listingRef, { favoriteCount: increment(1) });
-    } catch { /* listing may not exist */ }
-    return true;
-  }
+  return runTransaction(db, async (transaction) => {
+    const favSnap = await transaction.get(favRef);
+
+    if (favSnap.exists()) {
+      // Remove favorite
+      transaction.delete(favRef);
+      try {
+        const listingSnap = await transaction.get(listingRef);
+        if (listingSnap.exists()) {
+          transaction.update(listingRef, { favoriteCount: increment(-1) });
+        }
+      } catch (err) {
+        console.warn("Could not update favoriteCount on listing:", err);
+      }
+      return false;
+    } else {
+      // Add favorite
+      transaction.set(favRef, {
+        userId,
+        listingId,
+        createdAt: serverTimestamp(),
+      });
+      try {
+        const listingSnap = await transaction.get(listingRef);
+        if (listingSnap.exists()) {
+          transaction.update(listingRef, { favoriteCount: increment(1) });
+        }
+      } catch (err) {
+        console.warn("Could not update favoriteCount on listing:", err);
+      }
+      return true;
+    }
+  });
 }

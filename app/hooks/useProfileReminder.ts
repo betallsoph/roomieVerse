@@ -22,7 +22,7 @@ export function useProfileReminder() {
     if (dismissedAt) {
       const dismissedTime = parseInt(dismissedAt, 10);
       const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
-      if (hoursSinceDismissed < 24) {
+      if (hoursSinceDismissed < 0.5) {
         setShowReminder(false);
         return;
       }
