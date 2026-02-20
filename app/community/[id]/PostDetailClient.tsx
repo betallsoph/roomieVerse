@@ -77,17 +77,23 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
   // Fetch post + comments
   useEffect(() => {
     async function load() {
-      const [postData, commentsData] = await Promise.all([
-        getCommunityPostById(postId),
-        getCommentsByPostId(postId),
-      ]);
-      setPost(postData);
-      setComments(commentsData);
-      if (postData) {
-        setLikeCount(postData.likes);
-        incrementPostViewCount(postId);
+      try {
+        const [postData, commentsData] = await Promise.all([
+          getCommunityPostById(postId),
+          getCommentsByPostId(postId),
+        ]);
+        setPost(postData);
+        setComments(commentsData);
+        if (postData) {
+          setLikeCount(postData.likes);
+          incrementPostViewCount(postId).catch(() => {});
+        }
+      } catch (err) {
+        console.error("Failed to load post:", err);
+        setPost(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     load();
   }, [postId]);
@@ -107,6 +113,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
 
   const handleComment = async () => {
     if (!user || !commentText.trim() || isSubmittingComment) return;
+    const content = commentText.trim();
     setIsSubmittingComment(true);
     try {
       const commentId = await createComment({
@@ -114,8 +121,9 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
         authorId: user.uid,
         authorName: user.displayName || "Ẩn danh",
         authorPhoto: user.photoURL || undefined,
-        content: commentText.trim(),
+        content,
       });
+      // Only update local state after Firebase confirms
       setComments((prev) => [
         ...prev,
         {
@@ -124,7 +132,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
           authorId: user.uid,
           authorName: user.displayName || "Ẩn danh",
           authorPhoto: user.photoURL || undefined,
-          content: commentText.trim(),
+          content,
           likes: 0,
           status: "active",
           createdAt: new Date().toISOString(),
@@ -134,6 +142,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
       if (post) setPost({ ...post, comments: post.comments + 1 });
     } catch (error) {
       console.error("Error posting comment:", error);
+      alert("Không thể đăng bình luận. Vui lòng thử lại.");
     } finally {
       setIsSubmittingComment(false);
     }

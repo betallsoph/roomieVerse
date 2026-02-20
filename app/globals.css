@@ -581,7 +581,6 @@ a {
 
 /* ===== Nav Link Sibling Spread Effect ===== */
 .nav-link {
-  display: inline-block;
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
@@ -612,6 +611,11 @@ a {
 
 /* Responsive Typography */
 @media (max-width: 768px) {
+  :root {
+    --shadow-primary: 4px 5px 0px -1px #000000;
+    --shadow-secondary: 2px 2px 0px -1px #000000;
+    --shadow-secondary-opposite: -2px 2px 0px -1px #000000;
+  }
   h1 {
     font-size: 36px;
   }
@@ -629,6 +633,22 @@ a {
   }
   .wrapper {
     padding: 0 20px;
+  }
+  .btn-primary,
+  .btn-secondary,
+  .btn-pink,
+  .btn-purple,
+  .btn-yellow,
+  .btn-green,
+  .btn-orange,
+  .btn-gray,
+  .btn-red,
+  .btn-start {
+    padding: 14px 28px;
+    font-size: 13px;
+  }
+  .card {
+    padding: 24px;
   }
 }
 

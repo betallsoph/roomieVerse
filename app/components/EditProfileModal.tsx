@@ -84,33 +84,30 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, gender: 'Nam' })}
-                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
-                  formData.gender === 'Nam'
+                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Nam'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
                     : 'bg-white hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Nam
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, gender: 'Nữ' })}
-                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
-                  formData.gender === 'Nữ'
+                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Nữ'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
                     : 'bg-white hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Nữ
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, gender: 'Khác' })}
-                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
-                  formData.gender === 'Khác'
+                className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Khác'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
                     : 'bg-white hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Khác
               </button>
@@ -130,7 +127,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               placeholder="1998"
               value={formData.birthYear}
               onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
-              className="w-full rounded-lg border-2 border-black px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full rounded-lg border-2 border-black px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             {errors.birthYear && <p className="mt-1 text-sm text-red-600">{errors.birthYear}</p>}
           </div>

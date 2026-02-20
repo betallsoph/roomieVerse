@@ -46,12 +46,12 @@ export default function SplitCTASection({
     : "bg-blue-200";
 
   return (
-    <div className="mt-20 grid gap-6 md:grid-cols-2">
+    <div className="mt-12 sm:mt-20 grid gap-4 sm:gap-6 md:grid-cols-2">
       {/* Left side - Post */}
-      <div className={`rounded-xl border-2 border-black ${leftBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
-        <h2 className="mb-4 text-2xl font-bold">{leftHeading}</h2>
+      <div className={`rounded-xl border-2 border-black ${leftBgColor} p-5 sm:p-8 text-center shadow-[var(--shadow-primary)]`}>
+        <h2 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">{leftHeading}</h2>
         {leftSubheading && (
-          <p className="mb-6 text-base text-zinc-700">
+          <p className="mb-4 sm:mb-6 text-sm sm:text-base text-zinc-700">
             {leftSubheading}
           </p>
         )}
@@ -61,14 +61,14 @@ export default function SplitCTASection({
               onPostClick?.();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="btn-secondary text-base w-auto px-8 whitespace-nowrap mx-auto"
+            className="btn-secondary text-sm sm:text-base w-full sm:w-auto px-6 sm:px-8 whitespace-nowrap mx-auto"
           >
             {leftButton}
           </button>
         ) : (
           <Link
             href={`/auth?returnUrl=${leftReturnUrl}`}
-            className="btn-secondary text-base block w-auto px-8 whitespace-nowrap mx-auto"
+            className="btn-secondary text-sm sm:text-base block w-full sm:w-auto px-6 sm:px-8 whitespace-nowrap mx-auto"
           >
             Đăng nhập để đăng tin
           </Link>
@@ -76,16 +76,16 @@ export default function SplitCTASection({
       </div>
 
       {/* Right side - Switch */}
-      <div className={`rounded-xl border-2 border-black ${rightBgColor} p-8 text-center shadow-[var(--shadow-primary)]`}>
-        <h2 className="mb-4 text-2xl font-bold">{rightHeading}</h2>
+      <div className={`rounded-xl border-2 border-black ${rightBgColor} p-5 sm:p-8 text-center shadow-[var(--shadow-primary)]`}>
+        <h2 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">{rightHeading}</h2>
         {rightSubheading && (
-          <p className="mb-6 text-base text-zinc-700">
+          <p className="mb-4 sm:mb-6 text-sm sm:text-base text-zinc-700">
             {rightSubheading}
           </p>
         )}
         <Link
           href={rightLink}
-          className="btn-secondary text-base block w-auto px-8 whitespace-nowrap mx-auto"
+          className="btn-secondary text-sm sm:text-base block w-full sm:w-auto px-6 sm:px-8 whitespace-nowrap mx-auto"
         >
           {rightButton}
         </Link>

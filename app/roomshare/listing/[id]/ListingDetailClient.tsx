@@ -38,6 +38,7 @@ import {
   Trash2,
 } from "lucide-react";
 import MainHeader from "../../../components/MainHeader";
+import ConfirmModal from "../../../components/ConfirmModal";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
 import { getListingById, getListingsByCategory, incrementViewCount, deleteListing, updateListing, hardDeleteListing } from "../../../data/listings";
@@ -123,7 +124,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
   // Check if listing is favorited
   useEffect(() => {
     if (!user?.uid) return;
-    checkFav(user.uid, id).then(setIsFavorited).catch(() => {});
+    checkFav(user.uid, id).then(setIsFavorited).catch(() => { });
   }, [id, user?.uid]);
 
   // Toggle favorite
@@ -148,16 +149,34 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
     setListing({ ...listing, status: "active" });
   };
 
-  const handleDeleteListing = async () => {
-    if (!listing || !confirm("Bạn có chắc muốn xóa bài đăng này?")) return;
-    await deleteListing(String(listing.id));
-    router.push("/profile");
+  const [deleteType, setDeleteType] = useState<'soft' | 'hard' | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteListing = () => {
+    setDeleteType('soft');
   };
 
-  const handleHardDelete = async () => {
-    if (!listing || !confirm("Xóa vĩnh viễn bài đăng này? Hành động không thể hoàn tác.")) return;
-    await hardDeleteListing(String(listing.id));
-    router.push("/roomshare");
+  const handleHardDelete = () => {
+    setDeleteType('hard');
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteType || !listing) return;
+
+    setIsDeleting(true);
+    try {
+      if (deleteType === 'soft') {
+        await deleteListing(String(listing.id));
+        router.push("/profile");
+      } else {
+        await hardDeleteListing(String(listing.id));
+        router.push("/roomshare");
+      }
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      alert("Có lỗi xảy ra khi xóa bài đăng");
+      setIsDeleting(false);
+    }
   };
 
   // Get amenities from listing data
@@ -804,6 +823,18 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteType}
+        onClose={() => setDeleteType(null)}
+        onConfirm={confirmDelete}
+        title={deleteType === 'hard' ? "Xóa vĩnh viễn?" : "Xóa bài đăng?"}
+        message={deleteType === 'hard'
+          ? "Bạn có chắc chắn muốn xóa vĩnh viễn bài đăng này? Hành động này không thể hoàn tác."
+          : "Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác."}
+        confirmText="Xóa ngay"
+        isProcessing={isDeleting}
+      />
 
       <ShareFooter />
     </div>

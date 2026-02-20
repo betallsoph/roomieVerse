@@ -13,21 +13,21 @@ export default function WhatsHotPage() {
             <MainHeader />
 
             {/* Hero Section */}
-            <section className="py-12 sm:py-16 bg-blue-50 relative border-b-2 border-black">
-                <div className="mx-auto max-w-7xl px-6">
+            <section className="py-8 sm:py-12 md:py-16 bg-blue-50 relative border-b-2 border-black">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6">
                     {/* Breadcrumb */}
-                    <div className="mb-6 flex items-center gap-2 text-sm text-zinc-600">
+                    <div className="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm text-zinc-600">
                         <Link href="/" className="hover:text-black transition-colors">Trang chủ</Link>
                         <span>/</span>
-                        <span className="text-black font-medium">What's Hot</span>
+                        <span className="text-black font-medium">What&apos;s Hot</span>
                     </div>
 
-                    <h1 className="mb-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+                    <h1 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
                         Những điều thú vị<br />
                         <span className="text-blue-600">đang tới!</span>
                     </h1>
 
-                    <p className="text-base text-zinc-600 max-w-2xl">
+                    <p className="text-sm sm:text-base text-zinc-600 max-w-2xl">
                         Updates mới nhất, tính năng sắp ra mắt, và những điều bạn không thể bỏ lỡ tại roomieVerse!
                     </p>
                 </div>
@@ -37,22 +37,22 @@ export default function WhatsHotPage() {
             </section>
 
             {/* Upcoming Features - Bento Style */}
-            <section className="py-12 md:py-16 bg-blue-50 relative">
-                <div className="mx-auto max-w-7xl px-6">
-                    <div className="mb-12">
-                        <h2 className="text-3xl font-extrabold sm:text-4xl md:text-5xl">
+            <section className="py-8 sm:py-12 md:py-16 bg-blue-50 relative">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                    <div className="mb-8 sm:mb-12">
+                        <h2 className="text-2xl font-extrabold sm:text-4xl md:text-5xl">
                             Tính năng mới
                         </h2>
-                        <p className="mt-3 text-base text-zinc-600">
+                        <p className="mt-2 sm:mt-3 text-sm sm:text-base text-zinc-600">
                             Những gì chúng mình đang xây dựng cho bạn
                         </p>
                     </div>
 
                     {/* Grid Layout */}
-                    <div className="grid md:grid-cols-12 gap-6">
+                    <div className="grid md:grid-cols-12 gap-4 sm:gap-6">
                         {/* Feature 1 - Large */}
-                        <div className="md:col-span-7 rounded-xl border-2 border-black bg-white p-8 shadow-[var(--shadow-secondary)]">
-                            <div className="flex items-start gap-4">
+                        <div className="md:col-span-7 rounded-xl border-2 border-black bg-white p-5 sm:p-8 shadow-[var(--shadow-secondary)]">
+                            <div className="flex items-start gap-3 sm:gap-4">
                                 <div className="flex-shrink-0 p-3 rounded-lg border-2 border-black bg-purple-100">
                                     <Sparkles className="w-7 h-7 text-purple-600" />
                                 </div>
@@ -72,7 +72,7 @@ export default function WhatsHotPage() {
                         </div>
 
                         {/* Feature 2 - Tall */}
-                        <div className="md:col-span-5 md:row-span-2 rounded-xl border-2 border-black bg-white p-8 shadow-[var(--shadow-secondary)]">
+                        <div className="md:col-span-5 md:row-span-2 rounded-xl border-2 border-black bg-white p-5 sm:p-8 shadow-[var(--shadow-secondary)]">
                             <div className="flex-shrink-0 p-3 rounded-lg border-2 border-black bg-blue-100 inline-block mb-4">
                                 <Video className="w-9 h-9 text-blue-600" />
                             </div>
@@ -148,15 +148,15 @@ export default function WhatsHotPage() {
             </section>
 
             {/* Hot News - Timeline Style */}
-            <section className="section border-t-2 border-black bg-white py-16 md:py-20">
+            <section className="section border-t-2 border-black bg-white py-10 sm:py-16 md:py-20">
                 <div className="wrapper">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
+                    <div className="text-center mb-8 sm:mb-12">
+                        <h2 className="text-2xl font-bold uppercase sm:text-4xl md:text-5xl">
                             Tin tức nổi bật
                         </h2>
                     </div>
 
-                    <div className="max-w-4xl mx-auto space-y-8">
+                    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
                         {/* News 1 */}
                         <div className="flex gap-4 md:gap-6">
                             <div className="flex-shrink-0 text-center">
@@ -224,19 +224,19 @@ export default function WhatsHotPage() {
             </section>
 
             {/* Gift Section - Early Adopter */}
-            <section className="py-12 md:py-16 bg-gradient-to-br from-yellow-50 to-orange-50 border-t-2 border-black">
-                <div className="mx-auto max-w-7xl px-6">
-                    <div className="rounded-xl border-2 border-black bg-white p-8 md:p-12 shadow-[var(--shadow-secondary)]">
+            <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-yellow-50 to-orange-50 border-t-2 border-black">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                    <div className="rounded-xl border-2 border-black bg-white p-5 sm:p-8 md:p-12 shadow-[var(--shadow-secondary)]">
                         <div className="max-w-3xl mx-auto text-center">
-                            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full border-2 border-black bg-yellow-100">
-                                <Gift className="w-10 h-10 text-yellow-600" />
+                            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-6 rounded-full border-2 border-black bg-yellow-100">
+                                <Gift className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-600" />
                             </div>
 
-                            <h2 className="text-3xl font-extrabold mb-4 sm:text-4xl md:text-5xl">
+                            <h2 className="text-2xl font-extrabold mb-3 sm:mb-4 sm:text-4xl md:text-5xl">
                                 Early Adopter Rewards
                             </h2>
 
-                            <p className="text-base text-zinc-600 mb-8 md:text-lg">
+                            <p className="text-sm sm:text-base text-zinc-600 mb-6 sm:mb-8 md:text-lg">
                                 Là người dùng ban đầu = Nhận ưu đãi đặc biệt khi Premium ra mắt!
                             </p>
 
@@ -265,32 +265,32 @@ export default function WhatsHotPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-12 md:py-16 bg-white border-t-2 border-black">
-                <div className="mx-auto max-w-7xl px-6">
-                    <div className="rounded-xl border-2 border-black bg-blue-50 p-8 sm:p-12 lg:p-16 text-center shadow-[var(--shadow-secondary)]">
-                        <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full border-2 border-black bg-white">
-                            <Bell className="w-8 h-8 text-blue-600" />
+            <section className="py-8 sm:py-12 md:py-16 bg-white border-t-2 border-black">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                    <div className="rounded-xl border-2 border-black bg-blue-50 p-6 sm:p-12 lg:p-16 text-center shadow-[var(--shadow-secondary)]">
+                        <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 mb-4 sm:mb-6 rounded-full border-2 border-black bg-white">
+                            <Bell className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                         </div>
 
-                        <h2 className="text-3xl font-extrabold mb-4 sm:text-4xl md:text-5xl">
+                        <h2 className="text-2xl font-extrabold mb-3 sm:mb-4 sm:text-4xl md:text-5xl">
                             Đừng bỏ lỡ updates mới!
                         </h2>
 
-                        <p className="text-base text-zinc-600 mb-8 max-w-2xl mx-auto md:text-lg">
+                        <p className="text-sm sm:text-base text-zinc-600 mb-6 sm:mb-8 max-w-2xl mx-auto md:text-lg">
                             Subscribe để nhận thông báo về tính năng mới nhất và các ưu đãi đặc biệt từ roomieVerse
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                             <Link
                                 href="/community"
-                                className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 min-w-[200px]"
+                                className="btn-primary inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto sm:min-w-[200px]"
                             >
                                 <Users className="w-5 h-5" />
                                 Join Community
                             </Link>
                             <Link
                                 href="/roommate"
-                                className="btn-secondary inline-flex items-center justify-center gap-2 px-8 py-4 min-w-[200px]"
+                                className="btn-secondary inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto sm:min-w-[200px]"
                             >
                                 <Rocket className="w-5 h-5" />
                                 Bắt đầu ngay

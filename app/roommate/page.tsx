@@ -76,9 +76,9 @@ export default function RoommatePage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="bg-blue-50 pt-12 sm:pt-16 pb-8">
-        <div className="mx-auto max-w-7xl px-6">
-          <h1 className="mb-6 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+      <section className="bg-blue-50 pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h1 className="mb-4 sm:mb-6 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             Tìm bạn ở cùng hoặc cùng đi thuê
           </h1>
 
@@ -88,9 +88,9 @@ export default function RoommatePage() {
           />
 
           {/* Filter & Search Section */}
-          <div className="mt-10 grid gap-6 md:grid-cols-2 items-stretch">
+          <div className="mt-6 sm:mt-10 grid gap-6 md:grid-cols-2 items-stretch">
             {/* Left: Filter & Search Buttons */}
-            <div className="space-y-3 min-h-[200px]">
+            <div className="space-y-3">
               <p className="text-base font-bold text-blue-800">Bộ lọc nâng cao</p>
               {/* Buttons Row */}
               <div className="flex flex-wrap gap-3">
@@ -140,7 +140,7 @@ export default function RoommatePage() {
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                  className="p-4 rounded-lg border-2 border-black bg-white h-[120px]"
+                  className="p-4 rounded-lg border-2 border-black bg-white"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold">Chọn khu vực</p>
@@ -181,7 +181,7 @@ export default function RoommatePage() {
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                  className="p-4 rounded-lg border-2 border-black bg-white h-[120px]"
+                  className="p-4 rounded-lg border-2 border-black bg-white"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold">Chọn quận</p>
@@ -243,7 +243,7 @@ export default function RoommatePage() {
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                  className="p-4 rounded-lg border-2 border-black bg-white h-[120px]"
+                  className="p-4 rounded-lg border-2 border-black bg-white"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold">Chọn mức giá</p>
@@ -298,7 +298,7 @@ export default function RoommatePage() {
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                  className="flex gap-2 h-[120px]"
+                  className="flex gap-2"
                 >
                   <input
                     type="text"
@@ -325,9 +325,9 @@ export default function RoommatePage() {
       </section>
 
       {/* Blur transition from hero to listing */}
-      <div className="h-8 bg-gradient-to-b from-blue-50 to-white" />
+      <div className="h-6 sm:h-8 bg-gradient-to-b from-blue-50 to-white" />
 
-      <div className="mx-auto max-w-7xl px-6 pb-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-16">
 
         {/* Listing Header */}
         <div className="mb-6">

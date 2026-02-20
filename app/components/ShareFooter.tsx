@@ -10,15 +10,15 @@ export default function ShareFooter() {
   return (
     <footer className="border-t-2 border-black bg-black py-4 text-white md:py-5">
       <div className="wrapper">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:gap-5">
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-5">
           <Image
             src="/logo/logo2.png"
             alt="roomieVerse"
             width={600}
             height={150}
-            className="h-32 w-auto -my-4"
+            className="h-20 sm:h-32 w-auto -my-2 sm:-my-4"
           />
-          <div className="flex flex-wrap justify-center gap-4 text-sm font-bold sm:gap-6">
+          <div className="flex flex-wrap justify-center gap-3 text-xs sm:text-sm font-bold sm:gap-6">
             <NavLink href="/">
               Trang chủ
             </NavLink>
@@ -38,11 +38,11 @@ export default function ShareFooter() {
         </div>
 
         {/* Horizontal divider */}
-        <div className="my-6 border-t border-white opacity-30"></div>
+        <div className="my-4 sm:my-6 border-t border-white opacity-30"></div>
 
         {/* Copyright and Language Switcher */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white opacity-70">
-          <div>© 2026 roomieVerse by 99%-from-AI Labs. All rights reserved.</div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-white opacity-70">
+          <div className="text-center sm:text-left">© 2026 roomieVerse by 99%-from-AI Labs. All rights reserved.</div>
 
           {/* Language Toggle Switch */}
           <div className="flex items-center gap-3">

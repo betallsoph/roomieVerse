@@ -44,23 +44,28 @@ export async function saveUserProfile(profile: UserProfile): Promise<void> {
     return;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, profile.uid);
-  const docSnap = await getDoc(docRef);
+  try {
+    const docRef = doc(db, COLLECTION_NAME, profile.uid);
+    const docSnap = await getDoc(docRef);
 
-  if (docSnap.exists()) {
-    const existingData = docSnap.data();
-    await updateDoc(docRef, {
-      ...profile,
-      role: existingData.role || "user",
-      updatedAt: new Date().toISOString(),
-    });
-  } else {
-    await setDoc(docRef, {
-      ...profile,
-      role: "user",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+    if (docSnap.exists()) {
+      const existingData = docSnap.data();
+      await updateDoc(docRef, {
+        ...profile,
+        role: existingData.role || "user",
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      await setDoc(docRef, {
+        ...profile,
+        role: "user",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  } catch (error) {
+    console.error("Error saving user profile:", error);
+    throw error;
   }
 }
 
@@ -77,11 +82,16 @@ export async function updateUserProfileFields(
     return;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, uid);
-  await updateDoc(docRef, {
-    ...fields,
-    updatedAt: new Date().toISOString(),
-  });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, uid);
+    await updateDoc(docRef, {
+      ...fields,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error updating user profile fields:", error);
+    throw error;
+  }
 }
 
 // Check if user is admin

@@ -87,9 +87,9 @@ export default function LandingPage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="section bg-blue-50 py-16 sm:py-24 md:py-32">
+      <section className="section bg-blue-50 py-12 sm:py-24 md:py-32">
         <div className="wrapper text-center">
-          <h1 className="mb-8 font-bold leading-tight text-black">
+          <h1 className="mb-6 sm:mb-8 font-bold leading-tight text-black">
             Không chỉ là tìm phòng...
             <br className="hidden min-[500px]:block" />
             Mà còn là{" "}
@@ -102,14 +102,14 @@ export default function LandingPage() {
             </SparklesText>
           </h1>
 
-          <p className="mb-10 text-lg font-medium text-zinc-600 sm:text-xl md:text-2xl max-w-3xl mx-auto">
+          <p className="mb-8 sm:mb-10 text-base sm:text-lg md:text-2xl font-medium text-zinc-600 max-w-3xl mx-auto">
             Nơi lý tưởng để tìm người ở ghép, tìm phòng trống...
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
             <a
               href="#cta-section"
-              className="btn-primary text-center sm:w-[200px]"
+              className="btn-primary text-center w-full sm:w-[200px]"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -119,7 +119,7 @@ export default function LandingPage() {
             </a>
             <a
               href="#how-it-works"
-              className="btn-secondary text-center sm:w-[200px]"
+              className="btn-secondary text-center w-full sm:w-[200px]"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
@@ -132,15 +132,15 @@ export default function LandingPage() {
       </section>
 
       {/* Tin nổi bật Carousel */}
-      <section className="section border-t-2 border-black bg-white py-16 md:py-20 overflow-hidden">
+      <section className="section border-t-2 border-black bg-white py-12 sm:py-16 md:py-20 overflow-hidden">
         <div className="wrapper">
           {/* Section header */}
-          <div className="mb-10 flex items-end justify-between">
+          <div className="mb-8 sm:mb-10 flex items-end justify-between">
             <div>
-              <h2 className="text-3xl font-bold sm:text-4xl md:text-5xl">
+              <h2 className="text-2xl font-bold sm:text-4xl md:text-5xl">
                 Tin mới nhất
               </h2>
-              <p className="mt-2 text-sm font-medium text-zinc-500">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm font-medium text-zinc-500">
                 Những tin đăng vừa được cập nhật
               </p>
             </div>
@@ -176,9 +176,9 @@ export default function LandingPage() {
                 <a
                   key={listing.id}
                   href={getListingRoute(listing)}
-                  className="flex-shrink-0 w-[260px] sm:w-[280px] snap-start group"
+                  className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start group"
                 >
-                  <div className="h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden shadow-[var(--shadow-secondary)] card-bounce flex flex-col">
+                  <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden shadow-[var(--shadow-secondary)] card-bounce flex flex-col">
                     {/* Content */}
                     <div className="flex-1 p-4 flex flex-col">
                       {/* Category pill */}
@@ -215,9 +215,9 @@ export default function LandingPage() {
             {/* View All CTA */}
             <Link
               href="/roommate"
-              className="flex-shrink-0 w-[260px] sm:w-[280px] snap-start"
+              className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start"
             >
-              <div className="h-[240px] rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
+              <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
                 <div className="w-12 h-12 rounded-full border-2 border-black bg-blue-100 flex items-center justify-center mb-3">
                   <ChevronRight className="w-5 h-5 text-blue-700" />
                 </div>
@@ -230,9 +230,9 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it-works" className="section border-t-2 border-black bg-white py-16 md:py-20">
+      <section id="how-it-works" className="section border-t-2 border-black bg-white py-12 sm:py-16 md:py-20">
         <div className="wrapper">
-          <h2 className="mb-12 text-center text-3xl font-bold uppercase sm:text-4xl md:text-5xl">
+          <h2 className="mb-8 sm:mb-12 text-center text-2xl font-bold uppercase sm:text-4xl md:text-5xl">
             Cách hoạt động
           </h2>
 
@@ -286,9 +286,9 @@ export default function LandingPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section id="why-choose-us" className="section bg-blue-50 py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
+      <section id="why-choose-us" className="section bg-blue-50 py-12 sm:py-16 md:py-20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-white before:to-transparent before:pointer-events-none">
         <div className="wrapper">
-          <h2 className="mb-10 text-center text-3xl font-bold uppercase sm:mb-12 sm:text-4xl md:mb-16 md:text-5xl">
+          <h2 className="mb-8 text-center text-2xl font-bold uppercase sm:mb-12 sm:text-4xl md:mb-16 md:text-5xl">
             Tại sao chọn chúng tôi?
           </h2>
 
@@ -367,25 +367,25 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section id="cta-section" className="section border-t-2 border-black py-16 md:py-20">
+      <section id="cta-section" className="section border-t-2 border-black py-12 sm:py-16 md:py-20">
         <div className="wrapper">
-          <div className="card bg-gradient-to-br from-blue-300 to-blue-400 p-8 text-center sm:p-12 lg:p-16">
-            <h2 className="mb-4 text-3xl font-black uppercase sm:mb-6 sm:text-4xl md:text-5xl">
+          <div className="card bg-gradient-to-br from-blue-300 to-blue-400 p-6 text-center sm:p-12 lg:p-16">
+            <h2 className="mb-4 text-2xl font-black uppercase sm:mb-6 sm:text-4xl md:text-5xl">
               Bạn đang tìm gì?
             </h2>
-            <p className="mb-8 text-base font-bold sm:mb-10 sm:text-lg md:text-xl">
+            <p className="mb-6 text-sm font-bold sm:mb-10 sm:text-lg md:text-xl">
               Chọn mục đích phù hợp với bạn
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <Link
                 href="/roommate"
-                className="btn-primary text-base sm:text-lg px-8 py-4 min-w-[200px]"
+                className="btn-primary text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto sm:min-w-[200px]"
               >
                 Tìm roommate
               </Link>
               <Link
                 href="/roomshare"
-                className="btn-pink text-base sm:text-lg px-8 py-4 min-w-[200px]"
+                className="btn-pink text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto sm:min-w-[200px]"
               >
                 Tìm phòng
               </Link>

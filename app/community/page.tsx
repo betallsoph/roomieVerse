@@ -73,17 +73,17 @@ export default function CommunityPage() {
       <MainHeader />
 
       {/* Hero Section */}
-      <section className="bg-orange-50 pt-12 sm:pt-16 pb-8">
-        <div className="mx-auto max-w-7xl px-6">
-          <h1 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+      <section className="bg-orange-50 pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h1 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             Cộng đồng
           </h1>
-          <p className="max-w-2xl text-base sm:text-lg text-zinc-700">
+          <p className="max-w-2xl text-sm sm:text-lg text-zinc-700">
             Chia sẻ kinh nghiệm, kể chuyện drama, review nhà trọ và pass đồ cùng cộng đồng roommate
           </p>
 
           {/* Category Filter */}
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
             <button
               onClick={() => setActiveCategory("all")}
               className={`flex items-center gap-2 rounded-lg border-2 border-black px-4 py-2 text-sm font-bold transition-all ${
@@ -117,11 +117,11 @@ export default function CommunityPage() {
       </section>
 
       {/* Blur transition */}
-      <div className="h-8 bg-gradient-to-b from-orange-50 to-white" />
+      <div className="h-6 sm:h-8 bg-gradient-to-b from-orange-50 to-white" />
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-6 pb-16">
-        <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-16">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1fr_380px]">
 
           {/* Left Column - Feed */}
           <div>
@@ -168,9 +168,9 @@ export default function CommunityPage() {
                   const Icon = config.icon;
                   return (
                     <Link key={post.id} href={`/community/${post.id}`}>
-                      <article className="py-6 first:pt-0 cursor-pointer group">
+                      <article className="py-4 sm:py-6 first:pt-0 cursor-pointer group">
                         {/* Top line: category tag + time */}
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 flex-wrap">
                           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${config.bgColor} ${config.color}`}>
                             <Icon className="h-3 w-3" />
                             {config.label}
@@ -188,27 +188,27 @@ export default function CommunityPage() {
                         </div>
 
                         {/* Title */}
-                        <h3 className="mb-3 text-lg font-bold leading-snug group-hover:text-orange-600 transition-colors">
+                        <h3 className="mb-2 sm:mb-3 text-base sm:text-lg font-bold leading-snug group-hover:text-orange-600 transition-colors">
                           {post.title}
                         </h3>
 
                         {/* Footer: author + actions */}
-                        <div className="flex items-center justify-between text-xs text-zinc-400">
-                          <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
+                          <div className="flex items-center gap-2 sm:gap-3">
                             <Link href={`/user/${post.authorId}`} onClick={(e) => e.stopPropagation()} className="font-medium text-zinc-600 hover:text-orange-600 transition-colors">{post.authorName}</Link>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" /> {timeAgo(post.createdAt)}
                             </span>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 sm:gap-4">
                             <span className="flex items-center gap-1">
-                              <Heart className="h-3.5 w-3.5" /> {post.likes}
+                              <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> {post.likes}
                             </span>
                             <span className="flex items-center gap-1">
-                              <MessageSquare className="h-3.5 w-3.5" /> {post.comments}
+                              <MessageSquare className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> {post.comments}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Eye className="h-3.5 w-3.5" /> {post.views}
+                              <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> {post.views}
                             </span>
                           </div>
                         </div>
@@ -221,7 +221,7 @@ export default function CommunityPage() {
           </div>
 
           {/* Right Column - Sidebar */}
-          <div className="lg:sticky lg:top-24 space-y-8 self-start bg-orange-50/70 rounded-2xl p-6 -mr-2">
+          <div className="lg:sticky lg:top-24 space-y-6 sm:space-y-8 self-start bg-orange-50/70 rounded-2xl p-4 sm:p-6 lg:-mr-2">
 
             {/* Trending */}
             <div>

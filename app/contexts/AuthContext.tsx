@@ -118,8 +118,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkProfileComplete = async (): Promise<boolean> => {
     if (!user) return false;
     try {
+      // Force fetch latest profile
       const profile = await getUserProfile(user.uid);
+      console.log("Checking profile completion for:", user.uid, profile);
+
       const complete = !!(profile?.gender && profile?.birthYear && profile?.occupation);
+      console.log("Profile complete status:", complete);
+
       setIsProfileComplete(complete);
       return complete;
     } catch (error) {

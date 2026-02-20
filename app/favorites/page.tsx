@@ -60,53 +60,53 @@ export default function FavoritesPage() {
         <MainHeader />
 
         {/* Hero Section */}
-        <section className="bg-pink-50 py-16 sm:py-24 relative before:absolute before:bottom-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-transparent before:to-white before:pointer-events-none">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-8">
-              <h1 className="mb-4 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+        <section className="bg-pink-50 py-8 sm:py-16 md:py-24 relative before:absolute before:bottom-0 before:left-0 before:right-0 before:h-20 before:bg-gradient-to-b before:from-transparent before:to-white before:pointer-events-none">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
                 Yêu thích của tôi
               </h1>
-              <p className="max-w-2xl text-base sm:text-lg text-zinc-700">
+              <p className="max-w-2xl text-sm sm:text-lg text-zinc-700">
                 Những bài đăng bạn đã lưu để xem sau
               </p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl">
-              <div className="card bg-white !p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
-                    <Heart className="h-5 w-5 fill-current text-blue-600" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-2xl">
+              <div className="card bg-white !p-3 sm:!p-5">
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 fill-current text-blue-600" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">{favorites.length}</p>
-                    <p className="text-xs text-zinc-600 whitespace-nowrap">Tổng số đã lưu</p>
+                  <div className="text-center sm:text-left">
+                    <p className="text-xl sm:text-2xl font-bold">{favorites.length}</p>
+                    <p className="text-[10px] sm:text-xs text-zinc-600">Đã lưu</p>
                   </div>
                 </div>
               </div>
-              <div className="card bg-white !p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
-                    <Users className="h-5 w-5 text-blue-600" />
+              <div className="card bg-white !p-3 sm:!p-5">
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">
+                  <div className="text-center sm:text-left">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {favorites.filter(f => f.category === "roommate").length}
                     </p>
-                    <p className="text-xs text-zinc-600 whitespace-nowrap">Tìm bạn cùng phòng</p>
+                    <p className="text-[10px] sm:text-xs text-zinc-600">Tìm bạn</p>
                   </div>
                 </div>
               </div>
-              <div className="card bg-white !p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
-                    <Home className="h-5 w-5 text-blue-600" />
+              <div className="card bg-white !p-3 sm:!p-5">
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-blue-200 border-2 border-black">
+                    <Home className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">
+                  <div className="text-center sm:text-left">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {favorites.filter(f => f.category === "roomshare").length}
                     </p>
-                    <p className="text-xs text-zinc-600 whitespace-nowrap">Phòng trống</p>
+                    <p className="text-[10px] sm:text-xs text-zinc-600">Phòng trống</p>
                   </div>
                 </div>
               </div>
@@ -115,13 +115,13 @@ export default function FavoritesPage() {
         </section>
 
         {/* Filters & Listings */}
-        <section className="py-16">
-          <div className="mx-auto max-w-7xl px-6">
+        <section className="py-8 sm:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
             {/* Category Tabs */}
-            <div className="mb-8 flex flex-wrap justify-center gap-3">
+            <div className="mb-6 sm:mb-8 flex flex-wrap justify-center gap-2 sm:gap-3">
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold rounded-lg border-2 border-black transition-all
                   ${activeTab === "all"
                     ? 'bg-purple-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
                     : 'bg-white hover:bg-purple-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
@@ -131,7 +131,7 @@ export default function FavoritesPage() {
               </button>
               <button
                 onClick={() => setActiveTab("roommate")}
-                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold rounded-lg border-2 border-black transition-all
                   ${activeTab === "roommate"
                     ? 'bg-blue-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
                     : 'bg-white hover:bg-blue-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
@@ -141,7 +141,7 @@ export default function FavoritesPage() {
               </button>
               <button
                 onClick={() => setActiveTab("roomshare")}
-                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold rounded-lg border-2 border-black transition-all
                   ${activeTab === "roomshare"
                     ? 'bg-pink-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
                     : 'bg-white hover:bg-pink-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
@@ -151,7 +151,7 @@ export default function FavoritesPage() {
               </button>
               <button
                 onClick={() => setActiveTab("short-term")}
-                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold rounded-lg border-2 border-black transition-all
                   ${activeTab === "short-term"
                     ? 'bg-yellow-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
                     : 'bg-white hover:bg-yellow-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
@@ -161,7 +161,7 @@ export default function FavoritesPage() {
               </button>
               <button
                 onClick={() => setActiveTab("sublease")}
-                className={`px-6 py-3 text-base font-bold rounded-lg border-2 border-black transition-all
+                className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold rounded-lg border-2 border-black transition-all
                   ${activeTab === "sublease"
                     ? 'bg-emerald-300 shadow-[var(--shadow-secondary)] translate-x-[2px] translate-y-[2px]'
                     : 'bg-white hover:bg-emerald-100 shadow-[var(--shadow-secondary)] hover:translate-x-[2px] hover:translate-y-[2px]'
@@ -206,12 +206,12 @@ function FavoriteCard({
   const listingRoute = listing.category === "sublease" ? "sublease" : listing.category === "short-term" ? "short-term" : listing.category === "roomshare" ? "roomshare" : "roommate";
 
   return (
-    <div className="card bg-white p-6">
+    <div className="card bg-white p-4 sm:p-6">
       {/* Image Section */}
       <Link href={`/${listingRoute}/listing/${listing.id}`}>
-        <div className={`mb-6 h-48 w-full overflow-hidden rounded-lg border-2 border-black ${imageBg}`}>
+        <div className={`mb-4 sm:mb-6 h-36 sm:h-48 w-full overflow-hidden rounded-lg border-2 border-black ${imageBg}`}>
           <div className="flex h-full w-full items-center justify-center">
-            <Home className="h-16 w-16 text-zinc-400" />
+            <Home className="h-12 w-12 sm:h-16 sm:w-16 text-zinc-400" />
           </div>
         </div>
       </Link>
@@ -266,13 +266,13 @@ function FavoriteCard({
 
 function EmptyState({ activeTab }: { activeTab: string }) {
   return (
-    <div className="card bg-white p-12 text-center">
-      <div className="mb-6 flex justify-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-pink-100 border-2 border-black">
-          <HeartOff className="h-10 w-10 text-pink-400" />
+    <div className="card bg-white p-8 sm:p-12 text-center">
+      <div className="mb-4 sm:mb-6 flex justify-center">
+        <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-pink-100 border-2 border-black">
+          <HeartOff className="h-8 w-8 sm:h-10 sm:w-10 text-pink-400" />
         </div>
       </div>
-      <h3 className="mb-4 text-2xl font-bold">
+      <h3 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-bold">
         {activeTab === "all"
           ? "Chưa có bài đăng nào được lưu"
           : activeTab === "roommate"
@@ -280,22 +280,22 @@ function EmptyState({ activeTab }: { activeTab: string }) {
           : "Chưa lưu phòng trống nào"
         }
       </h3>
-      <p className="mb-6 text-base text-zinc-600">
+      <p className="mb-5 sm:mb-6 text-sm sm:text-base text-zinc-600">
         {activeTab === "all"
           ? "Hãy khám phá và lưu những bài đăng bạn thích!"
           : "Hãy xem thêm các bài đăng và lưu những cái bạn quan tâm!"
         }
       </p>
-      <div className="flex gap-4 justify-center flex-wrap">
+      <div className="flex gap-3 sm:gap-4 justify-center flex-col sm:flex-row">
         <Link
           href="/roommate"
-          className="btn-primary text-base px-8 py-4"
+          className="btn-primary text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4"
         >
           Tìm bạn cùng phòng
         </Link>
         <Link
           href="/roomshare"
-          className="btn-pink text-base px-8 py-4"
+          className="btn-pink text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4"
         >
           Tìm phòng
         </Link>

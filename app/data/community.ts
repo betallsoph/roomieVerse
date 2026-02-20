@@ -148,7 +148,9 @@ export async function incrementPostViewCount(postId: string): Promise<void> {
     await updateDoc(doc(db, POSTS_COLLECTION, postId), {
       views: increment(1),
     });
-  } catch { /* post may not exist */ }
+  } catch (err) {
+    console.warn("incrementPostViewCount failed:", err);
+  }
 }
 
 // ============================================================
@@ -223,7 +225,9 @@ export async function createComment(data: {
     await updateDoc(doc(db, POSTS_COLLECTION, data.postId), {
       comments: increment(1),
     });
-  } catch { /* post may not exist */ }
+  } catch (err) {
+    console.warn("Failed to increment comment count:", err);
+  }
 
   return commentId;
 }
@@ -239,7 +243,9 @@ export async function deleteComment(commentId: string, postId: string): Promise<
     await updateDoc(doc(db, POSTS_COLLECTION, postId), {
       comments: increment(-1),
     });
-  } catch { /* post may not exist */ }
+  } catch (err) {
+    console.warn("Failed to decrement comment count:", err);
+  }
 }
 
 /** Toggle like on a comment */

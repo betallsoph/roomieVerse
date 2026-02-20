@@ -23,7 +23,11 @@ function timestampToString(ts: unknown): string {
 // Convert Firestore document → RoomListing
 function docToListing(docSnap: { id: string; data: () => Record<string, unknown> }): RoomListing {
   const d = docSnap.data();
-  const contact = (d.contact as Record<string, string>) || {};
+  const rawContact = d.contact;
+  const contact: Record<string, string> =
+    rawContact && typeof rawContact === "object" && !Array.isArray(rawContact)
+      ? (rawContact as Record<string, string>)
+      : {};
 
   return {
     id: docSnap.id,
@@ -46,7 +50,7 @@ function docToListing(docSnap: { id: string; data: () => Record<string, unknown>
     zalo: contact.zalo || (d.zalo as string) || undefined,
     facebook: contact.facebook || (d.facebook as string) || undefined,
     instagram: contact.instagram || (d.instagram as string) || undefined,
-    postedDate: d.postedDate as string || formatDate(timestampToString(d.createdAt)),
+    postedDate: (d.postedDate as string) || formatDate(timestampToString(d.createdAt)),
     category: (d.category as "roommate" | "roomshare" | "short-term" | "sublease") || "roommate",
     roommateType: d.roommateType as RoomListing["roommateType"],
     propertyType: d.propertyType as RoomListing["propertyType"],
@@ -373,8 +377,10 @@ export async function resubmitListing(listingId: string, data: Partial<RoomListi
   if (!FIREBASE_ENABLED || !db) return;
 
   const docRef = doc(db, COLLECTION_NAME, listingId);
+  // Destructure to exclude fields that should not be overridden by user data
+  const { status: _s, rejectionReason: _r, moderationNote: _m, moderatedBy: _mb, moderatedAt: _ma, ...safeData } = data;
   await updateDoc(docRef, {
-    ...data,
+    ...safeData,
     status: MODERATION_ENABLED ? "pending" : "active",
     rejectionReason: null,
     moderationNote: null,
