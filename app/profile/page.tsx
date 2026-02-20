@@ -9,6 +9,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import CompleteProfileModal from "../components/CompleteProfileModal";
 import EditProfileModal from "../components/EditProfileModal";
 import PostTypeModal from "../components/PostTypeModal";
+import ConfirmModal from "../components/ConfirmModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Heart, Loader2, Check, MapPin, Calendar, Home, HeartOff, EyeOff, Eye, Trash2 } from "lucide-react";
@@ -19,7 +20,7 @@ import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
 export default function ProfilePage() {
   useAdminRedirect();
-  const { user, logout } = useAuth();
+  const { user, logout, checkProfileComplete } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
@@ -146,6 +147,8 @@ export default function ProfilePage() {
     try {
       await saveUserProfile(updatedProfile);
       setProfileData(updatedProfile);
+      // Force refresh auth context state
+      await checkProfileComplete();
       setShowCompleteProfileModal(false);
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -167,6 +170,8 @@ export default function ProfilePage() {
     try {
       await saveUserProfile(updatedProfile);
       setProfileData(updatedProfile);
+      // Force refresh auth context state
+      await checkProfileComplete();
       setShowEditProfileModal(false);
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -260,6 +265,9 @@ export default function ProfilePage() {
     }
   };
 
+  const [listingToDelete, setListingToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleHideListing = async (id: string) => {
     await updateListing(id, { status: "hidden" });
     setMyListings(prev => prev.map(l => String(l.id) === id ? { ...l, status: "hidden" as const } : l));
@@ -270,10 +278,24 @@ export default function ProfilePage() {
     setMyListings(prev => prev.map(l => String(l.id) === id ? { ...l, status: "active" as const } : l));
   };
 
-  const handleDeleteListing = async (id: string) => {
-    if (!confirm("Bạn có chắc muốn xóa bài đăng này?")) return;
-    await deleteListing(id);
-    setMyListings(prev => prev.filter(l => String(l.id) !== id));
+  const handleDeleteClick = (id: string) => {
+    setListingToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!listingToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteListing(listingToDelete);
+      setMyListings(prev => prev.filter(l => String(l.id) !== listingToDelete));
+      setListingToDelete(null);
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      alert("Có lỗi xảy ra khi xóa bài đăng");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -318,6 +340,17 @@ export default function ProfilePage() {
         <PostTypeModal
           isOpen={showPostTypeModal}
           onClose={() => setShowPostTypeModal(false)}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={!!listingToDelete}
+          onClose={() => setListingToDelete(null)}
+          onConfirm={confirmDelete}
+          title="Xóa bài đăng?"
+          message="Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác."
+          confirmText="Xóa ngay"
+          isProcessing={isDeleting}
         />
 
         {/* Hero Section */}
@@ -670,7 +703,7 @@ export default function ProfilePage() {
                             ) : null}
                             {listing.status !== "deleted" && (
                               <button
-                                onClick={() => handleDeleteListing(listingId)}
+                                onClick={() => handleDeleteClick(listingId)}
                                 className="flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded-md border border-zinc-200 hover:bg-red-50 text-red-500 transition-colors"
                               >
                                 <Trash2 className="h-3 w-3" /> Xóa

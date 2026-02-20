@@ -32,9 +32,11 @@ import {
   ChevronRight,
   EyeOff,
   Eye,
+  Trash,
   Trash2,
 } from "lucide-react";
 import MainHeader from "../../../components/MainHeader";
+import ConfirmModal from "../../../components/ConfirmModal";
 import ShareFooter from "../../../components/ShareFooter";
 import ReportModal from "../../../components/ReportModal";
 import { getListingById, getListingsByCategory, incrementViewCount, deleteListing, updateListing, hardDeleteListing } from "../../../data/listings";
@@ -42,6 +44,7 @@ import { toggleFavorite as toggleFav, isFavorited as checkFav } from "../../../d
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
 import { createReport } from "../../../data/reports";
+import { getUserProfile } from "../../../data/users";
 import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
 
 // Helper function to get category badge
@@ -95,6 +98,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
 
   // Fetch listing data
   useEffect(() => {
@@ -126,6 +130,11 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
 
       setIsLoading(false);
 
+      // Fetch author photo
+      if (data?.userId) {
+        getUserProfile(data.userId).then(p => setAuthorPhoto(p?.photoURL || null)).catch(() => {});
+      }
+
       // Track view
       if (data) {
         incrementViewCount(String(data.id));
@@ -137,7 +146,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   // Check if listing is favorited
   useEffect(() => {
     if (!user?.uid) return;
-    checkFav(user.uid, id).then(setIsFavorited).catch(() => {});
+    checkFav(user.uid, id).then(setIsFavorited).catch(() => { });
   }, [id, user?.uid]);
 
   // Toggle favorite
@@ -162,16 +171,36 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
     setListing({ ...listing, status: "active" });
   };
 
-  const handleDeleteListing = async () => {
-    if (!listing || !confirm("Bạn có chắc muốn xóa bài đăng này?")) return;
-    await deleteListing(String(listing.id));
-    router.push("/profile");
+  const [deleteType, setDeleteType] = useState<'soft' | 'hard' | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // ... (existing helper methods)
+
+  const handleDeleteListing = () => {
+    setDeleteType('soft');
   };
 
-  const handleHardDelete = async () => {
-    if (!listing || !confirm("Xóa vĩnh viễn bài đăng này? Hành động không thể hoàn tác.")) return;
-    await hardDeleteListing(String(listing.id));
-    router.push("/roommate");
+  const handleHardDelete = () => {
+    setDeleteType('hard');
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteType || !listing) return;
+
+    setIsDeleting(true);
+    try {
+      if (deleteType === 'soft') {
+        await deleteListing(String(listing.id));
+        router.push("/profile");
+      } else {
+        await hardDeleteListing(String(listing.id));
+        router.push("/roommate");
+      }
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      alert("Có lỗi xảy ra khi xóa bài đăng");
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -561,7 +590,32 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
             <div className="lg:sticky lg:top-24 space-y-4">
               {/* Contact Card */}
               <div className="rounded-xl border-2 border-black bg-blue-50 p-6 shadow-[var(--shadow-secondary)]">
-                <p className="mb-5 text-xl font-bold">{listing.author}</p>
+                {/* Author avatar + name */}
+                <div className="mb-5 flex items-center gap-3">
+                  {listing.userId ? (
+                    <Link href={`/user/${listing.userId}`} className="flex items-center gap-3 group">
+                      <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center border-2 border-black group-hover:border-blue-600 transition-colors overflow-hidden flex-shrink-0">
+                        {authorPhoto ? (
+                          <Image src={authorPhoto} alt={listing.author} width={44} height={44} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-lg font-bold text-blue-600">
+                            {listing.author?.charAt(0)?.toUpperCase() || "?"}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xl font-bold group-hover:text-blue-600 transition-colors">{listing.author}</p>
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center border-2 border-black flex-shrink-0">
+                        <span className="text-lg font-bold text-blue-600">
+                          {listing.author?.charAt(0)?.toUpperCase() || "?"}
+                        </span>
+                      </div>
+                      <p className="text-xl font-bold">{listing.author}</p>
+                    </div>
+                  )}
+                </div>
 
                 {isAuthenticated ? (
                   <>
@@ -572,57 +626,46 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                       <Phone className="h-5 w-5" /> {listing.phone}
                     </a>
 
-                    {listing.zalo ? (
+                    {listing.zalo && (
                       <a
                         href={`https://zalo.me/${listing.zalo.replace(/\s/g, "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                        className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold transition-colors hover:bg-zinc-50"
                       >
                         <MessageCircle className="h-5 w-5" /> Zalo
                       </a>
-                    ) : (
-                      <div className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
-                        <MessageCircle className="h-5 w-5" /> Zalo
-                      </div>
                     )}
 
-                    <div className="flex gap-3 mb-4">
-                      {listing.facebook ? (
-                        <a
-                          href={listing.facebook.startsWith('http') ? listing.facebook : `https://facebook.com/${listing.facebook}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-                        >
-                          <Facebook className="h-5 w-5" /> Facebook
-                        </a>
-                      ) : (
-                        <div className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
-                          <Facebook className="h-5 w-5" /> Facebook
-                        </div>
-                      )}
-
-                      {listing.instagram ? (
-                        <a
-                          href={listing.instagram.startsWith('http') ? listing.instagram : `https://instagram.com/${listing.instagram}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-                        >
-                          <Instagram className="h-5 w-5" /> Instagram
-                        </a>
-                      ) : (
-                        <div className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 bg-zinc-100 px-5 py-3 font-bold text-zinc-400 cursor-not-allowed">
-                          <Instagram className="h-5 w-5" /> Instagram
-                        </div>
-                      )}
-                    </div>
+                    {(listing.facebook || listing.instagram) && (
+                      <div className="flex gap-3 mb-3">
+                        {listing.facebook && (
+                          <a
+                            href={listing.facebook.startsWith('http') ? listing.facebook : `https://facebook.com/${listing.facebook}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold transition-colors hover:bg-zinc-50"
+                          >
+                            <Facebook className="h-5 w-5" /> Facebook
+                          </a>
+                        )}
+                        {listing.instagram && (
+                          <a
+                            href={listing.instagram.startsWith('http') ? listing.instagram : `https://instagram.com/${listing.instagram}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold transition-colors hover:bg-zinc-50"
+                          >
+                            <Instagram className="h-5 w-5" /> Instagram
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <Link
                     href={`/auth?returnUrl=/roommate/listing/${id}`}
-                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                    className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold transition-colors hover:bg-zinc-50"
                   >
                     <Lock className="h-5 w-5" /> Đăng nhập để xem SĐT
                   </Link>
@@ -633,78 +676,77 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                   roomieVerse không chịu trách nhiệm cho các giao dịch giữa người dùng.
                 </p>
 
-                {listing.userId && (
-                  <Link
-                    href={`/user/${listing.userId}`}
-                    className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-purple-100 px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
-                  >
-                    <User className="h-5 w-5" /> Xem hồ sơ người đăng
-                  </Link>
+                {/* Admin / Owner Actions */}
+                {canManage && listing && (
+                  <div className="border-t border-zinc-200 pt-4 mt-4">
+                    <p className="text-xs font-bold text-zinc-500 mb-2">
+                      {isAdmin && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
+                    </p>
+                    <div className="flex gap-2">
+                      {listing.status === "hidden" ? (
+                        <button
+                          onClick={handleUnhideListing}
+                          className="group flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-blue-100 px-3 py-2.5 text-sm font-bold"
+                        >
+                          <EyeOff className="h-4 w-4 group-hover:hidden transition-transform" />
+                          <Eye className="h-4 w-4 hidden group-hover:block group-hover:scale-110 transition-transform" />
+                          Hiện lại
+                        </button>
+                      ) : listing.status !== "deleted" ? (
+                        <button
+                          onClick={handleHideListing}
+                          className="group flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-yellow-100 px-3 py-2.5 text-sm font-bold"
+                        >
+                          <Eye className="h-4 w-4 group-hover:hidden transition-transform" />
+                          <EyeOff className="h-4 w-4 hidden group-hover:block group-hover:scale-110 transition-transform" />
+                          Ẩn bài đăng
+                        </button>
+                      ) : null}
+                      {listing.status !== "deleted" && (
+                        <button
+                          onClick={handleDeleteListing}
+                          className="group flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-100 px-3 py-2.5 text-sm font-bold text-red-600"
+                        >
+                          <Trash className="h-4 w-4 group-hover:hidden transition-transform" />
+                          <Trash2 className="h-4 w-4 hidden group-hover:block group-hover:scale-110 transition-transform" />
+                          Xóa bài đăng
+                        </button>
+                      )}
+                    </div>
+                    {isAdmin && (
+                      <button
+                        onClick={handleHardDelete}
+                        className="w-full mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-500 text-white px-3 py-2.5 text-sm font-bold transition-colors hover:bg-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" /> Xóa vĩnh viễn
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Actions */}
-              <div className="space-y-2">
+              {/* Actions Card */}
+              <div className="rounded-xl border-2 border-black bg-white p-4 space-y-2">
                 <div className="flex gap-2">
                   <button
                     onClick={toggleFavorite}
-                    className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none
-                      ${isFavorited ? 'bg-pink-300' : 'bg-white'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black px-3 py-2.5 text-sm font-bold transition-colors
+                      ${isFavorited ? 'bg-pink-300 hover:bg-pink-400' : 'bg-white hover:bg-zinc-50'}`}
                   >
                     <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
                     {isFavorited ? 'Đã lưu' : 'Lưu'}
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none">
+                  <button className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-3 py-2.5 text-sm font-bold transition-colors hover:bg-zinc-50">
                     <Share2 className="h-4 w-4" /> Chia sẻ
                   </button>
                 </div>
                 <button
                   onClick={() => setShowReportModal(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-50 px-3 py-2.5 text-sm font-bold text-red-600 transition-colors hover:bg-red-100"
                 >
                   <Flag className="h-4 w-4" /> Báo cáo
                 </button>
               </div>
-
-              {/* Owner / Admin Actions */}
-              {canManage && listing && (
-                <div className="rounded-xl border-2 border-black bg-zinc-50 p-4 space-y-2">
-                  <p className="text-xs font-bold text-zinc-500 mb-2">
-                    {isAdmin && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
-                  </p>
-                  {listing.status === "hidden" ? (
-                    <button
-                      onClick={handleUnhideListing}
-                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-blue-100 px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
-                    >
-                      <Eye className="h-4 w-4" /> Hiện lại bài đăng
-                    </button>
-                  ) : listing.status !== "deleted" ? (
-                    <button
-                      onClick={handleHideListing}
-                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-yellow-100 px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
-                    >
-                      <EyeOff className="h-4 w-4" /> Ẩn bài đăng
-                    </button>
-                  ) : null}
-                  {listing.status !== "deleted" && (
-                    <button
-                      onClick={handleDeleteListing}
-                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-100 px-3 py-2.5 text-sm font-bold text-red-600 transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
-                    >
-                      <Trash2 className="h-4 w-4" /> Xóa bài đăng
-                    </button>
-                  )}
-                  {isAdmin && (
-                    <button
-                      onClick={handleHardDelete}
-                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-black bg-red-500 text-white px-3 py-2.5 text-sm font-bold transition-all hover:translate-x-[2px] hover:translate-y-[2px] shadow-[var(--shadow-secondary)] hover:shadow-none"
-                    >
-                      <Trash2 className="h-4 w-4" /> Xóa vĩnh viễn
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Ad Placeholder */}
               <div className="p-4 rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 text-center">
@@ -1069,6 +1111,18 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!deleteType}
+        onClose={() => setDeleteType(null)}
+        onConfirm={confirmDelete}
+        title={deleteType === 'hard' ? "Xóa vĩnh viễn?" : "Xóa bài đăng?"}
+        message={deleteType === 'hard'
+          ? "Bạn có chắc chắn muốn xóa vĩnh viễn bài đăng này? Hành động này không thể hoàn tác."
+          : "Bạn có chắc chắn muốn xóa bài đăng này không? Hành động này không thể hoàn tác."}
+        confirmText="Xóa ngay"
+        isProcessing={isDeleting}
+      />
 
       <ShareFooter />
     </div>

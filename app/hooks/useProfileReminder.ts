@@ -17,19 +17,25 @@ export function useProfileReminder() {
       return;
     }
 
-    // Check if user has dismissed the reminder recently (within 24 hours)
-    const dismissedAt = localStorage.getItem('profileReminderDismissed');
-    if (dismissedAt) {
-      const dismissedTime = parseInt(dismissedAt, 10);
-      const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
-      if (hoursSinceDismissed < 0.5) {
-        setShowReminder(false);
-        return;
+    // Prepare to show reminder, but delay slightly to prevent flashing
+    // if state updates are racing
+    const timer = setTimeout(() => {
+      // Check if user has dismissed the reminder recently (within 0.5 hours)
+      const dismissedAt = localStorage.getItem('profileReminderDismissed');
+      if (dismissedAt) {
+        const dismissedTime = parseInt(dismissedAt, 10);
+        const hoursSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60);
+        if (hoursSinceDismissed < 0.5) {
+          setShowReminder(false);
+          return;
+        }
       }
-    }
 
-    // Show reminder for incomplete profiles
-    setShowReminder(true);
+      // Show reminder for incomplete profiles
+      setShowReminder(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [isAuthenticated, isProfileComplete, profileChecked, isAdmin]);
 
   const dismissReminder = () => {

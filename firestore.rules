@@ -26,9 +26,12 @@ service cloud.firestore {
                     && !(resource.data.status in ["pending", "rejected"]
                          && request.resource.data.status == "active");
 
-      // Any authenticated user can increment viewCount/favoriteCount only
+      // Anyone can increment viewCount
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["viewCount"]);
+
+      // Authenticated users can increment favoriteCount
       allow update: if request.auth != null
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["viewCount", "favoriteCount"]);
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["favoriteCount"]);
 
       // Admins can update any listing (for moderation)
       allow update: if isAdmin();
