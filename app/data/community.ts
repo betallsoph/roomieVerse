@@ -111,7 +111,7 @@ export async function createCommunityPost(data: {
   rating?: number;
   price?: string;
   images?: string[];
-}): Promise<string> {
+}, skipModeration = false): Promise<string> {
   if (!FIREBASE_ENABLED || !db) return "mock-post-id";
 
   const postId = `cp-${Date.now()}`;
@@ -124,7 +124,7 @@ export async function createCommunityPost(data: {
     comments: 0,
     views: 0,
     hot: false,
-    status: MODERATION_ENABLED ? "pending" : "active",
+    status: (MODERATION_ENABLED && !skipModeration) ? "pending" : "active",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

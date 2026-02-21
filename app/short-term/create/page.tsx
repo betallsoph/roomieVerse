@@ -21,7 +21,7 @@ import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 export default function CreateShortTermPage() {
   useAdminRedirect();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isTester } = useAuth();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -90,7 +90,7 @@ export default function CreateShortTermPage() {
         author: user.displayName || "Ẩn danh",
         postedDate: new Date().toLocaleDateString("vi-VN"),
         amenities: amenities.length > 0 ? amenities : undefined,
-      });
+      }, isTester);
       router.push(`/short-term/listing/${id}`);
     } catch (error) {
       console.error("Error creating short-term listing:", error);
@@ -130,7 +130,7 @@ export default function CreateShortTermPage() {
                 Tiêu đề <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="VD: Phòng studio đầy đủ nội thất Q1 - 300k/ngày"
@@ -148,7 +148,7 @@ export default function CreateShortTermPage() {
                 Giá cho thuê <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="VD: 300.000đ/ngày hoặc 1.500.000đ/tuần"
@@ -193,7 +193,7 @@ export default function CreateShortTermPage() {
                 </select>
               </div>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={specificAddress}
                 onChange={(e) => setSpecificAddress(e.target.value)}
                 placeholder="Địa chỉ cụ thể (không bắt buộc)"
@@ -207,7 +207,7 @@ export default function CreateShortTermPage() {
                 Mô tả phòng <span className="text-red-500">*</span>
               </label>
               <textarea
-                value={description}
+                autoComplete="off" value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Mô tả phòng, tiện nghi, điều kiện thuê, thời gian cho thuê..."
                 rows={6}
@@ -246,7 +246,7 @@ export default function CreateShortTermPage() {
                 Số điện thoại <span className="text-red-500">*</span>
               </label>
               <input
-                type="tel"
+                autoComplete="off" type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Số điện thoại liên hệ"
@@ -257,7 +257,7 @@ export default function CreateShortTermPage() {
             <div className="mb-8">
               <label className="block text-sm font-bold mb-2">Zalo</label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={zalo}
                 onChange={(e) => setZalo(e.target.value)}
                 placeholder="Số Zalo (không bắt buộc)"

@@ -13,17 +13,17 @@ import { useAuth } from "../contexts/AuthContext";
 
 export default function AdminPage() {
   const router = useRouter();
-  const { isAuthenticated, isAdmin, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isMod, isAdmin, isTester, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isAuthenticated || !isAdmin) {
+    if (!isAuthenticated || !isMod) {
       router.replace("/");
       return;
     }
     setIsLoading(false);
-  }, [authLoading, isAuthenticated, isAdmin, router]);
+  }, [authLoading, isAuthenticated, isMod, router]);
 
   if (isLoading) {
     return (
@@ -57,8 +57,8 @@ export default function AdminPage() {
                 <Link href="/admin/moderation">
                   <div className="group flex items-center justify-between p-4 hover:bg-blue-50 rounded-lg transition-all cursor-pointer">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-blue-700" />
+                      <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <Users className="w-6 h-6 text-blue-700" />
                       </div>
                       <div>
                         <h3 className="font-bold">Tin đăng chính</h3>
@@ -71,8 +71,8 @@ export default function AdminPage() {
                 <Link href="/admin/community">
                   <div className="group flex items-center justify-between p-4 hover:bg-purple-50 rounded-lg transition-all cursor-pointer">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5 text-purple-700" />
+                      <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <MessageSquare className="w-6 h-6 text-purple-700" />
                       </div>
                       <div>
                         <h3 className="font-bold">Bài đăng cộng đồng</h3>
@@ -85,34 +85,37 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <hr className="border-zinc-200" />
-
-            {/* Quản lý */}
-            <div className="p-6">
-              <h2 className="text-lg font-black mb-4">Quản lý</h2>
-              <div className="space-y-3">
-                {[
-                  { href: "/admin/blog", icon: FileText, title: "Blog", desc: "Tạo & chỉnh sửa bài viết", color: "bg-emerald-100 text-emerald-700", hover: "hover:bg-emerald-50" },
-                  { href: "/admin/management", icon: Settings, title: "Cài đặt", desc: "Người dùng, thống kê", color: "bg-zinc-100 text-zinc-700", hover: "hover:bg-zinc-50" },
-                  { href: "/admin/maintenance", icon: Wrench, title: "Bảo dưỡng", desc: "Bảo trì, sao lưu", color: "bg-orange-100 text-orange-700", hover: "hover:bg-orange-50" },
-                ].map((item) => (
-                  <Link key={item.href} href={item.href}>
-                    <div className={`group flex items-center justify-between p-4 ${item.hover} rounded-lg transition-all cursor-pointer`}>
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-lg ${item.color} flex items-center justify-center`}>
-                          <item.icon className="w-5 h-5" />
+            {/* Quản lý — only for tester & admin */}
+            {isTester && (
+              <>
+                <hr className="border-zinc-200" />
+                <div className="p-6">
+                  <h2 className="text-lg font-black mb-4">Quản lý</h2>
+                  <div className="space-y-3">
+                    {[
+                      { href: "/admin/blog", icon: FileText, title: "Blog", desc: "Tạo & chỉnh sửa bài viết", color: "text-emerald-700", hover: "hover:bg-emerald-50" },
+                      { href: "/admin/management", icon: Settings, title: "Cài đặt", desc: "Người dùng, thống kê", color: "text-zinc-700", hover: "hover:bg-zinc-50" },
+                      { href: "/admin/maintenance", icon: Wrench, title: "Bảo dưỡng", desc: "Bảo trì, sao lưu", color: "text-orange-700", hover: "hover:bg-orange-50" },
+                    ].map((item) => (
+                      <Link key={item.href} href={item.href}>
+                        <div className={`group flex items-center justify-between p-4 ${item.hover} rounded-lg transition-all cursor-pointer`}>
+                          <div className="flex items-center gap-4">
+                            <div className={`w-10 h-10 flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                              <item.icon className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold">{item.title}</h3>
+                              <p className="text-xs text-zinc-500">{item.desc}</p>
+                            </div>
+                          </div>
+                          <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
                         </div>
-                        <div>
-                          <h3 className="font-bold">{item.title}</h3>
-                          <p className="text-xs text-zinc-500">{item.desc}</p>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Footer note */}

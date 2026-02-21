@@ -137,7 +137,7 @@ export default function ReportModal({
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <form autoComplete="off" onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Listing Info */}
             <div className="rounded-lg border-2 border-black bg-yellow-50 p-4">
               <p className="text-sm font-medium text-zinc-600 mb-1">
@@ -182,7 +182,7 @@ export default function ReportModal({
                 Chi tiết (không bắt buộc)
               </label>
               <textarea
-                value={details}
+                autoComplete="off" value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 rows={4}
                 placeholder="Mô tả chi tiết về vấn đề bạn gặp phải..."
@@ -196,7 +196,7 @@ export default function ReportModal({
                 Email của bạn (không bắt buộc)
               </label>
               <input
-                type="email"
+                autoComplete="off" type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@email.com"

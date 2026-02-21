@@ -5,14 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
-import { MapPin, DollarSign, Eye, Loader2, Camera, Users, Phone } from "lucide-react";
+import { MapPin, DollarSign, Eye, Loader2, Camera, Users, Phone, Lightbulb } from "lucide-react";
 import { cities, getDistrictsByLabel } from "../../data/locations";
 import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 function CreateRoomshareContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isTester } = useAuth();
 
     // Step management via URL
     const step = searchParams.get("step") || "1";
@@ -78,6 +78,7 @@ function CreateRoomshareContent() {
     const [showImagesValidation, setShowImagesValidation] = useState(false);
     const [showPreferencesValidation, setShowPreferencesValidation] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
 
     // Sync Zalo with Phone
     useEffect(() => {
@@ -188,7 +189,7 @@ function CreateRoomshareContent() {
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold mb-2">Đăng tin thành công!</h2>
-                        <p className="text-zinc-600 mb-6">Tin share phòng của bạn đã được đăng. Chúc bạn sớm tìm được người ở cùng phù hợp!</p>
+                        <p className="text-zinc-600 mb-6">Bài đăng của bạn đang chờ duyệt, bọn mình sẽ duyệt sớm nhất có thể. Cảm ơn bạn nhiều ^^</p>
                         <div className="flex gap-3">
                             <button onClick={() => router.push('/roomshare')} className="btn-secondary flex-1">Về trang chủ</button>
                             <button
@@ -240,7 +241,7 @@ function CreateRoomshareContent() {
                                                         key={opt.value}
                                                         className={`flex items-center gap-2 px-4 py-3 rounded-lg border-2 cursor-pointer transition-all flex-1 justify-center ${propertyType === opt.value ? 'border-pink-500 bg-pink-50 font-bold' : 'border-black bg-white hover:bg-zinc-50'}`}
                                                     >
-                                                        <input type="radio" name="propertyType" value={opt.value} checked={propertyType === opt.value} onChange={(e) => setPropertyType(e.target.value as "apartment" | "house")} className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500 cursor-pointer" />
+                                                        <input autoComplete="off" type="radio" name="propertyType" value={opt.value} checked={propertyType === opt.value} onChange={(e) => setPropertyType(e.target.value as "apartment" | "house")} className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500 cursor-pointer" />
                                                         <span className="text-sm">{opt.label}</span>
                                                     </label>
                                                 ))}
@@ -250,7 +251,7 @@ function CreateRoomshareContent() {
                                         {/* Title */}
                                         <div>
                                             <label className="block text-sm font-bold mb-2 text-pink-600">Tiêu đề bài đăng</label>
-                                            <input type="text" value={title} onChange={(e) => { if (e.target.value.length <= 80) setTitle(e.target.value); }} placeholder="VD: Share phòng dư căn hộ 2PN Vinhomes Q9" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                            <input autoComplete="off" type="text" value={title} onChange={(e) => { if (e.target.value.length <= 80) setTitle(e.target.value); }} placeholder="VD: Share phòng dư căn hộ 2PN Vinhomes Q9" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                             <p className="text-xs text-zinc-500 mt-1 text-right">{title.length}/80</p>
                                             {showValidation && title.trim() === "" && <p className="text-sm text-pink-500 mt-1">Vui lòng nhập tiêu đề</p>}
                                         </div>
@@ -258,14 +259,14 @@ function CreateRoomshareContent() {
                                         {/* Introduction */}
                                         <div>
                                             <label className="block text-sm font-bold mb-2 text-pink-600">Giới thiệu về bản thân</label>
-                                            <textarea value={introduction} onChange={(e) => { if (e.target.value.length <= 500) setIntroduction(e.target.value); }} placeholder="Giới thiệu ngắn về bạn: tuổi, nghề nghiệp, thói quen sinh hoạt..." rows={3} className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
+                                            <textarea autoComplete="off" value={introduction} onChange={(e) => { if (e.target.value.length <= 500) setIntroduction(e.target.value); }} placeholder="Giới thiệu ngắn về bạn: tuổi, nghề nghiệp, thói quen sinh hoạt..." rows={3} className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
                                             <p className="text-xs text-zinc-500 mt-1 text-right">{introduction.length}/500</p>
                                         </div>
 
                                         {/* Others Introduction */}
                                         <div>
                                             <label className="block text-sm font-bold mb-2 text-pink-600">Giới thiệu về những người ở phòng khác (nếu có)</label>
-                                            <textarea value={othersIntro} onChange={(e) => { if (e.target.value.length <= 500) setOthersIntro(e.target.value); }} placeholder="VD: Hiện tại có 2 bạn nữ, 1 bạn sinh viên năm 3, 1 bạn đi làm. Mọi người đều thân thiện..." rows={3} className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
+                                            <textarea autoComplete="off" value={othersIntro} onChange={(e) => { if (e.target.value.length <= 500) setOthersIntro(e.target.value); }} placeholder="VD: Hiện tại có 2 bạn nữ, 1 bạn sinh viên năm 3, 1 bạn đi làm. Mọi người đều thân thiện..." rows={3} className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
                                             <p className="text-xs text-zinc-500 mt-1 text-right">{othersIntro.length}/500</p>
                                         </div>
 
@@ -289,12 +290,12 @@ function CreateRoomshareContent() {
                                                 </div>
                                                 {/* Specific Address */}
                                                 <div className="col-span-2">
-                                                    <input type="text" value={specificAddress} onChange={(e) => setSpecificAddress(e.target.value)} placeholder="Địa chỉ cụ thể (số nhà, đường, phường...)" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                    <input autoComplete="off" type="text" value={specificAddress} onChange={(e) => setSpecificAddress(e.target.value)} placeholder="Địa chỉ cụ thể (số nhà, đường, phường...)" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                                 </div>
                                                 {/* Building Name - Apartment only */}
                                                 {isApartment && (
                                                     <div className="col-span-2">
-                                                        <input type="text" value={buildingName} onChange={(e) => setBuildingName(e.target.value)} placeholder="Tên toà nhà / Block / Tầng (nếu có)" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                        <input autoComplete="off" type="text" value={buildingName} onChange={(e) => setBuildingName(e.target.value)} placeholder="Tên toà nhà / Block / Tầng (nếu có)" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                                     </div>
                                                 )}
                                             </div>
@@ -320,7 +321,7 @@ function CreateRoomshareContent() {
                                                 {/* Room Size */}
                                                 <div>
                                                     <label className="block text-xs font-medium mb-1 text-zinc-600">Diện tích phòng dư cho thuê (m²)</label>
-                                                    <input type="text" value={roomSize} onChange={(e) => setRoomSize(e.target.value)} placeholder="VD: 15" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                    <input autoComplete="off" type="text" value={roomSize} onChange={(e) => setRoomSize(e.target.value)} placeholder="VD: 15" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                                 </div>
                                                 {/* Current Occupants */}
                                                 <div>
@@ -355,11 +356,11 @@ function CreateRoomshareContent() {
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="block text-xs font-medium mb-1 text-zinc-600">Giá phòng/tháng <span className="text-pink-500">*</span></label>
-                                                    <input type="text" value={rentPrice} onChange={(e) => setRentPrice(e.target.value)} placeholder="VD: 3.500.000" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                    <input autoComplete="off" type="text" value={rentPrice} onChange={(e) => setRentPrice(e.target.value)} placeholder="VD: 3.500.000" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-medium mb-1 text-zinc-600">Tiền cọc</label>
-                                                    <input type="text" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="VD: 1 tháng tiền phòng" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                    <input autoComplete="off" type="text" value={deposit} onChange={(e) => setDeposit(e.target.value)} placeholder="VD: 1 tháng tiền phòng" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                                 </div>
                                             </div>
                                             {showValidation && rentPrice.trim() === "" && <p className="text-sm text-pink-500 mt-2">Vui lòng nhập giá phòng</p>}
@@ -409,7 +410,7 @@ function CreateRoomshareContent() {
                                                             <Camera className="w-8 h-8 mb-2 text-zinc-500" />
                                                             <p className="text-sm text-zinc-500">Click để chọn ảnh ({images.length}/5)</p>
                                                         </div>
-                                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                                        <input autoComplete="off" type="file" accept="image/*" className="hidden" onChange={(e) => {
                                                             const file = e.target.files?.[0];
                                                             if (file && images.length < 5) {
                                                                 const reader = new FileReader();
@@ -448,11 +449,11 @@ function CreateRoomshareContent() {
                                                 ].map((amenity) => (
                                                     <div key={amenity.value} className={amenity.value === 'other' ? 'col-span-2 sm:col-span-3' : ''}>
                                                         <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${amenities.includes(amenity.value) ? 'border-pink-500 bg-pink-50' : 'border-black bg-white hover:bg-zinc-50'}`}>
-                                                            <input type="checkbox" checked={amenities.includes(amenity.value)} onChange={(e) => { if (e.target.checked) { setAmenities([...amenities, amenity.value]); } else { setAmenities(amenities.filter(a => a !== amenity.value)); } }} className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500 cursor-pointer flex-shrink-0" />
+                                                            <input autoComplete="off" type="checkbox" checked={amenities.includes(amenity.value)} onChange={(e) => { if (e.target.checked) { setAmenities([...amenities, amenity.value]); } else { setAmenities(amenities.filter(a => a !== amenity.value)); } }} className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500 cursor-pointer flex-shrink-0" />
                                                             <span className="text-sm">{amenity.label}</span>
                                                         </label>
                                                         {amenity.value === 'other' && amenities.includes('other') && (
-                                                            <input type="text" value={amenitiesOther} onChange={(e) => setAmenitiesOther(e.target.value)} placeholder="Nhập tiện nghi khác..." className="w-full mt-2 px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm" autoFocus />
+                                                            <input autoComplete="off" type="text" value={amenitiesOther} onChange={(e) => setAmenitiesOther(e.target.value)} placeholder="Nhập tiện nghi khác..." className="w-full mt-2 px-3 py-2 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 text-sm" autoFocus />
                                                         )}
                                                     </div>
                                                 ))}
@@ -484,35 +485,35 @@ function CreateRoomshareContent() {
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-medium mb-1 text-zinc-600">Tiền điện</label>
-                                                <input type="text" value={costElectricity} onChange={(e) => setCostElectricity(e.target.value)} placeholder="VD: 3.500đ/kWh" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                <input autoComplete="off" type="text" value={costElectricity} onChange={(e) => setCostElectricity(e.target.value)} placeholder="VD: 3.500đ/kWh" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium mb-1 text-zinc-600">Tiền nước</label>
-                                                <input type="text" value={costWater} onChange={(e) => setCostWater(e.target.value)} placeholder="VD: Chia đều" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                <input autoComplete="off" type="text" value={costWater} onChange={(e) => setCostWater(e.target.value)} placeholder="VD: Chia đều" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium mb-1 text-zinc-600">Internet</label>
-                                                <input type="text" value={costInternet} onChange={(e) => setCostInternet(e.target.value)} placeholder="VD: 200.000đ chia đều" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                <input autoComplete="off" type="text" value={costInternet} onChange={(e) => setCostInternet(e.target.value)} placeholder="VD: 200.000đ chia đều" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                             </div>
                                             {isApartment && (
                                                 <>
                                                     <div>
                                                         <label className="block text-xs font-medium mb-1 text-zinc-600">Phí dịch vụ</label>
-                                                        <input type="text" value={costService} onChange={(e) => setCostService(e.target.value)} placeholder="VD: Bao gồm" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                        <input autoComplete="off" type="text" value={costService} onChange={(e) => setCostService(e.target.value)} placeholder="VD: Bao gồm" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                                     </div>
                                                     <div>
                                                         <label className="block text-xs font-medium mb-1 text-zinc-600">Phí quản lý</label>
-                                                        <input type="text" value={costManagement} onChange={(e) => setCostManagement(e.target.value)} placeholder="VD: 8.000đ/m²" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                        <input autoComplete="off" type="text" value={costManagement} onChange={(e) => setCostManagement(e.target.value)} placeholder="VD: 8.000đ/m²" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                                     </div>
                                                 </>
                                             )}
                                             <div>
                                                 <label className="block text-xs font-medium mb-1 text-zinc-600">Phí giữ xe</label>
-                                                <input type="text" value={costParking} onChange={(e) => setCostParking(e.target.value)} placeholder="VD: Miễn phí" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                <input autoComplete="off" type="text" value={costParking} onChange={(e) => setCostParking(e.target.value)} placeholder="VD: Miễn phí" className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium mb-1 text-zinc-600">Chi phí khác</label>
-                                                <input type="text" value={costOther} onChange={(e) => setCostOther(e.target.value)} placeholder="Ghi chú thêm..." className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
+                                                <input autoComplete="off" type="text" value={costOther} onChange={(e) => setCostOther(e.target.value)} placeholder="Ghi chú thêm..." className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white" />
                                             </div>
                                         </div>
 
@@ -549,7 +550,7 @@ function CreateRoomshareContent() {
                                                     {field.options.map((option) => (
                                                         <label key={option.value} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white">
                                                             <input
-                                                                type="radio"
+                                                                autoComplete="off" type="radio"
                                                                 name={field.name}
                                                                 value={option.value}
                                                                 checked={field.state.includes(option.value)}
@@ -562,7 +563,7 @@ function CreateRoomshareContent() {
                                                     ))}
                                                 </div>
                                                 {field.name === "prefStatus" && showStatusOther && (
-                                                    <input type="text" value={prefStatusOther} onChange={(e) => setPrefStatusOther(e.target.value)} placeholder="Mô tả thêm..." className="w-full mt-3 px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                    <input autoComplete="off" type="text" value={prefStatusOther} onChange={(e) => setPrefStatusOther(e.target.value)} placeholder="Mô tả thêm..." className="w-full mt-3 px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                                 )}
                                             </div>
                                         ))}
@@ -570,7 +571,7 @@ function CreateRoomshareContent() {
                                         {/* Other */}
                                         <div>
                                             <label className="block text-sm font-bold mb-2 text-pink-600">Khác</label>
-                                            <input type="text" value={prefOther} onChange={(e) => setPrefOther(e.target.value)} placeholder="Yêu cầu khác về người ở cùng..." className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                            <input autoComplete="off" type="text" value={prefOther} onChange={(e) => setPrefOther(e.target.value)} placeholder="Yêu cầu khác về người ở cùng..." className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                         </div>
 
                                         {/* Navigation */}
@@ -602,23 +603,23 @@ function CreateRoomshareContent() {
                                         <div className="space-y-6">
                                             <div>
                                                 <label className="block text-sm font-bold mb-2 text-pink-600">Số điện thoại <span className="text-pink-500">*</span></label>
-                                                <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="0123456789" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                <input autoComplete="off" type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="0123456789" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-bold mb-2 text-pink-600">Zalo</label>
-                                                <input type="text" value={contactZalo} onChange={(e) => setContactZalo(e.target.value)} placeholder="Số Zalo (nếu khác SĐT)" disabled={sameAsPhone} className={`w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 ${sameAsPhone ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`} />
+                                                <input autoComplete="off" type="text" value={contactZalo} onChange={(e) => setContactZalo(e.target.value)} placeholder="Số Zalo (nếu khác SĐT)" disabled={sameAsPhone} className={`w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400 ${sameAsPhone ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`} />
                                                 <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                                                    <input type="checkbox" checked={sameAsPhone} onChange={(e) => setSameAsPhone(e.target.checked)} className="w-4 h-4 rounded appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500" />
+                                                    <input autoComplete="off" type="checkbox" checked={sameAsPhone} onChange={(e) => setSameAsPhone(e.target.checked)} className="w-4 h-4 rounded appearance-none border-2 border-black checked:bg-pink-500 checked:border-pink-500" />
                                                     <span className="text-sm">Dùng chung số điện thoại</span>
                                                 </label>
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-bold mb-2 text-pink-600">Facebook</label>
-                                                <input type="text" value={contactFacebook} onChange={(e) => setContactFacebook(e.target.value)} placeholder="Link Facebook hoặc tên Facebook" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                <input autoComplete="off" type="text" value={contactFacebook} onChange={(e) => setContactFacebook(e.target.value)} placeholder="Link Facebook hoặc tên Facebook" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-bold mb-2 text-pink-600">Instagram</label>
-                                                <input type="text" value={contactInstagram} onChange={(e) => setContactInstagram(e.target.value)} placeholder="Username hoặc link Instagram" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
+                                                <input autoComplete="off" type="text" value={contactInstagram} onChange={(e) => setContactInstagram(e.target.value)} placeholder="Username hoặc link Instagram" className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-pink-400" />
                                             </div>
                                         </div>
                                     </div>
@@ -689,7 +690,7 @@ function CreateRoomshareContent() {
                                                         facebook: contactFacebook,
                                                         instagram: contactInstagram,
                                                         userId: user?.uid || "",
-                                                    });
+                                                    }, isTester);
 
                                                     localStorage.removeItem('roomshare_draft');
                                                     setShowSuccessModal(true);
@@ -708,35 +709,215 @@ function CreateRoomshareContent() {
 
                         {/* Sidebar - Progress */}
                         <div className="space-y-6">
-                            <div className="py-2">
-                                <div className="relative pl-2">
-                                    <div className="absolute left-[19px] top-4 bottom-4 w-1.5 bg-zinc-100 rounded-full" />
-                                    <div className="absolute left-[19px] top-4 w-1.5 bg-black rounded-full transition-all duration-700 ease-out" style={{ height: `${progressPercentage}%` }} />
-                                    <div className="space-y-8 relative">
-                                        {[
-                                            { step: 1, title: "Thông tin", subtitle: "Phòng & Địa chỉ", icon: <MapPin className="w-3 h-3" /> },
-                                            { step: 2, title: "Hình ảnh", subtitle: "Tiện nghi & Ảnh", icon: <Camera className="w-3 h-3" /> },
-                                            { step: 3, title: "Chi phí", subtitle: "Chi tiết giá", icon: <DollarSign className="w-3 h-3" /> },
-                                            { step: 4, title: "Mong muốn", subtitle: "Người ở cùng", icon: <Users className="w-3 h-3" /> },
-                                            { step: 5, title: "Liên hệ", subtitle: "SĐT & MXH", icon: <Phone className="w-3 h-3" /> },
-                                        ].map((s) => (
-                                            <div key={s.step} className="flex gap-4 items-center group">
-                                                <div className={`relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300 ${currentStep === s.step ? 'border-black scale-125 shadow-lg' : currentStep > s.step ? 'border-black' : 'border-zinc-200'}`}>
-                                                    <div className={`w-1.5 h-1.5 rounded-full transition-colors ${currentStep >= s.step ? 'bg-black' : 'bg-zinc-200'} ${currentStep === s.step ? 'animate-pulse' : ''}`} />
-                                                </div>
-                                                <div className={`transition-opacity duration-300 ${currentStep >= s.step ? 'opacity-100' : 'opacity-40'}`}>
-                                                    <p className="font-bold text-sm uppercase tracking-wide">{s.title}</p>
-                                                    <p className="text-xs text-zinc-500">{s.subtitle}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                            {/* Tips */}
+                            <div className="card bg-yellow-50 !p-5">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Lightbulb className="w-5 h-5 text-yellow-600" />
+                                    <h3 className="font-bold">Mẹo đăng tin hiệu quả</h3>
+                                </div>
+                                <ul className="space-y-2 text-sm text-zinc-600 mb-4">
+                                    <li>• Mô tả chi tiết về phòng và tiện ích</li>
+                                    <li>• Chụp ảnh phòng sáng sủa, gọn gàng</li>
+                                    <li>• Nêu rõ yêu cầu về người ở ghép</li>
+                                    <li>• Cập nhật số điện thoại và Zalo chính xác</li>
+                                </ul>
+                            </div>
+
+                            {/* Simple Step Progress */}
+                            <div className="card bg-white p-6 shadow-sm border-2 border-black rounded-xl sticky top-24">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="font-bold text-sm text-zinc-500 uppercase tracking-wide">Tiến độ</h2>
+                                    <span className="bg-pink-100 text-pink-700 font-bold px-3 py-1 rounded-full text-sm">
+                                        Bước {currentStep} / {totalSteps}
+                                    </span>
+                                </div>
+
+                                <div className="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden mb-2 border border-zinc-200">
+                                    <div
+                                        className="bg-pink-500 h-full rounded-full transition-all duration-500 ease-out"
+                                        style={{ width: `${progressPercentage}%` }}
+                                    />
+                                </div>
+
+                                <div className="mt-4 pt-4 border-t border-zinc-100">
+                                    {currentStep === 1 && (
+                                        <>
+                                            <p className="font-bold text-base text-pink-600 mb-1">Thông tin</p>
+                                            <p className="text-xs text-zinc-500">Phòng & Địa chỉ</p>
+                                        </>
+                                    )}
+                                    {currentStep === 2 && (
+                                        <>
+                                            <p className="font-bold text-base text-pink-600 mb-1">Hình ảnh</p>
+                                            <p className="text-xs text-zinc-500">Tiện nghi & Ảnh</p>
+                                        </>
+                                    )}
+                                    {currentStep === 3 && (
+                                        <>
+                                            <p className="font-bold text-base text-pink-600 mb-1">Chi phí</p>
+                                            <p className="text-xs text-zinc-500">Chi tiết giá</p>
+                                        </>
+                                    )}
+                                    {currentStep === 4 && (
+                                        <>
+                                            <p className="font-bold text-base text-pink-600 mb-1">Mong muốn</p>
+                                            <p className="text-xs text-zinc-500">Người ở cùng</p>
+                                        </>
+                                    )}
+                                    {currentStep === 5 && (
+                                        <>
+                                            <p className="font-bold text-base text-pink-600 mb-1">Liên hệ</p>
+                                            <p className="text-xs text-zinc-500">SĐT & MXH</p>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Preview & Draft buttons - Sidebar */}
+                                <div className="flex gap-3 mt-6 pt-4 border-t border-zinc-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPreviewModal(true)}
+                                        className="flex-1 btn-secondary"
+                                    >
+                                        Xem trước
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const draftData = {
+                                                currentStep,
+                                                title,
+                                                introduction,
+                                                othersIntro,
+                                                city,
+                                                district,
+                                                specificAddress,
+                                                buildingName,
+                                                isApartment,
+                                                addressOther,
+                                                totalRooms,
+                                                roomSize,
+                                                currentOccupants,
+                                                rentPrice,
+                                                deposit,
+                                                costElectricity,
+                                                costWater,
+                                                costInternet,
+                                                costService,
+                                                costParking,
+                                                costManagement,
+                                                costOther,
+                                                minLeaseDuration,
+                                                amenities,
+                                                amenitiesOther,
+                                                images,
+                                                prefGender,
+                                                prefStatus,
+                                                prefStatusOther,
+                                                prefSchedule,
+                                                prefCleanliness,
+                                                prefHabits,
+                                                prefPets,
+                                                prefMoveInTime,
+                                                prefOther,
+                                                contactPhone,
+                                                contactZalo,
+                                                contactFacebook,
+                                                contactInstagram,
+                                                savedAt: new Date().toISOString(),
+                                            };
+                                            localStorage.setItem('roomshare_draft', JSON.stringify(draftData));
+                                            alert('Đã lưu nháp thành công! Bạn có thể quay lại tiếp tục sau.');
+                                        }}
+                                        className="flex-1 btn-secondary"
+                                    >
+                                        Lưu nháp
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            {/* Preview Modal */}
+            {showPreviewModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 overflow-y-auto">
+                    <div className="bg-white rounded-xl border-2 border-black shadow-[var(--shadow-primary)] max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="bg-pink-50 p-6 border-b-2 border-black flex items-center justify-between sticky top-0 z-10">
+                            <h2 className="text-xl font-bold">👁️ Xem trước bài đăng</h2>
+                            <button
+                                onClick={() => setShowPreviewModal(false)}
+                                className="p-2 hover:bg-pink-100 rounded-lg transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-6">
+                            {/* Title & Location */}
+                            <div>
+                                <h3 className="text-2xl font-bold mb-2">{title || "(Chưa có tiêu đề)"}</h3>
+                                <p className="text-zinc-500 font-medium whitespace-pre-wrap">{[specificAddress, buildingName, district, city].filter(Boolean).join(', ') || "(Chưa nhập địa chỉ)"}</p>
+                            </div>
+
+                            {/* Price Card */}
+                            <div className="bg-pink-50 p-6 rounded-xl border-2 border-pink-200">
+                                <p className="text-sm text-pink-600 font-bold mb-1">Giá thuê phòng</p>
+                                <p className="text-3xl font-black text-pink-700">{rentPrice ? `${rentPrice}đ/tháng` : "(Chưa nhập giá)"}</p>
+                            </div>
+
+                            {/* Section: Thông tin phòng */}
+                            <div>
+                                <h4 className="font-bold text-lg mb-3 pb-2 border-b-2 border-zinc-100">Chi tiết phòng</h4>
+                                <div className="grid grid-cols-2 gap-y-4 text-sm">
+                                    <div>
+                                        <p className="text-zinc-500 mb-1">Loại chỗ ở</p>
+                                        <p className="font-semibold">{propertyType === "apartment" ? "Chung cư" : "Nhà mặt đất"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 mb-1">Diện tích</p>
+                                        <p className="font-semibold">{roomSize ? `${roomSize}` : "-"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 mb-1">Tổng số phòng</p>
+                                        <p className="font-semibold">{totalRooms || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 mb-1">Số người đang ở</p>
+                                        <p className="font-semibold">{currentOccupants || "-"}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section: Giới thiệu chung */}
+                            {introduction && (
+                                <div>
+                                    <h4 className="font-bold text-lg mb-3 pb-2 border-b-2 border-zinc-100">Giới thiệu về chỗ ở</h4>
+                                    <p className="text-zinc-700 whitespace-pre-wrap text-sm leading-relaxed">{introduction}</p>
+                                </div>
+                            )}
+
+                            {/* Section: Về người ở cùng hiện tại */}
+                            {othersIntro && (
+                                <div>
+                                    <h4 className="font-bold text-lg mb-3 pb-2 border-b-2 border-zinc-100">Về người ở cùng hiện tại</h4>
+                                    <p className="text-zinc-700 whitespace-pre-wrap text-sm leading-relaxed">{othersIntro}</p>
+                                </div>
+                            )}
+
+                        </div>
+                        <div className="p-4 border-t-2 border-zinc-100 bg-zinc-50 flex justify-end">
+                            <button
+                                onClick={() => setShowPreviewModal(false)}
+                                className="px-6 py-2 bg-black text-white font-bold rounded-lg hover:bg-zinc-800 transition-colors"
+                            >
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             <ShareFooter />
         </div>

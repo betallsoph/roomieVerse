@@ -6,11 +6,16 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { FIREBASE_ENABLED } from "../lib/config";
 import { getUserProfile, saveUserProfile } from "../data/users";
+import { UserRole } from "../data/types";
+import { canModerate, canBypassModeration, canAccessAdmin } from "../lib/roles";
 
 interface AuthContextType {
   user: User | null;
@@ -18,8 +23,13 @@ interface AuthContextType {
   isLoading: boolean;
   isProfileComplete: boolean;
   profileChecked: boolean;
+  userRole: UserRole;
   isAdmin: boolean;
+  isMod: boolean;
+  isTester: boolean;
   loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
   checkProfileComplete: () => Promise<boolean>;
 }
@@ -33,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [profileChecked, setProfileChecked] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>("user");
 
   useEffect(() => {
     // If Firebase is disabled, use mock authentication
@@ -49,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(mockUser);
       setIsProfileComplete(true);
       setProfileChecked(true);
-      setIsAdmin(false);
+      setUserRole("user");
       setIsLoading(false);
       return;
     }
@@ -75,9 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             profile = newProfile;
           }
 
-          // Check admin status via server API (emails stay server-side)
-          let adminStatus = profile?.role === "admin";
-          if (!adminStatus) {
+          // Check role — auto-promote admin via server API if needed
+          let role: UserRole = (profile?.role as UserRole) || "user";
+          if (role === "user") {
             try {
               const idToken = await user.getIdToken();
               const res = await fetch("/api/auth/promote", {
@@ -86,9 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               });
               if (res.ok) {
                 const data = await res.json();
-                adminStatus = data.isAdmin === true;
-                if (adminStatus) {
-                  // Refresh profile to get updated role
+                if (data.isAdmin === true) {
+                  role = "admin";
                   profile = await getUserProfile(user.uid);
                 }
               }
@@ -99,15 +108,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           const complete = !!(profile?.gender && profile?.birthYear && profile?.occupation);
           setIsProfileComplete(complete);
-          setIsAdmin(adminStatus);
+          setUserRole(role);
         } catch (error) {
           console.error("Error checking profile:", error);
           setIsProfileComplete(false);
-          setIsAdmin(false);
+          setUserRole("user");
         }
       } else {
         setIsProfileComplete(false);
-        setIsAdmin(false);
+        setUserRole("user");
       }
       setProfileChecked(true);
     });
@@ -146,6 +155,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithEmail = async (email: string, password: string) => {
+    if (!FIREBASE_ENABLED || !auth) return;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error("Error signing in with email:", error);
+      throw error;
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+    if (!FIREBASE_ENABLED || !auth) return;
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(result.user, { displayName });
+    } catch (error) {
+      console.error("Error signing up with email:", error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     if (!FIREBASE_ENABLED || !auth) {
       console.log("Firebase is disabled - mock logout");
@@ -170,8 +200,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       isProfileComplete,
       profileChecked,
-      isAdmin,
+      userRole,
+      isAdmin: userRole === "admin",
+      isMod: canModerate(userRole),
+      isTester: canBypassModeration(userRole),
       loginWithGoogle,
+      loginWithEmail,
+      signUpWithEmail,
       logout,
       checkProfileComplete
     }}>

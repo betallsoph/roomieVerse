@@ -63,7 +63,7 @@ interface Props {
 export default function CommunityPostDetailPage({ initialPost }: Props) {
   const params = useParams();
   const postId = params.id as string;
-  const { user, isAuthenticated, isAdmin } = useAuth();
+  const { user, isAuthenticated, isMod, isAdmin } = useAuth();
   const router = useRouter();
 
   const [post, setPost] = useState<CommunityPost | null>(initialPost ?? null);
@@ -149,7 +149,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
   };
 
   const isPostAuthor = !!(user?.uid && post?.authorId && user.uid === post.authorId);
-  const canManagePost = isPostAuthor || isAdmin;
+  const canManagePost = isPostAuthor || isMod;
 
   const handleDeletePost = async () => {
     if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
@@ -324,7 +324,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
                 </div>
                 <div className="flex-1 flex gap-2">
                   <input
-                    type="text"
+                    autoComplete="off" type="text"
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleComment()}
@@ -363,7 +363,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
                       <div className="flex items-center gap-2 mb-1">
                         <Link href={`/user/${comment.authorId}`} className="text-sm font-bold hover:text-orange-600 transition-colors">{comment.authorName}</Link>
                         <span className="text-xs text-zinc-400">{timeAgo(comment.createdAt)}</span>
-                        {(user?.uid === comment.authorId || isAdmin) && (
+                        {(user?.uid === comment.authorId || isMod) && (
                           <button
                             onClick={() => handleDeleteComment(comment.id!)}
                             className="text-zinc-300 hover:text-red-500 transition-colors ml-auto"

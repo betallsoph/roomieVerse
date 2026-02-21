@@ -74,7 +74,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form autoComplete="off" onSubmit={handleSubmit} className="space-y-6">
           {/* Giới tính */}
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -121,7 +121,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               Năm sinh <span className="text-red-500">*</span>
             </label>
             <input
-              type="number"
+              autoComplete="off" type="number"
               min="1950"
               max={new Date().getFullYear()}
               placeholder="1998"
@@ -138,7 +138,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               Nghề nghiệp hiện tại <span className="text-red-500">*</span>
             </label>
             <input
-              type="text"
+              autoComplete="off" type="text"
               placeholder="Software Engineer"
               value={formData.occupation}
               onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}

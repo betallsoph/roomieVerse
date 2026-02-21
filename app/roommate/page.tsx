@@ -301,10 +301,11 @@ export default function RoommatePage() {
                   className="flex gap-2"
                 >
                   <input
-                    type="text"
+                    autoComplete="off" type="text"
                     placeholder="Nhập từ khóa..."
                     className="flex-1 px-4 rounded-lg border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+
                   <motion.button
                     whileTap={{ scale: 0.90 }}
                     transition={{ type: "spring", stiffness: 700, damping: 30 }}

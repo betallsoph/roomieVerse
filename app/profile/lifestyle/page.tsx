@@ -208,7 +208,7 @@ export default function LifestylePage() {
                           }`}
                       >
                         <input
-                          type="radio"
+                          autoComplete="off" type="radio"
                           name="schedule"
                           checked={schedule === option.value}
                           onChange={() => setSchedule(option.value)}
@@ -246,7 +246,7 @@ export default function LifestylePage() {
                           }`}
                       >
                         <input
-                          type="checkbox"
+                          autoComplete="off" type="checkbox"
                           checked={habits.includes(option.value)}
                           onChange={() =>
                             toggleOption(option.value, habits, setHabits)
@@ -279,7 +279,7 @@ export default function LifestylePage() {
                           }`}
                       >
                         <input
-                          type="checkbox"
+                          autoComplete="off" type="checkbox"
                           checked={habits.includes(option.value)}
                           onChange={() =>
                             toggleOption(option.value, habits, setHabits)
@@ -296,7 +296,7 @@ export default function LifestylePage() {
                 <div>
                   <label className="block text-sm font-bold mb-3">Khác</label>
                   <input
-                    type="text"
+                    autoComplete="off" type="text"
                     value={otherHabits}
                     onChange={(e) => setOtherHabits(e.target.value)}
                     placeholder="Thói quen hoặc sở thích khác của bạn..."

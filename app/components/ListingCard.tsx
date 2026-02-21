@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, MapPin, Calendar, User, Wallet } from "lucide-react";
+import { formatPrice } from "../lib/format";
 
 interface ListingCardProps {
   listing: {
@@ -125,7 +126,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
                 <div className="text-right flex-shrink-0">
                   <span className="inline-flex items-end gap-1">
                     <span className="text-base sm:text-xl font-bold text-blue-700">
-                      {listing.price}
+                      {formatPrice(listing.price)}
                     </span>
                     <span className="text-[10px] sm:text-xs text-zinc-400 mb-0.5">/ tháng</span>
                   </span>
@@ -169,7 +170,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
             <div className="mb-1 sm:mb-2 flex items-start justify-between gap-2 sm:gap-3">
               <h3 className="text-base sm:text-lg font-bold leading-tight line-clamp-1">{listing.title}</h3>
               <span className="flex-shrink-0 text-base sm:text-xl font-bold text-blue-700">
-                {listing.price}
+                {formatPrice(listing.price)}
               </span>
             </div>
 
@@ -177,7 +178,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
             <div className="text-xs sm:text-sm">
               <span className="flex items-center gap-1.5 text-blue-700">
                 <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                <span className="truncate">{listing.location}</span>
+                <span className="truncate">{displayLocation}</span>
               </span>
             </div>
             {/* Move-in */}
@@ -209,7 +210,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
       <a
         href={listingRoute}
         onClick={handleCardClick}
-        className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce"
+        className="group flex flex-col rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce h-full"
       >
         {/* Header: Avatar + Author Info */}
         <div className="mb-5 flex items-center gap-4">
@@ -227,7 +228,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
         </div>
 
         {/* Title */}
-        <h3 className={`mb-3 text-lg font-bold leading-tight line-clamp-2 min-h-[3.5rem] ${accentColor}`}>{listing.title}</h3>
+        <h3 className={`mb-3 text-lg font-bold leading-tight line-clamp-3 min-h-[5rem] ${accentColor}`}>{listing.title}</h3>
 
         {/* Introduction/Description */}
         <div className="mb-4 pb-4 border-b-2 border-gray-300">
@@ -241,20 +242,22 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
           <p className="font-bold text-zinc-800">Địa điểm & thời gian chuyển vào mong muốn</p>
           <p className={`flex items-center gap-2 ${accentColor}`}>
             <MapPin className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">{displayLocation}</span>
+            <span className="line-clamp-1">{displayLocation}</span>
           </p>
-          <p className={`flex items-center gap-2 ${accentColor}`}>
-            <Calendar className="h-4 w-4 flex-shrink-0" />
-            {listing.moveInDate}
-          </p>
+          {listing.moveInDate && (
+            <p className={`flex items-center gap-2 ${accentColor}`}>
+              <Calendar className="h-4 w-4 flex-shrink-0" />
+              {listing.moveInDate}
+            </p>
+          )}
         </div>
 
         {/* Budget */}
-        <div className="space-y-1.5 text-sm">
+        <div className="mt-auto space-y-1.5 text-sm">
           <p className="font-bold text-zinc-800">Ngân sách tối đa</p>
           <p className={`flex items-center gap-2 ${accentColor}`}>
             <Wallet className="h-4 w-4 flex-shrink-0" />
-            {listing.price}
+            {formatPrice(listing.price)}
           </p>
         </div>
       </a>
@@ -266,7 +269,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
     <a
       href={listingRoute}
       onClick={handleCardClick}
-      className="group block rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce"
+      className="group flex flex-col rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce h-full"
     >
       {/* Image Section */}
       <div className={`mb-5 h-48 w-full overflow-hidden rounded-lg border-2 ${accentBorder} ${cardBg}`}>
@@ -278,7 +281,7 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
       {/* Header: Price + Author + Date */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className={`text-xl font-bold ${accentColor}`}>
-          {listing.price}
+          {formatPrice(listing.price)}
         </span>
         <div className="flex items-center gap-2 text-xs text-zinc-500">
           <User className="h-3.5 w-3.5" />
@@ -288,23 +291,25 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
         </div>
       </div>
 
-      {/* Title - Fixed 2 lines */}
-      <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight line-clamp-2 min-h-[3.5rem]">{listing.title}</h3>
+      {/* Title - Fixed 3 lines */}
+      <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight line-clamp-3 min-h-[5rem]">{listing.title}</h3>
 
       {/* Location & Move-in date */}
       <div className="mb-4 space-y-1.5 text-sm">
         <p className={`flex items-center gap-2 ${accentColor}`}>
           <MapPin className="h-4 w-4 flex-shrink-0" />
-          {listing.location}
+          <span className="line-clamp-1">{displayLocation}</span>
         </p>
-        <p className={`flex items-center gap-2 ${accentColor}`}>
-          <Calendar className="h-4 w-4 flex-shrink-0" />
-          Dọn vào: {listing.moveInDate}
-        </p>
+        {listing.moveInDate && (
+          <p className={`flex items-center gap-2 ${accentColor}`}>
+            <Calendar className="h-4 w-4 flex-shrink-0" />
+            Dọn vào: {listing.moveInDate}
+          </p>
+        )}
       </div>
 
       {/* Description */}
-      <p className="mb-2 line-clamp-3 text-sm leading-relaxed text-zinc-700">
+      <p className="mt-auto line-clamp-3 text-sm leading-relaxed text-zinc-700">
         {listing.description}
       </p>
     </a>

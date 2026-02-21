@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 
 /**
- * Redirects admin users to /admin dashboard.
- * Use this on user-facing pages that admin should not access.
+ * Redirects staff users (mod/tester/admin) to /admin dashboard.
+ * Use this on user-facing pages that staff should not access.
  */
 export function useAdminRedirect() {
-  const { isAdmin, isLoading } = useAuth();
+  const { isMod, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
-    if (isAdmin) {
+    if (isMod) {
       router.replace("/admin");
     }
-  }, [isAdmin, isLoading, router]);
+  }, [isMod, isLoading, router]);
 
-  return { isAdmin, isLoading };
+  return { isAdmin: isMod, isLoading };
 }

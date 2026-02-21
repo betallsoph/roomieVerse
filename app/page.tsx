@@ -3,23 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { SparklesText } from "./components/sparkles-text";
 import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
 import ProfileReminderModal from "./components/ProfileReminderModal";
 import { useProfileReminder } from "./hooks/useProfileReminder";
 import { useAdminRedirect } from "./hooks/useAdminRedirect";
-import { mockListings } from "./data/mockListings";
+import { getListings } from "./data/listings";
+import { RoomListing } from "./data/types";
+import { formatPrice } from "./lib/format";
 
-// Pick a balanced mix: 4 roommate (have-room) + 2 roommate (find-partner) + 2 roomshare
-const featuredListings = [
-  ...mockListings.filter((l) => l.category === "roommate" && l.roommateType === "have-room").slice(0, 4),
-  ...mockListings.filter((l) => l.category === "roommate" && l.roommateType === "find-partner").slice(0, 2),
-  ...mockListings.filter((l) => l.category === "roomshare").slice(0, 2),
-];
-
-function getListingRoute(listing: (typeof featuredListings)[0]) {
+function getListingRoute(listing: RoomListing) {
   const id = String(listing.id);
   if (listing.category === "roomshare") return `/roomshare/listing/${id}`;
   if (listing.category === "short-term") return `/short-term/listing/${id}`;
@@ -27,7 +22,7 @@ function getListingRoute(listing: (typeof featuredListings)[0]) {
   return `/roommate/listing/${id}`;
 }
 
-function getCategoryInfo(listing: (typeof featuredListings)[0]) {
+function getCategoryInfo(listing: RoomListing) {
   if (listing.category === "roomshare")
     return { label: "Tìm phòng", pill: "bg-pink-100 text-pink-700", price: "text-pink-700" };
   if (listing.roommateType === "find-partner")
@@ -38,6 +33,13 @@ function getCategoryInfo(listing: (typeof featuredListings)[0]) {
 export default function LandingPage() {
   useAdminRedirect();
   const { showReminder, dismissReminder } = useProfileReminder();
+
+  // Fetch latest listings from Firestore
+  const [latestListings, setLatestListings] = useState<RoomListing[]>([]);
+
+  useEffect(() => {
+    getListings().then(all => setLatestListings(all.slice(0, 8))).catch(() => {});
+  }, []);
 
   // Carousel state
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -165,67 +167,70 @@ export default function LandingPage() {
           </div>
 
           {/* Scrollable row */}
-          <div
-            ref={scrollRef}
-            className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {featuredListings.map((listing) => {
-              const cat = getCategoryInfo(listing);
-              return (
-                <a
-                  key={listing.id}
-                  href={getListingRoute(listing)}
-                  className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start group"
-                >
-                  <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden shadow-[var(--shadow-secondary)] card-bounce flex flex-col">
-                    {/* Content */}
-                    <div className="flex-1 p-4 flex flex-col">
-                      {/* Category pill */}
-                      <span className={`self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cat.pill} mb-2`}>
-                        {cat.label}
-                      </span>
-
-                      {/* Title — fixed 2 lines */}
-                      <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-auto">
-                        {listing.title}
-                      </h3>
-
-                      {/* Info row */}
-                      <div className="mt-3 space-y-1.5">
-                        <p className="flex items-center gap-1.5 text-xs text-zinc-500 truncate">
-                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                          {listing.location}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className={`text-base font-bold ${cat.price}`}>
-                            {listing.price}
-                          </span>
-                          <span className="text-[11px] text-zinc-400">
-                            {listing.postedDate}
-                          </span>
+          {latestListings.length > 0 ? (
+            <div
+              ref={scrollRef}
+              className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {latestListings.map((listing) => {
+                const cat = getCategoryInfo(listing);
+                return (
+                  <Link
+                    key={listing.id}
+                    href={getListingRoute(listing)}
+                    className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start group"
+                  >
+                    <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden shadow-[var(--shadow-secondary)] card-bounce flex flex-col">
+                      <div className="flex-1 p-4 flex flex-col">
+                        <span className={`self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cat.pill} mb-2`}>
+                          {cat.label}
+                        </span>
+                        <h3 className="font-bold text-sm leading-snug line-clamp-2 mb-auto">
+                          {listing.title}
+                        </h3>
+                        <div className="mt-3 space-y-1.5">
+                          <p className="flex items-center gap-1.5 text-xs text-zinc-500 truncate">
+                            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                            {listing.location}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-base font-bold ${cat.price}`}>
+                              {formatPrice(listing.price)}
+                            </span>
+                            <span className="text-[11px] text-zinc-400">
+                              {listing.postedDate}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </a>
-              );
-            })}
+                  </Link>
+                );
+              })}
 
-            {/* View All CTA */}
-            <Link
-              href="/roommate"
-              className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start"
-            >
-              <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
-                <div className="w-12 h-12 rounded-full border-2 border-black bg-blue-100 flex items-center justify-center mb-3">
-                  <ChevronRight className="w-5 h-5 text-blue-700" />
+              {/* View All CTA */}
+              <Link
+                href="/roommate"
+                className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start"
+              >
+                <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-200">
+                  <div className="w-12 h-12 rounded-full border-2 border-black bg-blue-100 flex items-center justify-center mb-3">
+                    <ChevronRight className="w-5 h-5 text-blue-700" />
+                  </div>
+                  <h3 className="font-bold text-sm mb-0.5">Xem tất cả</h3>
+                  <p className="text-xs text-zinc-500">Khám phá thêm tin đăng</p>
                 </div>
-                <h3 className="font-bold text-sm mb-0.5">Xem tất cả</h3>
-                <p className="text-xs text-zinc-500">Khám phá thêm tin đăng</p>
-              </div>
-            </Link>
-          </div>
+              </Link>
+            </div>
+          ) : (
+            <div className="rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 py-12 text-center">
+              <p className="text-zinc-400 font-medium">Chưa có tin đăng nào</p>
+              <Link href="/roommate/create" className="text-sm text-blue-600 font-bold hover:underline mt-2 inline-block">
+                Đăng tin đầu tiên
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

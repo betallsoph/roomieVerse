@@ -9,7 +9,7 @@ import NavLink from "./NavLink";
 import { useState, useEffect } from "react";
 
 export default function MainHeader() {
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { isAuthenticated, isMod, isTester, isAdmin, userRole, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,8 +36,15 @@ export default function MainHeader() {
     router.push("/auth");
   };
 
-  // Admin navigation
-  if (isAdmin) {
+  // Staff navigation (mod / tester / admin)
+  if (isMod) {
+    const roleBadge: Record<string, { label: string; color: string }> = {
+      mod: { label: "Mod", color: "text-green-300 bg-green-300/20" },
+      tester: { label: "Tester", color: "text-amber-300 bg-amber-300/20" },
+      admin: { label: "Admin", color: "text-blue-300 bg-blue-300/20" },
+    };
+    const badge = roleBadge[userRole] || roleBadge.mod;
+
     return (
       <header className="sticky top-0 z-50 border-b-2 border-black bg-black backdrop-blur-md">
         <div className="wrapper py-4 md:py-5">
@@ -53,23 +60,27 @@ export default function MainHeader() {
               <NavLink href="/admin/community" className="text-white text-sm font-bold hidden sm:block">
                 Duyệt cộng đồng
               </NavLink>
-              <NavLink href="/admin/blog" className="text-white text-sm font-bold hidden sm:block">
-                Blog
-              </NavLink>
-              <NavLink href="/admin/management" className="text-white text-sm font-bold hidden sm:block">
-                Quản lý
-              </NavLink>
+              {isTester && (
+                <>
+                  <NavLink href="/admin/blog" className="text-white text-sm font-bold hidden sm:block">
+                    Blog
+                  </NavLink>
+                  <NavLink href="/admin/management" className="text-white text-sm font-bold hidden sm:block">
+                    Quản lý
+                  </NavLink>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-4 sm:gap-6">
-              <span className="text-xs font-bold text-blue-300 bg-blue-300/20 px-3 py-1 rounded-full hidden sm:block">
-                Admin
-              </span>
               <button
                 onClick={handleLogout}
                 className="text-white text-sm font-bold hover:text-red-300 transition-colors"
               >
                 Đăng xuất
               </button>
+              <span className={`text-xs font-bold ${badge.color} px-3 py-1 rounded-full hidden sm:block`}>
+                {badge.label}
+              </span>
             </div>
           </div>
         </div>

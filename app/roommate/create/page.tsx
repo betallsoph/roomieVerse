@@ -11,10 +11,22 @@ import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 
 type RoommateType = "have-room" | "find-partner";
 
+// Format number string with dots: 5000000 → 5.000.000
+function formatPriceDisplay(value: string): string {
+  const num = value.replace(/\D/g, "");
+  if (!num) return "";
+  return Number(num).toLocaleString("vi-VN");
+}
+
+// Strip dots to get raw number: 5.000.000 → 5000000
+function rawPrice(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
 function CreateRoommateContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isTester } = useAuth();
 
   const type = searchParams.get("type") as RoommateType | null;
 
@@ -58,6 +70,7 @@ function CreateRoommateContent() {
   const [timeNegotiable, setTimeNegotiable] = useState(false);
   const [showStatusOther, setShowStatusOther] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdListingId, setCreatedListingId] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Draft Modal State
@@ -331,7 +344,7 @@ function CreateRoommateContent() {
       setBuildingName("Tháp S3.02 - Tầng 12");
       setRoomSize("20");
       setCurrentOccupants("1");
-      setMinContractDuration("6 tháng");
+      setMinContractDuration("6");
       // Step 2
       setCostRent("3.500.000");
       setCostDeposit("1 tháng tiền phòng");
@@ -457,7 +470,7 @@ function CreateRoommateContent() {
 
             <h2 className="text-2xl font-bold mb-2">Đăng tin thành công!</h2>
             <p className="text-zinc-600 mb-6">
-              Bài đăng của bạn đã được tạo. Chúc bạn sớm tìm được bạn ở cùng ưng ý nhé!
+              Bài đăng của bạn đang chờ duyệt, bọn mình sẽ duyệt sớm nhất có thể. Cảm ơn bạn nhiều ^^
             </p>
 
             <div className="flex gap-3">
@@ -469,10 +482,8 @@ function CreateRoommateContent() {
               </button>
               <button
                 onClick={() => {
-                  const listings = JSON.parse(localStorage.getItem('roommate_listings') || '[]');
-                  const lastListing = listings[listings.length - 1];
-                  if (lastListing) {
-                    router.push(`/roommate/listing/${lastListing.id}`);
+                  if (createdListingId) {
+                    router.push(`/roommate/listing/${createdListingId}`);
                   }
                 }}
                 className="btn-primary flex-1"
@@ -521,7 +532,7 @@ function CreateRoommateContent() {
                         Tiêu đề bài đăng
                       </label>
                       <input
-                        type="text"
+                        autoComplete="off" type="text"
                         value={title}
                         onChange={(e) => {
                           if (e.target.value.length <= 80) {
@@ -557,7 +568,7 @@ function CreateRoommateContent() {
                               className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                             >
                               <input
-                                type="radio"
+                                autoComplete="off" type="radio"
                                 name="propertyType"
                                 value={option.value}
                                 checked={propertyTypes.includes(option.value)}
@@ -627,7 +638,7 @@ function CreateRoommateContent() {
                           {/* Specific Address */}
                           <div>
                             <input
-                              type="text"
+                              autoComplete="off" type="text"
                               value={specificAddress}
                               onChange={(e) => setSpecificAddress(e.target.value)}
                               placeholder="Số nhà - Tên đường"
@@ -637,7 +648,7 @@ function CreateRoommateContent() {
                           {/* Building Name */}
                           <div>
                             <input
-                              type="text"
+                              autoComplete="off" type="text"
                               value={buildingName}
                               onChange={(e) => setBuildingName(e.target.value)}
                               placeholder="Tên toà nhà - Tên chung cư - Block"
@@ -647,7 +658,7 @@ function CreateRoommateContent() {
                           {/* Other Address Info */}
                           <div className="col-span-2">
                             <input
-                              type="text"
+                              autoComplete="off" type="text"
                               value={addressOther}
                               onChange={(e) => setAddressOther(e.target.value)}
                               placeholder="Nếu bạn còn gì khác thì nhập ở đây nhé!"
@@ -672,7 +683,7 @@ function CreateRoommateContent() {
                         Giới thiệu chung bản thân
                       </label>
                       <textarea
-                        rows={4}
+                        autoComplete="off" rows={4}
                         value={introduction}
                         onChange={(e) => setIntroduction(e.target.value)}
                         placeholder="Mình là nữ, 25 tuổi, làm văn phòng. Thói quen sinh hoạt điều độ, thích gọn gàng sạch sẽ..."
@@ -728,7 +739,7 @@ function CreateRoommateContent() {
                           {/* Other Address Info */}
                           <div className="col-span-2">
                             <input
-                              type="text"
+                              autoComplete="off" type="text"
                               value={addressOther}
                               onChange={(e) => setAddressOther(e.target.value)}
                               placeholder="Nếu bạn còn gì khác thì nhập ở đây nhé!"
@@ -742,7 +753,7 @@ function CreateRoommateContent() {
                         )}
                         <label className="flex items-center gap-2 mt-2 cursor-pointer">
                           <input
-                            type="checkbox"
+                            autoComplete="off" type="checkbox"
                             checked={locationNegotiable}
                             onChange={(e) => setLocationNegotiable(e.target.checked)}
                             className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-300 cursor-pointer"
@@ -761,13 +772,16 @@ function CreateRoommateContent() {
                         <p className="text-sm text-zinc-500 italic mt-1 mb-2">
                           Để dễ dàng nhất cho việc xác định ngân sách của bạn ở cùng, hãy điền chi phí sau khi đã tính hết tất cả nhé. Bạn có thể bàn lại với bạn ở cùng về các khoản nhỏ bên trong nó.
                         </p>
-                        <input
-                          type="text"
-                          value={costRent}
-                          onChange={(e) => setCostRent(e.target.value)}
-                          placeholder="Ví dụ: 5 triệu/tháng"
-                          className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
+                        <div className="relative">
+                          <input
+                            autoComplete="off" type="text" inputMode="numeric"
+                            value={formatPriceDisplay(costRent)}
+                            onChange={(e) => setCostRent(rawPrice(e.target.value))}
+                            placeholder="Ví dụ: 5.000.000"
+                            className="w-full px-4 py-3 pr-24 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">đ/tháng</span>
+                        </div>
                         {showValidationMessage && costRent.trim() === "" && (
                           <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
                         )}
@@ -798,7 +812,7 @@ function CreateRoommateContent() {
                               className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                             >
                               <input
-                                type="radio"
+                                autoComplete="off" type="radio"
                                 name="propertyType"
                                 value={option.value}
                                 checked={propertyTypes.includes(option.value)}
@@ -829,13 +843,16 @@ function CreateRoommateContent() {
                         <label className="block text-sm font-bold mb-2 text-blue-600">
                           Ngân sách tối đa
                         </label>
-                        <input
-                          type="text"
-                          value={budget}
-                          onChange={(e) => setBudget(e.target.value)}
-                          placeholder="5 triệu/tháng"
-                          className="w-full px-4 py-3 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
+                        <div className="relative">
+                          <input
+                            autoComplete="off" type="text" inputMode="numeric"
+                            value={formatPriceDisplay(budget)}
+                            onChange={(e) => setBudget(rawPrice(e.target.value))}
+                            placeholder="Ví dụ: 5.000.000"
+                            className="w-full px-4 py-3 pr-24 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">đ/tháng</span>
+                        </div>
                         {showValidationMessage && budget.trim() === "" && (
                           <p className="text-sm text-pink-500 mt-1">Bạn quên chỗ này nè ^^</p>
                         )}
@@ -849,7 +866,7 @@ function CreateRoommateContent() {
                           Thời gian mong muốn tìm được phòng
                         </label>
                         <input
-                          type="text"
+                          autoComplete="off" type="text"
                           value={moveInTime}
                           onChange={(e) => setMoveInTime(e.target.value)}
                           placeholder="Trong tháng 1/2025, Càng sớm càng tốt..."
@@ -860,7 +877,7 @@ function CreateRoommateContent() {
                         )}
                         <label className="flex items-center gap-2 mt-2 cursor-pointer">
                           <input
-                            type="checkbox"
+                            autoComplete="off" type="checkbox"
                             checked={timeNegotiable}
                             onChange={(e) => setTimeNegotiable(e.target.checked)}
                             className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-300 cursor-pointer"
@@ -926,15 +943,18 @@ function CreateRoommateContent() {
                         {/* Room Size */}
                         <div>
                           <label className="block text-sm font-bold mb-2 text-blue-600">
-                            Diện tích (m²)
+                            Diện tích
                           </label>
-                          <input
-                            type="text"
-                            value={roomSize}
-                            onChange={(e) => setRoomSize(e.target.value)}
-                            placeholder="Ví dụ: 20"
-                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-                          />
+                          <div className="relative">
+                            <input
+                              autoComplete="off" type="text" inputMode="numeric"
+                              value={roomSize}
+                              onChange={(e) => setRoomSize(e.target.value.replace(/\D/g, ""))}
+                              placeholder="Ví dụ: 20"
+                              className="w-full px-4 pr-14 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            />
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">m²</span>
+                          </div>
                         </div>
 
                         {/* Current Occupants */}
@@ -942,17 +962,16 @@ function CreateRoommateContent() {
                           <label className="block text-sm font-bold mb-2 text-blue-600">
                             Số người đang ở
                           </label>
-                          <select
-                            value={currentOccupants}
-                            onChange={(e) => setCurrentOccupants(e.target.value)}
-                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
-                          >
-                            <option value="">Chọn...</option>
-                            <option value="1">1 người</option>
-                            <option value="2">2 người</option>
-                            <option value="3">3 người</option>
-                            <option value="4+">4 người trở lên</option>
-                          </select>
+                          <div className="relative">
+                            <input
+                              autoComplete="off" type="text" inputMode="numeric"
+                              value={currentOccupants}
+                              onChange={(e) => setCurrentOccupants(e.target.value.replace(/\D/g, ""))}
+                              placeholder="Ví dụ: 2"
+                              className="w-full px-4 pr-16 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            />
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">người</span>
+                          </div>
                         </div>
 
                         {/* Min Contract Duration */}
@@ -960,18 +979,16 @@ function CreateRoommateContent() {
                           <label className="block text-sm font-bold mb-2 text-blue-600">
                             Thời hạn hợp đồng còn lại
                           </label>
-                          <select
-                            value={minContractDuration}
-                            onChange={(e) => setMinContractDuration(e.target.value)}
-                            className="w-full px-4 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white appearance-none"
-                          >
-                            <option value="">Chọn...</option>
-                            <option value="1 tháng">1 tháng</option>
-                            <option value="3 tháng">3 tháng</option>
-                            <option value="6 tháng">6 tháng</option>
-                            <option value="1 năm">1 năm</option>
-                            <option value="Linh hoạt">Linh hoạt</option>
-                          </select>
+                          <div className="relative">
+                            <input
+                              autoComplete="off" type="text" inputMode="numeric"
+                              value={minContractDuration}
+                              onChange={(e) => setMinContractDuration(e.target.value.replace(/\D/g, ""))}
+                              placeholder="Ví dụ: 6"
+                              className="w-full px-4 pr-16 h-[52px] rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            />
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">tháng</span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1015,7 +1032,7 @@ function CreateRoommateContent() {
                               </p>
                             </div>
                             <input
-                              type="file"
+                              autoComplete="off" type="file"
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => {
@@ -1069,7 +1086,7 @@ function CreateRoommateContent() {
                                 }`}
                             >
                               <input
-                                type="checkbox"
+                                autoComplete="off" type="checkbox"
                                 checked={amenities.includes(amenity.value)}
                                 onChange={(e) => {
                                   if (e.target.checked) {
@@ -1084,7 +1101,7 @@ function CreateRoommateContent() {
                             </label>
                             {amenity.value === 'other' && amenities.includes('other') && (
                               <input
-                                type="text"
+                                autoComplete="off" type="text"
                                 value={amenitiesOther}
                                 onChange={(e) => setAmenitiesOther(e.target.value)}
                                 placeholder="Nhập tiện nghi khác..."
@@ -1155,7 +1172,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefGender"
                               value={option.value}
                               checked={prefGender.includes(option.value)}
@@ -1192,7 +1209,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefStatus"
                               value={option.value}
                               checked={prefStatus.includes(option.value)}
@@ -1219,7 +1236,7 @@ function CreateRoommateContent() {
                       </div>
                       {showStatusOther && (
                         <input
-                          type="text"
+                          autoComplete="off" type="text"
                           value={prefStatusOther}
                           onChange={(e) => setPrefStatusOther(e.target.value)}
                           placeholder="Mô tả thêm về tình trạng..."
@@ -1243,7 +1260,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefSchedule"
                               value={option.value}
                               checked={prefSchedule.includes(option.value)}
@@ -1278,7 +1295,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefCleanliness"
                               value={option.value}
                               checked={prefCleanliness.includes(option.value)}
@@ -1313,7 +1330,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefHabits"
                               value={option.value}
                               checked={prefHabits.includes(option.value)}
@@ -1348,7 +1365,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefPets"
                               value={option.value}
                               checked={prefPets.includes(option.value)}
@@ -1386,7 +1403,7 @@ function CreateRoommateContent() {
                             className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black cursor-pointer hover:bg-zinc-50 transition-colors bg-white"
                           >
                             <input
-                              type="radio"
+                              autoComplete="off" type="radio"
                               name="prefMoveInTime"
                               value={option.value}
                               checked={prefMoveInTime.includes(option.value)}
@@ -1411,7 +1428,7 @@ function CreateRoommateContent() {
                     <div>
                       <label className="block text-sm font-bold mb-2 text-blue-600">Khác</label>
                       <input
-                        type="text"
+                        autoComplete="off" type="text"
                         value={prefOther}
                         onChange={(e) => setPrefOther(e.target.value)}
                         placeholder="Yêu cầu khác về người ở cùng..."
@@ -1476,7 +1493,7 @@ function CreateRoommateContent() {
                         Số điện thoại <span className="text-pink-500">*</span>
                       </label>
                       <input
-                        type="tel"
+                        autoComplete="off" type="tel"
                         value={contactPhone}
                         onChange={(e) => setContactPhone(e.target.value)}
                         placeholder="0123456789"
@@ -1490,7 +1507,7 @@ function CreateRoommateContent() {
                         Zalo
                       </label>
                       <input
-                        type="text"
+                        autoComplete="off" type="text"
                         value={contactZalo}
                         onChange={(e) => setContactZalo(e.target.value)}
                         placeholder="Số Zalo (nếu khác SĐT)"
@@ -1499,7 +1516,7 @@ function CreateRoommateContent() {
                       />
                       <label className="flex items-center gap-2 mt-2 cursor-pointer">
                         <input
-                          type="checkbox"
+                          autoComplete="off" type="checkbox"
                           checked={sameAsPhone}
                           onChange={(e) => setSameAsPhone(e.target.checked)}
                           className="w-4 h-4 rounded appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500"
@@ -1514,7 +1531,7 @@ function CreateRoommateContent() {
                         Facebook
                       </label>
                       <input
-                        type="text"
+                        autoComplete="off" type="text"
                         value={contactFacebook}
                         onChange={(e) => setContactFacebook(e.target.value)}
                         placeholder="Link Facebook hoặc tên Facebook"
@@ -1528,7 +1545,7 @@ function CreateRoommateContent() {
                         Instagram
                       </label>
                       <input
-                        type="text"
+                        autoComplete="off" type="text"
                         value={contactInstagram}
                         onChange={(e) => setContactInstagram(e.target.value)}
                         placeholder="Username hoặc link Instagram"
@@ -1565,7 +1582,7 @@ function CreateRoommateContent() {
                             : [];
 
                           const { createListing } = await import('../../data/listings');
-                          await createListing({
+                          const newId = await createListing({
                             category: "roommate",
                             roommateType: type as "have-room" | "find-partner",
                             title,
@@ -1618,10 +1635,11 @@ function CreateRoommateContent() {
                             facebook: contactFacebook,
                             instagram: contactInstagram,
                             userId: user?.uid || "",
-                          });
+                          }, isTester);
 
                           // Remove draft if exists
                           localStorage.removeItem('roommate_draft');
+                          setCreatedListingId(newId);
                           setShowSuccessModal(true);
                         } catch (error) {
                           console.error("Error creating listing:", error);
@@ -1642,82 +1660,51 @@ function CreateRoommateContent() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Metro Style Progress */}
-              <div className="py-2">
-                <div className="relative pl-2">
-                  {/* Track Line Background */}
-                  <div className="absolute left-[19px] top-4 bottom-4 w-1.5 bg-zinc-100 rounded-full" />
-
-                  {/* Track Line Active */}
-                  <div
-                    className="absolute left-[19px] top-4 w-1.5 bg-black rounded-full transition-all duration-700 ease-out"
-                    style={{
-                      height: `${progressPercentage}%`
-                    }}
-                  />
-
-
-
-                  <div className="space-y-8 relative">
-
-                    {/* Station 1 */}
-                    <div className="flex gap-4 items-center group">
-                      <div className={`
-                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
-                        ${(!showAmenities && !showPreferences) ? 'border-black scale-125 shadow-lg' : 'border-black'}
-                      `}>
-                        {/* Dot for station */}
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${(!showAmenities && !showPreferences) ? 'bg-black animate-pulse' : 'bg-black'}`} />
-                      </div>
-                      <div className="transition-opacity duration-300">
-                        <p className="font-bold text-sm uppercase tracking-wide">Thông tin</p>
-                        <p className="text-xs text-zinc-500">Cơ bản & Chi phí</p>
-                      </div>
-                    </div>
-
-                    {/* Station 2 - only for have-room */}
-                    {isHaveRoom && (
-                      <div className="flex gap-4 items-center group">
-                        <div className={`
-                          relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
-                          ${showAmenities || showPreferences ? 'border-black' : 'border-zinc-200'}
-                          ${(showAmenities && !showPreferences) ? 'scale-125 shadow-lg' : ''}
-                        `}>
-                          <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showAmenities || showPreferences ? 'bg-black' : 'bg-zinc-200'} ${(showAmenities && !showPreferences) ? 'animate-pulse' : ''}`} />
-                        </div>
-                        <div className={`transition-opacity duration-300 ${(showAmenities || showPreferences) ? 'opacity-100' : 'opacity-40'}`}>
-                          <p className="font-bold text-sm uppercase tracking-wide">Chi tiết</p>
-                          <p className="text-xs text-zinc-500">Tiện nghi & Ảnh</p>
-                        </div>
-                      </div>
+              {/* Simple Step Progress */}
+              <div className="card bg-white p-6 shadow-sm border-2 border-black rounded-xl sticky top-24">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-bold text-sm text-zinc-500 uppercase tracking-wide">Tiến độ</h2>
+                  <span className="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">
+                    {isHaveRoom ? (
+                      `Bước ${(!showAmenities && !showPreferences && !showContactInfo) ? 1 : (showAmenities && !showPreferences && !showContactInfo) ? 2 : (showPreferences && !showContactInfo) ? 3 : 4} / 4`
+                    ) : (
+                      `Bước ${(!showPreferences && !showContactInfo) ? 1 : (showPreferences && !showContactInfo) ? 2 : 3} / 3`
                     )}
+                  </span>
+                </div>
 
-                    {/* Station 3 */}
-                    <div className="flex gap-4 items-center group">
-                      <div className={`
-                        relative z-10 w-6 h-6 rounded-full border-[3px] flex items-center justify-center bg-white transition-all duration-300
-                        ${showPreferences ? 'border-black scale-125 shadow-lg' : 'border-zinc-200'}
-                      `}>
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${showPreferences ? 'bg-black animate-pulse' : 'bg-zinc-200'}`} />
-                      </div>
-                      <div className={`transition-opacity duration-300 ${showPreferences ? 'opacity-100' : 'opacity-40'}`}>
-                        <p className="font-bold text-sm uppercase tracking-wide">Mong muốn</p>
-                        <p className="text-xs text-zinc-500">Bạn ở cùng</p>
-                      </div>
-                    </div>
+                <div className="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden mb-2 border border-zinc-200">
+                  <div
+                    className="bg-blue-500 h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
 
-                    {/* Station 4 */}
-                    <div className="flex gap-4 items-center group">
-                      <div className="relative z-10 w-6 h-6 rounded-full border-[3px] border-zinc-200 flex items-center justify-center bg-white">
-                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
-                      </div>
-                      <div className="opacity-40">
-                        <p className="font-bold text-sm uppercase tracking-wide">Hoàn tất</p>
-                        <p className="text-xs text-zinc-500">Đăng tin</p>
-                      </div>
-                    </div>
-
-                  </div>
+                <div className="mt-4 pt-4 border-t border-zinc-100">
+                  {(!showAmenities && !showPreferences && !showContactInfo) && (
+                    <>
+                      <p className="font-bold text-base text-blue-600 mb-1">Thông tin cơ bản</p>
+                      <p className="text-xs text-zinc-500">Khu vực & Chi phí</p>
+                    </>
+                  )}
+                  {isHaveRoom && showAmenities && !showPreferences && !showContactInfo && (
+                    <>
+                      <p className="font-bold text-base text-blue-600 mb-1">Chi tiết phòng</p>
+                      <p className="text-xs text-zinc-500">Tiện nghi & Hình ảnh</p>
+                    </>
+                  )}
+                  {showPreferences && !showContactInfo && (
+                    <>
+                      <p className="font-bold text-base text-blue-600 mb-1">Mong muốn bạn ở cùng</p>
+                      <p className="text-xs text-zinc-500">Yêu cầu & Thói quen</p>
+                    </>
+                  )}
+                  {showContactInfo && (
+                    <>
+                      <p className="font-bold text-base text-blue-600 mb-1">Hoàn tất đăng tin</p>
+                      <p className="text-xs text-zinc-500">Thông tin liên lạc</p>
+                    </>
+                  )}
                 </div>
               </div>
               {/* Tips & Checklist */}
@@ -1839,7 +1826,7 @@ function CreateRoommateContent() {
                 {/* Price */}
                 <div className="bg-blue-50 p-4 rounded-lg border-2 border-black">
                   <p className="text-sm text-zinc-500">{isHaveRoom ? "Tiền thuê phòng" : "Ngân sách"}</p>
-                  <p className="text-2xl font-bold">{isHaveRoom ? costRent : budget || "(Chưa nhập)"}</p>
+                  <p className="text-2xl font-bold">{(isHaveRoom ? costRent : budget) ? `${formatPriceDisplay(isHaveRoom ? costRent : budget)} đ/tháng` : "(Chưa nhập)"}</p>
                 </div>
 
                 {/* Room Info */}
@@ -1875,13 +1862,13 @@ function CreateRoommateContent() {
                   {currentOccupants && (
                     <div>
                       <p className="text-zinc-500">Số người đang ở</p>
-                      <p className="font-semibold">{currentOccupants}</p>
+                      <p className="font-semibold">{currentOccupants} người</p>
                     </div>
                   )}
                   {minContractDuration && (
                     <div>
                       <p className="text-zinc-500">Thời hạn hợp đồng còn lại</p>
-                      <p className="font-semibold">{minContractDuration}</p>
+                      <p className="font-semibold">{minContractDuration} tháng</p>
                     </div>
                   )}
                 </div>

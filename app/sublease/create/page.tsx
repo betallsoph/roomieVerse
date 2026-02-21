@@ -22,7 +22,7 @@ import { useAdminRedirect } from "../../hooks/useAdminRedirect";
 export default function CreateSubleasePage() {
   useAdminRedirect();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isTester } = useAuth();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -98,7 +98,7 @@ export default function CreateSubleasePage() {
         postedDate: new Date().toLocaleDateString("vi-VN"),
         amenities: amenities.length > 0 ? amenities : undefined,
         minContractDuration: contractRemaining.trim() || undefined,
-      });
+      }, isTester);
       router.push(`/sublease/listing/${id}`);
     } catch (error) {
       console.error("Error creating sublease listing:", error);
@@ -138,7 +138,7 @@ export default function CreateSubleasePage() {
                 Tiêu đề <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="VD: Sang lại phòng studio Q.Bình Thạnh - còn 6 tháng HĐ"
@@ -156,7 +156,7 @@ export default function CreateSubleasePage() {
                 Giá thuê hàng tháng <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="VD: 3.500.000đ/tháng"
@@ -201,7 +201,7 @@ export default function CreateSubleasePage() {
                 </select>
               </div>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={specificAddress}
                 onChange={(e) => setSpecificAddress(e.target.value)}
                 placeholder="Địa chỉ cụ thể (không bắt buộc)"
@@ -216,7 +216,7 @@ export default function CreateSubleasePage() {
                 Ngày có thể dọn vào
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={moveInDate}
                 onChange={(e) => setMoveInDate(e.target.value)}
                 placeholder="VD: Từ 01/03/2026 hoặc Linh hoạt"
@@ -230,7 +230,7 @@ export default function CreateSubleasePage() {
                 Thời hạn hợp đồng còn lại
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={contractRemaining}
                 onChange={(e) => setContractRemaining(e.target.value)}
                 placeholder="VD: Còn 6 tháng (đến 09/2026)"
@@ -244,7 +244,7 @@ export default function CreateSubleasePage() {
                 Lý do sang lại
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="VD: Chuyển công tác, về quê, chuyển chỗ ở mới..."
@@ -258,7 +258,7 @@ export default function CreateSubleasePage() {
                 Mô tả phòng <span className="text-red-500">*</span>
               </label>
               <textarea
-                value={description}
+                autoComplete="off" value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Mô tả phòng, diện tích, tầng, tiện nghi, tình trạng phòng, điều kiện sang nhượng..."
                 rows={6}
@@ -297,7 +297,7 @@ export default function CreateSubleasePage() {
                 Số điện thoại <span className="text-red-500">*</span>
               </label>
               <input
-                type="tel"
+                autoComplete="off" type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Số điện thoại liên hệ"
@@ -308,7 +308,7 @@ export default function CreateSubleasePage() {
             <div className="mb-8">
               <label className="block text-sm font-bold mb-2">Zalo</label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={zalo}
                 onChange={(e) => setZalo(e.target.value)}
                 placeholder="Số Zalo (không bắt buộc)"

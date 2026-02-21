@@ -5,8 +5,8 @@ export type PropertyType = "house" | "apartment";
 // Listing status
 export type ListingStatus = "active" | "pending" | "rejected" | "hidden" | "deleted";
 
-// User role
-export type UserRole = "user" | "admin";
+// User role — hierarchy: user < mod < tester < admin
+export type UserRole = "user" | "mod" | "tester" | "admin";
 
 // Roommate preferences interface
 export interface RoommatePreferences {

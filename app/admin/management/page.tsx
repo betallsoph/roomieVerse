@@ -1,27 +1,58 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import Link from "next/link";
-import { ArrowLeft, Settings, Users, BarChart3, Database, Mail, Bell, ArrowRight } from "lucide-react";
+import { ArrowLeft, Settings, Loader2, Shield } from "lucide-react";
+import { getAllUsers, getUserCount, setUserRole } from "../../data/users";
+import { getListings } from "../../data/listings";
+import { UserProfile, UserRole } from "../../data/types";
+import { useAuth } from "../../contexts/AuthContext";
+
+const ROLE_BADGE: Record<UserRole, { label: string; color: string }> = {
+  user: { label: "User", color: "bg-blue-100" },
+  mod: { label: "Mod", color: "bg-green-100" },
+  tester: { label: "Tester", color: "bg-amber-100" },
+  admin: { label: "Admin", color: "bg-red-100" },
+};
 
 export default function ManagementPage() {
-  const systemStats = { totalUsers: 2458, activeUsers: 1823, totalListings: 342, totalMessages: 8934 };
+  const { isAdmin } = useAuth();
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [stats, setStats] = useState({ totalUsers: 0, totalListings: 0 });
+  const [loading, setLoading] = useState(true);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
 
-  const recentUsers = [
-    { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@email.com", joinDate: "2025-12-01", role: "user", status: "active" },
-    { id: 2, name: "Trần Thị B", email: "tranthib@email.com", joinDate: "2025-12-03", role: "user", status: "active" },
-    { id: 3, name: "Lê Văn C", email: "levanc@email.com", joinDate: "2025-11-28", role: "user", status: "inactive" },
-  ];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [allUsers, userCount, listings] = await Promise.all([
+          getAllUsers(),
+          getUserCount(),
+          getListings(),
+        ]);
+        setUsers(allUsers);
+        setStats({ totalUsers: userCount, totalListings: listings.length });
+      } catch (error) {
+        console.error("Error fetching management data:", error);
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
 
-  const quickActions = [
-    { icon: Users, title: "Quản lý người dùng", desc: "Xem, chỉnh sửa thông tin" },
-    { icon: BarChart3, title: "Báo cáo & Thống kê", desc: "Xem báo cáo chi tiết" },
-    { icon: Settings, title: "Cài đặt hệ thống", desc: "Cấu hình thiết lập" },
-    { icon: Bell, title: "Thông báo", desc: "Gửi thông báo người dùng" },
-    { icon: Database, title: "Quản lý dữ liệu", desc: "Sao lưu, khôi phục" },
-    { icon: Mail, title: "Email Marketing", desc: "Gửi email hàng loạt" },
-  ];
+  const handleRoleChange = async (uid: string, newRole: UserRole) => {
+    setUpdatingRole(uid);
+    try {
+      await setUserRole(uid, newRole);
+      setUsers(prev => prev.map(u => u.uid === uid ? { ...u, role: newRole } : u));
+    } catch (error) {
+      console.error("Error updating role:", error);
+      alert("Cập nhật role thất bại.");
+    }
+    setUpdatingRole(null);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -42,75 +73,173 @@ export default function ManagementPage() {
             <p className="text-zinc-600">Quản lý người dùng, thống kê và cài đặt</p>
           </div>
 
-          {/* Stats - Inline */}
+          {/* Stats */}
           <div className="flex flex-wrap gap-8 mb-12 py-6 border-y-2 border-black">
             <div>
               <p className="text-sm text-zinc-500">Tổng người dùng</p>
-              <p className="text-3xl font-black">{systemStats.totalUsers.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">Đang hoạt động</p>
-              <p className="text-3xl font-black">{systemStats.activeUsers.toLocaleString()}</p>
+              <p className="text-3xl font-black">{loading ? "..." : stats.totalUsers.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm text-zinc-500">Tổng tin đăng</p>
-              <p className="text-3xl font-black">{systemStats.totalListings.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">Tin nhắn</p>
-              <p className="text-3xl font-black">{systemStats.totalMessages.toLocaleString()}</p>
+              <p className="text-3xl font-black">{loading ? "..." : stats.totalListings.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Quick Actions - Grid, no card wrapper */}
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-4">Thao Tác Nhanh</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {quickActions.map((action, idx) => (
-                <button key={idx} className="group flex items-center gap-3 p-4 border-2 border-black rounded-xl hover:bg-blue-50 transition-all text-left">
-                  <action.icon className="w-6 h-6 text-zinc-600 group-hover:text-black" strokeWidth={1.5} />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm truncate">{action.title}</h3>
-                    <p className="text-xs text-zinc-500 truncate">{action.desc}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
-                </button>
-              ))}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
             </div>
-          </div>
+          ) : users.length === 0 ? (
+            <p className="text-zinc-500 py-8 text-center">Chưa có người dùng nào.</p>
+          ) : (
+            <>
+              {/* Staff */}
+              {(() => {
+                const staff = users.filter(u => u.role && u.role !== "user");
+                if (staff.length === 0) return null;
+                return (
+                  <div className="mb-10">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold">Staff</h2>
+                      <span className="text-sm text-zinc-400">{staff.length} thành viên</span>
+                    </div>
+                    <div className="border-2 border-black rounded-xl overflow-hidden">
+                      {staff.map((user, idx) => {
+                        const role = (user.role as UserRole) || "user";
+                        const badge = ROLE_BADGE[role] || ROLE_BADGE.user;
+                        return (
+                          <div key={user.uid} className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 ${idx !== staff.length - 1 ? 'border-b-2 border-black' : ''} hover:bg-zinc-50 transition-colors`}>
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {user.photoURL ? (
+                                <img src={user.photoURL} alt="" className="w-10 h-10 border-2 border-black rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 bg-blue-100 border-2 border-black rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                  {user.displayName?.charAt(0)?.toUpperCase() || "?"}
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <h3 className="font-bold truncate">{user.displayName || "Ẩn danh"}</h3>
+                                <p className="text-sm text-zinc-500 truncate">{user.email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              {role === "admin" ? (
+                                <span className="px-2 py-0.5 text-xs font-bold rounded border-2 border-black bg-red-100">
+                                  Admin
+                                </span>
+                              ) : isAdmin ? (
+                                <select
+                                  value={role}
+                                  onChange={(e) => handleRoleChange(user.uid, e.target.value as UserRole)}
+                                  disabled={updatingRole === user.uid}
+                                  className={`px-2 py-1 text-xs font-bold rounded border-2 border-black ${badge.color} cursor-pointer disabled:opacity-50`}
+                                >
+                                  <option value="user">User</option>
+                                  <option value="mod">Mod</option>
+                                  <option value="tester">Tester</option>
+                                </select>
+                              ) : (
+                                <span className={`px-2 py-0.5 text-xs font-bold rounded border border-black ${badge.color}`}>
+                                  {badge.label}
+                                </span>
+                              )}
+                              {user.createdAt && (
+                                <span className="text-xs text-zinc-400 hidden md:block">{user.createdAt.slice(0, 10)}</span>
+                              )}
+                              <Link
+                                href={`/user/${user.uid}`}
+                                className="px-3 py-1.5 text-xs font-semibold border-2 border-black rounded-lg hover:bg-zinc-100 transition-colors"
+                              >
+                                Chi tiết
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
-          {/* Recent Users - Table style */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Người Dùng Gần Đây</h2>
-              <button className="text-sm font-semibold text-zinc-500 hover:text-black transition-colors">
-                Xem tất cả →
-              </button>
-            </div>
-            <div className="border-2 border-black rounded-xl overflow-hidden">
-              {recentUsers.map((user, idx) => (
-                <div key={user.id} className={`flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 ${idx !== recentUsers.length - 1 ? 'border-b-2 border-black' : ''} hover:bg-zinc-50 transition-colors`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 border-2 border-black rounded-full flex items-center justify-center font-bold text-sm">
-                      {user.name.charAt(0)}
+              {/* Regular users */}
+              {(() => {
+                const regulars = users.filter(u => !u.role || u.role === "user");
+                return (
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold">Người Dùng</h2>
+                      <span className="text-sm text-zinc-400">{regulars.length} người dùng</span>
                     </div>
-                    <div>
-                      <h3 className="font-bold">{user.name}</h3>
-                      <p className="text-sm text-zinc-500">{user.email}</p>
-                    </div>
+                    {regulars.length === 0 ? (
+                      <p className="text-zinc-500 py-8 text-center">Chưa có người dùng thường nào.</p>
+                    ) : (
+                      <div className="border-2 border-black rounded-xl overflow-hidden">
+                        {regulars.map((user, idx) => {
+                          const role = (user.role as UserRole) || "user";
+                          const badge = ROLE_BADGE[role] || ROLE_BADGE.user;
+                          return (
+                            <div key={user.uid} className={`flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 ${idx !== regulars.length - 1 ? 'border-b-2 border-black' : ''} hover:bg-zinc-50 transition-colors`}>
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                {user.photoURL ? (
+                                  <img src={user.photoURL} alt="" className="w-10 h-10 border-2 border-black rounded-full object-cover flex-shrink-0" />
+                                ) : (
+                                  <div className="w-10 h-10 bg-blue-100 border-2 border-black rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                    {user.displayName?.charAt(0)?.toUpperCase() || "?"}
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <h3 className="font-bold truncate">{user.displayName || "Ẩn danh"}</h3>
+                                  <p className="text-sm text-zinc-500 truncate">{user.email}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 flex-shrink-0">
+                                {isAdmin ? (
+                                  <select
+                                    value={role}
+                                    onChange={(e) => handleRoleChange(user.uid, e.target.value as UserRole)}
+                                    disabled={updatingRole === user.uid}
+                                    className={`px-2 py-1 text-xs font-bold rounded border-2 border-black ${badge.color} cursor-pointer disabled:opacity-50`}
+                                  >
+                                    <option value="user">User</option>
+                                    <option value="mod">Mod</option>
+                                    <option value="tester">Tester</option>
+                                  </select>
+                                ) : (
+                                  <span className={`px-2 py-0.5 text-xs font-bold rounded border border-black ${badge.color}`}>
+                                    {badge.label}
+                                  </span>
+                                )}
+                                {user.createdAt && (
+                                  <span className="text-xs text-zinc-400 hidden md:block">{user.createdAt.slice(0, 10)}</span>
+                                )}
+                                <Link
+                                  href={`/user/${user.uid}`}
+                                  className="px-3 py-1.5 text-xs font-semibold border-2 border-black rounded-lg hover:bg-zinc-100 transition-colors"
+                                >
+                                  Chi tiết
+                                </Link>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-2 py-0.5 text-xs font-bold rounded border border-black ${user.status === "active" ? "bg-blue-100" : "bg-zinc-100"}`}>
-                      {user.status === "active" ? "Hoạt động" : "Không hoạt động"}
-                    </span>
-                    <span className="text-xs text-zinc-400">{user.joinDate}</span>
-                    <button className="px-3 py-1.5 text-xs font-semibold border-2 border-black rounded-lg hover:bg-zinc-100 transition-colors">
-                      Chi tiết
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                );
+              })()}
+            </>
+          )}
+
+          {/* Role legend */}
+          <div className="mt-8 flex flex-wrap gap-3 items-center text-xs text-zinc-500">
+            <Shield className="w-4 h-4" />
+            <span><strong>User</strong> — người dùng thường</span>
+            <span>|</span>
+            <span><strong>Mod</strong> — duyệt bài</span>
+            <span>|</span>
+            <span><strong>Tester</strong> — duyệt + bypass kiểm duyệt + quản lý</span>
+            <span>|</span>
+            <span><strong>Admin</strong> — toàn quyền</span>
           </div>
         </div>
       </section>

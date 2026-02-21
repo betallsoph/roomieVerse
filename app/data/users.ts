@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { FIREBASE_ENABLED } from "../lib/config";
 import { UserProfile } from "./types";
@@ -94,6 +94,37 @@ export async function updateUserProfileFields(
   }
 }
 
+// Get recent users (for admin dashboard)
+export async function getRecentUsers(max = 10): Promise<UserProfile[]> {
+  if (!FIREBASE_ENABLED || !db) return [];
+
+  try {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      orderBy("createdAt", "desc"),
+      limit(max),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data() as UserProfile);
+  } catch (error) {
+    console.error("Error fetching recent users:", error);
+    return [];
+  }
+}
+
+// Get total user count
+export async function getUserCount(): Promise<number> {
+  if (!FIREBASE_ENABLED || !db) return 0;
+
+  try {
+    const snap = await getDocs(collection(db, COLLECTION_NAME));
+    return snap.size;
+  } catch (error) {
+    console.error("Error counting users:", error);
+    return 0;
+  }
+}
+
 // Check if user is admin
 export async function isUserAdmin(uid: string): Promise<boolean> {
   if (!FIREBASE_ENABLED || !db) return false;
@@ -102,10 +133,41 @@ export async function isUserAdmin(uid: string): Promise<boolean> {
   return profile?.role === "admin";
 }
 
-// Set user as admin (use in Firebase console or a setup script)
-export async function setUserAdmin(uid: string): Promise<void> {
-  if (!FIREBASE_ENABLED || !db) return;
+// Set user role (via server API to bypass Firestore rules)
+export async function setUserRole(uid: string, role: string): Promise<void> {
+  if (!FIREBASE_ENABLED) return;
 
-  const docRef = doc(db, COLLECTION_NAME, uid);
-  await updateDoc(docRef, { role: "admin" });
+  const { getAuth } = await import("firebase/auth");
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const idToken = await user.getIdToken();
+  const res = await fetch("/api/admin/set-role", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ uid, role }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Failed to set role");
+  }
+}
+
+// Get all users (for admin management)
+export async function getAllUsers(): Promise<UserProfile[]> {
+  if (!FIREBASE_ENABLED || !db) return [];
+
+  try {
+    const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => d.data() as UserProfile);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    return [];
+  }
 }

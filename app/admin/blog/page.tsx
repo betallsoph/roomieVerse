@@ -68,10 +68,11 @@ export default function BlogManagementPage() {
           {/* Search & Filter */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
-              type="text"
+              autoComplete="off" type="text"
               placeholder="Tìm kiếm bài viết..."
               className="flex-1 px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
+
             <select className="px-4 py-2.5 border-2 border-black rounded-lg font-semibold focus:outline-none">
               <option value="all">Tất cả trạng thái</option>
               <option value="published">Đã xuất bản</option>

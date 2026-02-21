@@ -32,7 +32,7 @@ const categories: { key: CommunityCategory; label: string; icon: typeof Lightbul
 
 export default function CreateCommunityPostPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isTester } = useAuth();
 
   const [category, setCategory] = useState<CommunityCategory | null>(null);
   const [title, setTitle] = useState("");
@@ -63,7 +63,7 @@ export default function CreateCommunityPostPage() {
         location: location.trim() || undefined,
         price: price.trim() || undefined,
         rating: showRating && rating > 0 ? rating : undefined,
-      });
+      }, isTester);
 
       router.push(`/community/${postId}`);
     } catch (error) {
@@ -128,7 +128,7 @@ export default function CreateCommunityPostPage() {
                 Tiêu đề <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                autoComplete="off" type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Tiêu đề bài viết..."
@@ -144,7 +144,7 @@ export default function CreateCommunityPostPage() {
                 Nội dung <span className="text-red-500">*</span>
               </label>
               <textarea
-                value={content}
+                autoComplete="off" value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Viết nội dung bài đăng..."
                 rows={10}
@@ -161,7 +161,7 @@ export default function CreateCommunityPostPage() {
                   Địa điểm
                 </label>
                 <input
-                  type="text"
+                  autoComplete="off" type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="VD: Quận 7, TP.HCM"
@@ -175,7 +175,7 @@ export default function CreateCommunityPostPage() {
               <div className="mb-6">
                 <label className="block text-sm font-bold mb-2">Giá</label>
                 <input
-                  type="text"
+                  autoComplete="off" type="text"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="VD: 2.000.000đ"

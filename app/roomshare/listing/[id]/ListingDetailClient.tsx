@@ -85,7 +85,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { isAuthenticated, user, isAdmin } = useAuth();
+  const { isAuthenticated, user, isMod, isAdmin } = useAuth();
   const [listing, setListing] = useState<RoomListing | null>(initialListing ?? null);
   const [similarListings, setSimilarListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(!initialListing);
@@ -135,7 +135,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
   };
 
   const isOwner = !!(user?.uid && listing?.userId && user.uid === listing.userId);
-  const canManage = isOwner || isAdmin;
+  const canManage = isOwner || isMod;
 
   const handleHideListing = async () => {
     if (!listing) return;
@@ -735,7 +735,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
             {canManage && listing && (
               <div className="rounded-xl border-2 border-black bg-zinc-50 p-4 space-y-2">
                 <p className="text-xs font-bold text-zinc-500 mb-2">
-                  {isAdmin && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
+                  {isMod && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
                 </p>
                 {listing.status === "hidden" ? (
                   <button

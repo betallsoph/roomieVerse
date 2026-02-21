@@ -46,6 +46,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { createReport } from "../../../data/reports";
 import { getUserProfile } from "../../../data/users";
 import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
+import { formatPrice } from "../../../lib/format";
 
 // Helper function to get category badge
 function getCategoryBadge(listing: RoomListing) {
@@ -91,7 +92,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { isAuthenticated, user, isAdmin } = useAuth();
+  const { isAuthenticated, user, isMod, isAdmin, isLoading: authLoading } = useAuth();
   const [listing, setListing] = useState<RoomListing | null>(initialListing ?? null);
   const [similarListings, setSimilarListings] = useState<RoomListing[]>([]);
   const [isLoading, setIsLoading] = useState(!initialListing);
@@ -100,8 +101,9 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [authorPhoto, setAuthorPhoto] = useState<string | null>(null);
 
-  // Fetch listing data
+  // Fetch listing data (wait for auth so Firestore rules can verify owner/admin)
   useEffect(() => {
+    if (authLoading) return;
     async function fetchData() {
       setIsLoading(true);
       const data = await getListingById(id);
@@ -135,13 +137,13 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
         getUserProfile(data.userId).then(p => setAuthorPhoto(p?.photoURL || null)).catch(() => {});
       }
 
-      // Track view
-      if (data) {
-        incrementViewCount(String(data.id));
+      // Track view (may fail for pending listings — that's fine)
+      if (data && data.status === "active") {
+        incrementViewCount(String(data.id)).catch(() => {});
       }
     }
     fetchData();
-  }, [id, router]);
+  }, [id, router, authLoading]);
 
   // Check if listing is favorited
   useEffect(() => {
@@ -157,7 +159,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   };
 
   const isOwner = !!(user?.uid && listing?.userId && user.uid === listing.userId);
-  const canManage = isOwner || isAdmin;
+  const canManage = isOwner || isMod;
 
   const handleHideListing = async () => {
     if (!listing) return;
@@ -301,6 +303,18 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
         </div>
       </section>
 
+      {/* Pending Banner */}
+      {listing.status === "pending" && isOwner && (
+        <div className="bg-amber-50 border-b-2 border-amber-300">
+          <div className="mx-auto max-w-7xl px-6 py-3 flex items-center gap-3">
+            <Clock className="h-5 w-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm font-medium text-amber-800">
+              Bài đăng đang chờ duyệt. Bọn mình sẽ duyệt sớm nhất có thể!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main Content - Different layouts for have-room vs find-partner */}
       {isHaveRoom ? (
         /* ========== HAVE-ROOM LAYOUT ========== */
@@ -360,7 +374,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <p className="text-sm font-medium text-zinc-700 mb-1">Tiền thuê phòng</p>
-                      <p className="text-3xl sm:text-4xl font-extrabold text-blue-600">{listing.price}</p>
+                      <p className="text-3xl sm:text-4xl font-extrabold text-blue-600">{formatPrice(listing.price)}<span className="text-base font-medium text-zinc-400 ml-1">/ tháng</span></p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-zinc-700 mb-1">Đăng bởi</p>
@@ -449,7 +463,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                     </div>
                     <div>
                       <p className="text-zinc-500 mb-1">Số người đang ở</p>
-                      <p className="font-semibold text-blue-700">{listing.currentOccupants || "---"}</p>
+                      <p className="font-semibold text-blue-700">{listing.currentOccupants ? `${listing.currentOccupants} người` : "---"}</p>
                     </div>
                     <div>
                       <p className="text-zinc-500 mb-1">Dọn vào</p>
@@ -457,7 +471,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                     </div>
                     <div>
                       <p className="text-zinc-500 mb-1">Hợp đồng tối thiểu</p>
-                      <p className="font-semibold text-blue-700">{listing.minContractDuration || "---"}</p>
+                      <p className="font-semibold text-blue-700">{listing.minContractDuration ? `${listing.minContractDuration} tháng` : "---"}</p>
                     </div>
                   </div>
                 </div>
@@ -680,7 +694,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                 {canManage && listing && (
                   <div className="border-t border-zinc-200 pt-4 mt-4">
                     <p className="text-xs font-bold text-zinc-500 mb-2">
-                      {isAdmin && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
+                      {isMod && !isOwner ? "Quản trị viên" : "Quản lý bài đăng"}
                     </p>
                     <div className="flex gap-2">
                       {listing.status === "hidden" ? (
@@ -773,7 +787,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                             <MapPin className="h-3 w-3" />
                             {item.district || item.city || "Chưa rõ"}
                           </span>
-                          <span className="font-bold text-blue-600">{item.price}</span>
+                          <span className="font-bold text-blue-600">{formatPrice(item.price)}</span>
                         </div>
                       </Link>
                     ))}
@@ -817,7 +831,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-zinc-500 mb-1">Ngân sách</p>
-                      <p className="text-xl font-bold text-blue-600">{listing.price}</p>
+                      <p className="text-xl font-bold text-blue-600">{formatPrice(listing.price)}<span className="text-xs font-medium text-zinc-400 ml-1">/ tháng</span></p>
                     </div>
                     {(listing.city || listing.district) && (
                       <div>
@@ -1083,7 +1097,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
                             <MapPin className="h-3 w-3" />
                             {item.district || item.city || "Chưa rõ"}
                           </span>
-                          <span className="font-bold text-blue-600">{item.price}</span>
+                          <span className="font-bold text-blue-600">{formatPrice(item.price)}</span>
                         </div>
                       </Link>
                     ))}

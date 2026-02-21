@@ -502,7 +502,7 @@ export default function ProfilePage() {
                           }`}
                       >
                         <input
-                          type="radio"
+                          autoComplete="off" type="radio"
                           name="schedule"
                           checked={schedule === option.value}
                           onChange={() => setSchedule(option.value)}
@@ -540,7 +540,7 @@ export default function ProfilePage() {
                           }`}
                       >
                         <input
-                          type="checkbox"
+                          autoComplete="off" type="checkbox"
                           checked={habits.includes(option.value)}
                           onChange={() => toggleHabit(option.value)}
                           className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
@@ -571,7 +571,7 @@ export default function ProfilePage() {
                           }`}
                       >
                         <input
-                          type="checkbox"
+                          autoComplete="off" type="checkbox"
                           checked={habits.includes(option.value)}
                           onChange={() => toggleHabit(option.value)}
                           className="w-4 h-4 rounded-full appearance-none border-2 border-black checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
@@ -586,7 +586,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-sm font-bold mb-3">Khác</label>
                   <input
-                    type="text"
+                    autoComplete="off" type="text"
                     value={otherHabits}
                     onChange={(e) => setOtherHabits(e.target.value)}
                     placeholder="Thói quen hoặc sở thích khác của bạn..."

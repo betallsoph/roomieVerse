@@ -186,10 +186,14 @@ export async function getListingById(id: number | string): Promise<RoomListing |
     return mockListings.find(listing => String(listing.id) === idStr) || null;
   }
 
-  const docRef = doc(db, COLLECTION_NAME, idStr);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docToListing(docSnap);
+  try {
+    const docRef = doc(db, COLLECTION_NAME, idStr);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docToListing(docSnap);
+    }
+  } catch (error) {
+    console.error("Error fetching listing:", error);
   }
   return null;
 }
@@ -254,13 +258,13 @@ export async function getPendingListings(): Promise<RoomListing[]> {
 // ============================================================
 
 // Create a new listing
-export async function createListing(data: Partial<RoomListing> & { userId: string }): Promise<string> {
+export async function createListing(data: Partial<RoomListing> & { userId: string }, skipModeration = false): Promise<string> {
   // Determine ID prefix
   const prefix = data.category === "sublease" ? "sl" : data.category === "short-term" ? "st" : data.category === "roomshare" ? "rs" : "rm";
   const id = `${prefix}-${Date.now()}`;
 
-  // Determine initial status
-  const status: ListingStatus = MODERATION_ENABLED ? "pending" : "active";
+  // Determine initial status — tester/admin can bypass moderation
+  const status: ListingStatus = (MODERATION_ENABLED && !skipModeration) ? "pending" : "active";
 
   if (!FIREBASE_ENABLED || !db) {
     // Fallback: save to localStorage

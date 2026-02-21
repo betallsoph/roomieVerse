@@ -108,7 +108,7 @@ export default function AdvancedFilters({
             Tìm kiếm
           </label>
           <input
-            type="text"
+            autoComplete="off" type="text"
             value={localFilters.keywords}
             onChange={(e) => updateFilter("keywords", e.target.value)}
             placeholder="có ban công, gần chợ..."
@@ -125,7 +125,7 @@ export default function AdvancedFilters({
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <input
-                type="number"
+                autoComplete="off" type="number"
                 value={localFilters.priceMin}
                 onChange={(e) => updateFilter("priceMin", Number(e.target.value))}
                 min="0"
@@ -135,7 +135,7 @@ export default function AdvancedFilters({
               />
               <span className="font-bold">-</span>
               <input
-                type="number"
+                autoComplete="off" type="number"
                 value={localFilters.priceMax}
                 onChange={(e) => updateFilter("priceMax", Number(e.target.value))}
                 min="0"
@@ -150,7 +150,7 @@ export default function AdvancedFilters({
                 <span>{localFilters.priceMax} triệu</span>
               </div>
               <input
-                type="range"
+                autoComplete="off" type="range"
                 min="0"
                 max="20"
                 value={localFilters.priceMax}
@@ -227,7 +227,7 @@ export default function AdvancedFilters({
             Ngày dọn vào
           </label>
           <input
-            type="date"
+            autoComplete="off" type="date"
             value={localFilters.moveInDate}
             onChange={(e) => updateFilter("moveInDate", e.target.value)}
             className="w-full rounded-xl border-2 border-black px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"

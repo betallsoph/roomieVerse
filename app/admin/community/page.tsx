@@ -60,7 +60,7 @@ function timeAgo(dateStr?: string): string {
 }
 
 export default function CommunityModerationPage() {
-  const { user, isAdmin, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isMod, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   const [pendingPosts, setPendingPosts] = useState<CommunityPost[]>([]);
@@ -71,15 +71,15 @@ export default function CommunityModerationPage() {
   const [rejectReason, setRejectReason] = useState("");
 
   useEffect(() => {
-    if (!authLoading && (!isAuthenticated || !isAdmin)) {
+    if (!authLoading && (!isAuthenticated || !isMod)) {
       router.push("/");
     }
-  }, [authLoading, isAuthenticated, isAdmin, router]);
+  }, [authLoading, isAuthenticated, isMod, router]);
 
   // Fetch data
   useEffect(() => {
     async function load() {
-      if (!isAdmin) return;
+      if (!isMod) return;
       try {
         const [posts, rpts] = await Promise.all([
           getPendingCommunityPosts(),
@@ -94,7 +94,7 @@ export default function CommunityModerationPage() {
       }
     }
     load();
-  }, [isAdmin]);
+  }, [isMod]);
 
   const handleApprove = async (postId: string) => {
     if (!user) return;
@@ -150,7 +150,7 @@ export default function CommunityModerationPage() {
     }
   };
 
-  if (authLoading || !isAuthenticated || !isAdmin) {
+  if (authLoading || !isAuthenticated || !isMod) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-300 border-t-transparent" />
@@ -191,7 +191,7 @@ export default function CommunityModerationPage() {
           {isLoading && (
             <div className="text-center py-16">
               <Loader2 className="w-8 h-8 text-zinc-400 mx-auto mb-3 animate-spin" />
-              <p className="text-zinc-500">Đang tải...</p>
+              <p className="text-zinc-500">Đang truy xuất hệ thống...</p>
             </div>
           )}
 
@@ -261,7 +261,7 @@ export default function CommunityModerationPage() {
                           {isRejecting && (
                             <div className="mt-4 flex gap-2">
                               <input
-                                type="text"
+                                autoComplete="off" type="text"
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 placeholder="Lý do từ chối..."

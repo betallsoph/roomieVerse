@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 export function useProfileReminder() {
-  const { isAuthenticated, isProfileComplete, profileChecked, isAdmin } = useAuth();
+  const { isAuthenticated, isProfileComplete, profileChecked, isMod } = useAuth();
   const [showReminder, setShowReminder] = useState(false);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function useProfileReminder() {
     if (!profileChecked) return;
 
     // Never show for admin users or users with complete profiles
-    if (!isAuthenticated || isProfileComplete || isAdmin) {
+    if (!isAuthenticated || isProfileComplete || isMod) {
       setShowReminder(false);
       return;
     }
@@ -36,7 +36,7 @@ export function useProfileReminder() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, isProfileComplete, profileChecked, isAdmin]);
+  }, [isAuthenticated, isProfileComplete, profileChecked, isMod]);
 
   const dismissReminder = () => {
     setShowReminder(false);

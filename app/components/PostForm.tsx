@@ -42,11 +42,11 @@ export default function PostForm({
   return (
     <div className="mb-16 rounded-xl border-2 border-black bg-white p-10 shadow-[var(--shadow-primary)]">
       <h2 className="mb-8 text-3xl font-bold">{formTitle}</h2>
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form autoComplete="off" onSubmit={handleSubmit} className="space-y-8">
         <div>
           <label className="mb-3 block text-sm font-bold">Tiêu đề *</label>
           <input
-            type="text"
+            autoComplete="off" type="text"
             required
             value={formData.title}
             onChange={(e) =>
@@ -63,7 +63,7 @@ export default function PostForm({
               Giá thuê/tháng *
             </label>
             <input
-              type="text"
+              autoComplete="off" type="text"
               required
               value={formData.price}
               onChange={(e) =>
@@ -77,7 +77,7 @@ export default function PostForm({
           <div>
             <label className="mb-3 block text-sm font-bold">Khu vực *</label>
             <input
-              type="text"
+              autoComplete="off" type="text"
               required
               value={formData.location}
               onChange={(e) =>
@@ -95,7 +95,7 @@ export default function PostForm({
               Ngày dọn vào *
             </label>
             <input
-              type="text"
+              autoComplete="off" type="text"
               required
               value={formData.moveInDate}
               onChange={(e) =>
@@ -111,7 +111,7 @@ export default function PostForm({
               Số điện thoại *
             </label>
             <input
-              type="tel"
+              autoComplete="off" type="tel"
               required
               value={formData.phone}
               onChange={(e) =>
@@ -126,7 +126,7 @@ export default function PostForm({
         <div>
           <label className="mb-3 block text-sm font-bold">Mô tả *</label>
           <textarea
-            required
+            autoComplete="off" required
             value={formData.description}
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
