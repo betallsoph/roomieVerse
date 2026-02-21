@@ -98,7 +98,7 @@ export default function ShortTermPage() {
 
           {/* Listings grid */}
           {!isLoading && listings.length > 0 && (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
               {listings.map((listing) => (
                 <ListingCard key={listing.id} listing={listing} variant="yellow" />
               ))}

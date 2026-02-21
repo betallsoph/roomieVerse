@@ -5,6 +5,17 @@ import { UserProfile } from "./types";
 
 const COLLECTION_NAME = "users";
 
+// Firestore rejects undefined values — convert them to null
+function sanitize<T extends Record<string, unknown>>(obj: T): T {
+  const result = { ...obj };
+  for (const key in result) {
+    if (result[key] === undefined) {
+      (result as Record<string, unknown>)[key] = null;
+    }
+  }
+  return result;
+}
+
 // Mock user profiles for dev (when Firebase is off)
 const mockProfiles: Record<string, UserProfile> = {};
 
@@ -50,18 +61,18 @@ export async function saveUserProfile(profile: UserProfile): Promise<void> {
 
     if (docSnap.exists()) {
       const existingData = docSnap.data();
-      await updateDoc(docRef, {
+      await updateDoc(docRef, sanitize({
         ...profile,
         role: existingData.role || "user",
         updatedAt: new Date().toISOString(),
-      });
+      }));
     } else {
-      await setDoc(docRef, {
+      await setDoc(docRef, sanitize({
         ...profile,
         role: "user",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      });
+      }));
     }
   } catch (error) {
     console.error("Error saving user profile:", error);
@@ -84,10 +95,10 @@ export async function updateUserProfileFields(
 
   try {
     const docRef = doc(db, COLLECTION_NAME, uid);
-    await updateDoc(docRef, {
+    await updateDoc(docRef, sanitize({
       ...fields,
       updatedAt: new Date().toISOString(),
-    });
+    }));
   } catch (error) {
     console.error("Error updating user profile fields:", error);
     throw error;

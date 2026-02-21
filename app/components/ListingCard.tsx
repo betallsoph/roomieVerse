@@ -265,53 +265,73 @@ export default function ListingCard({ listing, variant = "blue", layout = "grid"
   }
 
   // Grid layout - Have Room (original - room-focused)
+  // Mobile: compact horizontal layout | Desktop: vertical card
   return (
     <a
       href={listingRoute}
       onClick={handleCardClick}
-      className="group flex flex-col rounded-xl border-[3px] border-zinc-800 bg-white p-4 sm:p-6 card-bounce h-full"
+      className="group flex flex-row sm:flex-col rounded-xl border-2 sm:border-[3px] border-zinc-800 bg-white p-3 sm:p-6 card-bounce h-full gap-3 sm:gap-0"
     >
       {/* Image Section */}
-      <div className={`mb-5 h-48 w-full overflow-hidden rounded-lg border-2 ${accentBorder} ${cardBg}`}>
+      <div className={`w-24 h-24 sm:w-full sm:h-48 sm:mb-5 flex-shrink-0 overflow-hidden rounded-lg border sm:border-2 ${accentBorder} ${cardBg}`}>
         <div className="flex h-full w-full items-center justify-center">
-          <Home className={`h-24 w-24 ${accentIconColor}`} strokeWidth={1.5} />
+          <Home className={`h-10 w-10 sm:h-24 sm:w-24 ${accentIconColor}`} strokeWidth={1.5} />
         </div>
       </div>
 
-      {/* Header: Price + Author + Date */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <span className={`text-xl font-bold ${accentColor}`}>
-          {formatPrice(listing.price)}
-        </span>
-        <div className="flex items-center gap-2 text-xs text-zinc-500">
-          <User className="h-3.5 w-3.5" />
-          <span>{listing.author}</span>
+      {/* Content */}
+      <div className="flex flex-col flex-1 min-w-0 justify-between">
+        {/* Mobile: Price on top */}
+        <div className="sm:hidden mb-1">
+          <span className={`text-base font-bold ${accentColor}`}>
+            {formatPrice(listing.price)}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3 className="text-sm sm:text-lg font-bold leading-tight line-clamp-2 sm:line-clamp-3 sm:min-h-[5rem] sm:mb-4 sm:pb-4 sm:border-b-2 sm:border-gray-300">{listing.title}</h3>
+
+        {/* Location & Move-in date */}
+        <div className="mt-1 sm:mt-0 sm:mb-4 space-y-0.5 sm:space-y-1.5 text-xs sm:text-sm">
+          <p className={`flex items-center gap-1.5 sm:gap-2 ${accentColor}`}>
+            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="line-clamp-1">{displayLocation}</span>
+          </p>
+          {listing.moveInDate && (
+            <p className={`flex items-center gap-1.5 sm:gap-2 ${accentColor}`}>
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="sm:hidden">{listing.moveInDate}</span>
+              <span className="hidden sm:inline">Dọn vào: {listing.moveInDate}</span>
+            </p>
+          )}
+        </div>
+
+        {/* Mobile: Author + Date | Desktop: Price + Author header */}
+        <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 mt-1 sm:hidden">
+          <User className="h-3 w-3" />
+          <span className="truncate">{listing.author}</span>
           <span>•</span>
           <span>{listing.postedDate}</span>
         </div>
-      </div>
 
-      {/* Title - Fixed 3 lines */}
-      <h3 className="mb-4 pb-4 border-b-2 border-gray-300 text-lg font-bold leading-tight line-clamp-3 min-h-[5rem]">{listing.title}</h3>
+        {/* Desktop only: Price + Author header */}
+        <div className="hidden sm:flex mb-4 items-center justify-between gap-3">
+          <span className={`text-xl font-bold ${accentColor}`}>
+            {formatPrice(listing.price)}
+          </span>
+          <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <User className="h-3.5 w-3.5" />
+            <span>{listing.author}</span>
+            <span>•</span>
+            <span>{listing.postedDate}</span>
+          </div>
+        </div>
 
-      {/* Location & Move-in date */}
-      <div className="mb-4 space-y-1.5 text-sm">
-        <p className={`flex items-center gap-2 ${accentColor}`}>
-          <MapPin className="h-4 w-4 flex-shrink-0" />
-          <span className="line-clamp-1">{displayLocation}</span>
+        {/* Description - desktop only */}
+        <p className="hidden sm:block mt-auto line-clamp-3 text-sm leading-relaxed text-zinc-700">
+          {listing.description}
         </p>
-        {listing.moveInDate && (
-          <p className={`flex items-center gap-2 ${accentColor}`}>
-            <Calendar className="h-4 w-4 flex-shrink-0" />
-            Dọn vào: {listing.moveInDate}
-          </p>
-        )}
       </div>
-
-      {/* Description */}
-      <p className="mt-auto line-clamp-3 text-sm leading-relaxed text-zinc-700">
-        {listing.description}
-      </p>
     </a>
   );
 }

@@ -339,7 +339,7 @@ export default function RoommatePage() {
 
         {/* Listings Grid */}
         {displayedListings.length > 0 ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
             {displayedListings.map((listing) => (
               <ListingCard
                 key={listing.id}
