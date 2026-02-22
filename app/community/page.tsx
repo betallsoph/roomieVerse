@@ -192,6 +192,20 @@ export default function CommunityPage() {
                           {post.title}
                         </h3>
 
+                        {/* Thumbnail */}
+                        {post.images && post.images.length > 0 && (
+                          <div className="mb-2 sm:mb-3 flex gap-2 overflow-hidden">
+                            {post.images.slice(0, 3).map((img, idx) => (
+                              <img key={idx} src={img} alt="" className="w-20 h-20 rounded-lg border border-zinc-200 object-cover flex-shrink-0" />
+                            ))}
+                            {post.images.length > 3 && (
+                              <div className="w-20 h-20 rounded-lg border border-zinc-200 bg-zinc-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-zinc-500">
+                                +{post.images.length - 3}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Footer: author + actions */}
                         <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
                           <div className="flex items-center gap-2 sm:gap-3">

@@ -7,6 +7,7 @@ import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContext";
+import BypassModerationToggle from "../../components/BypassModerationToggle";
 import { createListing } from "../../data/listings";
 import { cities, getDistrictsByLabel } from "../../data/locations";
 import {
@@ -22,6 +23,7 @@ export default function CreateShortTermPage() {
   useAdminRedirect();
   const router = useRouter();
   const { user, isAuthenticated, isTester } = useAuth();
+  const [bypassMod, setBypassMod] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -90,7 +92,7 @@ export default function CreateShortTermPage() {
         author: user.displayName || "Ẩn danh",
         postedDate: new Date().toLocaleDateString("vi-VN"),
         amenities: amenities.length > 0 ? amenities : undefined,
-      }, isTester);
+      }, isTester && bypassMod);
       router.push(`/short-term/listing/${id}`);
     } catch (error) {
       console.error("Error creating short-term listing:", error);
@@ -266,6 +268,11 @@ export default function CreateShortTermPage() {
             </div>
 
             {/* Submit */}
+            {isTester && (
+              <div className="mb-4">
+                <BypassModerationToggle enabled={bypassMod} onChange={setBypassMod} />
+              </div>
+            )}
             <div className="flex gap-3 pt-4 border-t-2 border-zinc-100">
               <Link
                 href="/short-term"

@@ -253,6 +253,19 @@ export async function getPendingListings(): Promise<RoomListing[]> {
   return snapshot.docs.map(docToListing);
 }
 
+/** Get rejected listings (admin) */
+export async function getRejectedListings(): Promise<RoomListing[]> {
+  if (!FIREBASE_ENABLED || !db) return [];
+
+  const q = query(
+    collection(db, COLLECTION_NAME),
+    where("status", "==", "rejected"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToListing);
+}
+
 // ============================================================
 // WRITE operations
 // ============================================================

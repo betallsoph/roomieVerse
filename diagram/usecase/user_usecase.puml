@@ -1,0 +1,37 @@
+@startuml roomieverse_user_app
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Khách (Guest)" as Guest
+actor "Người dùng thường (User)" as User
+
+User -up-|> Guest
+
+rectangle "Phân Hệ Người Dùng (Client App)" {
+    usecase "Đăng ký tài khoản (Email/SĐT)" as UC_Register
+    usecase "Đăng nhập (Google/Email)" as UC_Login
+    usecase "Xem bảng tin phòng" as UC_DFeed
+    usecase "Tìm kiếm / Lọc theo bộ lọc" as UC_Search
+    
+    usecase "Tạo tin tìm phòng / Share phòng" as UC_CreatePost
+    usecase "Tạm ẩn / Hiển thị tin" as UC_ToggleShow
+    usecase "Cập nhật Hồ sơ cá nhân" as UC_Profile
+    usecase "Xem thông tin liên hệ phòng" as UC_Contact
+    
+    usecase "Báo cáo người dùng vi phạm" as UC_Report
+    usecase "Tham gia thảo luận Cộng đồng" as UC_Discuss
+}
+
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_DFeed
+Guest --> UC_Search
+
+User --> UC_CreatePost
+User --> UC_ToggleShow
+User --> UC_Profile
+User --> UC_Contact
+User --> UC_Report
+User --> UC_Discuss
+
+@enduml

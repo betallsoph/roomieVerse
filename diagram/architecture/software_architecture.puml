@@ -1,0 +1,54 @@
+@startuml roomieverse_software_architecture
+title Biểu đồ Kiến trúc Phần mềm (Software Architecture) - roomieVerse
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+actor "Người dùng / Admin" as User
+
+node "Vercel (Hosting & Serverless)" {
+    package "Client-Side (Giao diện hiển thị)" {
+        [Next.js Pages / Components] <<React 19>>
+        [UI/UX Layer] <<Tailwind CSS & Framer Motion>>
+        [Auth Context & State] <<React Hooks / SWR>>
+        [Firebase Client SDK] <<Auth / Đọc tự do>>
+    }
+
+    package "Server-Side (Backend Logic)" {
+        [Next.js API Routes] <<Node.js Serverless>>
+        [Firebase Admin SDK] <<Bypass Rules / Quản trị>>
+        [AWS SDK] <<Xử lý hình ảnh>>
+    }
+}
+
+cloud "Dịch vụ Đám mây (Cloud Services)" {
+    [Firebase Authentication] <<Xác thực danh tính>>
+    database "Cloud Firestore" <<NoSQL Database>>
+    storage "Amazon S3" <<Lưu trữ hình ảnh (Object Storage)>>
+    [Google OAuth] <<Provider ngoài>>
+}
+
+' User interactions
+User --> [Next.js Pages / Components] : Truy cập Web (HTTP/HTTPS)
+[Next.js Pages / Components] --> [UI/UX Layer] : Render
+[Next.js Pages / Components] <--> [Auth Context & State] : Quản lý trạng thái
+
+' Client calls
+[Next.js Pages / Components] <--> [Firebase Client SDK] : Theo dõi Realtime / Thao tác cơ bản
+[Firebase Client SDK] --> [Firebase Authentication] : Login / Register
+[Firebase Authentication] <--> [Google OAuth] : Liên kết TK Google
+[Firebase Client SDK] --> [Cloud Firestore] : Đọc/Ghi dữ liệu (Client Rules)
+
+' Client to Server API
+[Next.js Pages / Components] --> [Next.js API Routes] : Gọi chức năng cần bảo mật (Promote Role, Xác nhận upload)
+
+' Server API calls
+[Next.js API Routes] --> [Firebase Admin SDK] : Thực thi logic ngầm
+[Next.js API Routes] --> [AWS SDK] : Cấp quyền Presigned URL an toàn
+[Firebase Admin SDK] --> [Cloud Firestore] : Ghi dữ liệu Admin / Thay đổi Role
+[Firebase Admin SDK] --> [Firebase Authentication] : Kiểm soát Session / Quyền
+
+' Storage interactions
+[AWS SDK] --> [Amazon S3] : Kết nối & Ký URL
+[Next.js Pages / Components] --> [Amazon S3] : Upload / Load hình ảnh trực tiếp (nhờ Presigned URL)
+
+@enduml

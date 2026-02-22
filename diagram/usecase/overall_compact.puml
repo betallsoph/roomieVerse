@@ -1,0 +1,39 @@
+@startuml roomieverse_overall_compact
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle hollow
+
+actor "Khách" as Guest
+actor "Người dùng" as User
+actor "Quản trị viên" as Admin
+
+rectangle "Nền tảng roomieVerse" {
+    usecase "Đăng ký tài khoản" as UC1
+    usecase "Đăng nhập / Đăng xuất" as UC2
+    usecase "Duyệt / Tìm phòng" as UC3
+    usecase "Xem chi tiết phòng" as UC4
+    usecase "Đăng tin phòng / share" as UC5
+    usecase "Liên lạc & Trò chuyện" as UC6
+    usecase "Quản lý bài của tôi" as UC7
+    usecase "Tham gia cộng đồng" as UC8
+    usecase "Duyệt / Từ chối yêu cầu" as UC9
+    usecase "Quản lý người dùng & hệ thống" as UC10
+}
+
+Guest -- UC1
+Guest -- UC2
+Guest -- UC3
+Guest -- UC4
+
+User -- UC1
+User -- UC2
+User -- UC3
+User -- UC4
+User -- UC5
+User -- UC6
+User -- UC7
+User -- UC8
+
+UC9 -- Admin
+UC10 -- Admin
+@enduml

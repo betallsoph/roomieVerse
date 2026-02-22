@@ -7,6 +7,7 @@ import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContext";
+import BypassModerationToggle from "../../components/BypassModerationToggle";
 import { createListing } from "../../data/listings";
 import { cities, getDistrictsByLabel } from "../../data/locations";
 import {
@@ -23,6 +24,7 @@ export default function CreateSubleasePage() {
   useAdminRedirect();
   const router = useRouter();
   const { user, isAuthenticated, isTester } = useAuth();
+  const [bypassMod, setBypassMod] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -98,7 +100,7 @@ export default function CreateSubleasePage() {
         postedDate: new Date().toLocaleDateString("vi-VN"),
         amenities: amenities.length > 0 ? amenities : undefined,
         minContractDuration: contractRemaining.trim() || undefined,
-      }, isTester);
+      }, isTester && bypassMod);
       router.push(`/sublease/listing/${id}`);
     } catch (error) {
       console.error("Error creating sublease listing:", error);
@@ -317,6 +319,11 @@ export default function CreateSubleasePage() {
             </div>
 
             {/* Submit */}
+            {isTester && (
+              <div className="mb-4">
+                <BypassModerationToggle enabled={bypassMod} onChange={setBypassMod} />
+              </div>
+            )}
             <div className="flex gap-3 pt-4 border-t-2 border-zinc-100">
               <Link
                 href="/sublease"

@@ -99,6 +99,20 @@ export async function getCommunityPostById(id: string): Promise<CommunityPost | 
   return docToPost(snap as unknown as { id: string; data: () => Record<string, unknown> });
 }
 
+/** Get ALL blog posts for admin management (all statuses, newest first) */
+export async function getAdminBlogPosts(maxResults: number = 100): Promise<CommunityPost[]> {
+  if (!FIREBASE_ENABLED || !db) return [];
+
+  const q = query(
+    collection(db, POSTS_COLLECTION),
+    where("category", "==", "blog"),
+    orderBy("createdAt", "desc"),
+    firestoreLimit(maxResults)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => docToPost(d as unknown as { id: string; data: () => Record<string, unknown> }));
+}
+
 /** Create a community post */
 export async function createCommunityPost(data: {
   authorId: string;

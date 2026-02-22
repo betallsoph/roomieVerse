@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
+import BypassModerationToggle from "../../components/BypassModerationToggle";
 import { Lightbulb, MapPin, DollarSign, Eye, Loader2, NotebookPen } from "lucide-react";
 import { cities, getDistrictsByLabel } from "../../data/locations";
 import { useAdminRedirect } from "../../hooks/useAdminRedirect";
@@ -27,6 +28,7 @@ function CreateRoommateContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, isAuthenticated, isTester } = useAuth();
+  const [bypassMod, setBypassMod] = useState(true);
 
   const type = searchParams.get("type") as RoommateType | null;
 
@@ -70,6 +72,7 @@ function CreateRoommateContent() {
   const [timeNegotiable, setTimeNegotiable] = useState(false);
   const [showStatusOther, setShowStatusOther] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdListingId, setCreatedListingId] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -1559,6 +1562,11 @@ function CreateRoommateContent() {
               {/* Submit Buttons - always show when on contact info page */}
               {showContactInfo && (
                 <>
+                  {isTester && (
+                    <div className="mb-4">
+                      <BypassModerationToggle enabled={bypassMod} onChange={setBypassMod} />
+                    </div>
+                  )}
                   <div className="flex gap-4">
                     <button
                       type="button"
@@ -1571,8 +1579,10 @@ function CreateRoommateContent() {
                     </button>
                     <button
                       type="button"
-                      disabled={contactPhone.trim() === ""}
+                      disabled={contactPhone.trim() === "" || isSubmitting}
                       onClick={async () => {
+                        if (isSubmitting) return;
+                        setIsSubmitting(true);
                         try {
                           // Upload images to R2 (falls back to base64 if R2 not configured)
                           const { uploadImages } = await import('../../lib/imageUpload');
@@ -1635,7 +1645,7 @@ function CreateRoommateContent() {
                             facebook: contactFacebook,
                             instagram: contactInstagram,
                             userId: user?.uid || "",
-                          }, isTester);
+                          }, isTester && bypassMod);
 
                           // Remove draft if exists
                           localStorage.removeItem('roommate_draft');
@@ -1644,11 +1654,20 @@ function CreateRoommateContent() {
                         } catch (error) {
                           console.error("Error creating listing:", error);
                           alert("Có lỗi khi đăng tin. Vui lòng thử lại.");
+                        } finally {
+                          setIsSubmitting(false);
                         }
                       }}
-                      className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-primary'}`}
+                      className={`flex-1 flex items-center justify-center gap-2 ${contactPhone.trim() === "" || isSubmitting ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-primary'}`}
                     >
-                      Đăng tin
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Đang đăng...
+                        </>
+                      ) : (
+                        "Đăng tin"
+                      )}
                     </button>
                   </div>
 

@@ -23,9 +23,9 @@ export function canBypassModeration(role: UserRole | undefined): boolean {
   return hasRole(role, "tester");
 }
 
-/** Can access admin dashboard */
+/** Can access admin dashboard (tester + admin only) */
 export function canAccessAdmin(role: UserRole | undefined): boolean {
-  return hasRole(role, "mod");
+  return hasRole(role, "tester");
 }
 
 /** Can manage users and assign roles (admin only) */

@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import MainHeader from "./components/MainHeader";
 import ShareFooter from "./components/ShareFooter";
+import { AlertTriangle, RotateCcw, Home } from "lucide-react";
 
 export default function Error({
   error,
@@ -13,71 +14,50 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="border-b-2 border-black bg-red-300">
-        <div className="wrapper py-6">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo/logo1.png"
-              alt="roomieVerse"
-              width={480}
-              height={120}
-              className="h-24 w-auto transition-transform duration-200 hover:scale-105"
-              priority
-            />
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen bg-blue-50 flex flex-col">
+      <MainHeader />
 
-      {/* Error Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-20">
-        <div className="max-w-2xl text-center">
-          <div className="mb-8">
-            <h1 className="text-9xl font-black text-black mb-4">Oops!</h1>
-            <div className="inline-block rounded-xl border-2 border-black bg-red-300 px-6 py-3 text-2xl font-bold shadow-[var(--shadow-primary)]">
-              Có lỗi xảy ra
-            </div>
+      <main className="flex-1 flex items-center justify-center px-6 py-16">
+        <div className="max-w-lg w-full text-center">
+          {/* Icon */}
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl border-2 border-black bg-red-100 flex items-center justify-center shadow-[3px_3px_0_0_#000]">
+            <AlertTriangle className="w-10 h-10 text-red-600" />
           </div>
 
-          <p className="mb-8 text-lg text-zinc-700 font-medium">
-            Đã có lỗi xảy ra khi tải trang này.
-            <br />
-            Đừng lo, hãy thử lại hoặc quay về trang chủ!
+          <h1 className="text-3xl md:text-4xl font-black mb-2">Có lỗi xảy ra</h1>
+          <p className="text-zinc-500 mb-6">
+            Đã có lỗi xảy ra khi tải trang này. Thử lại hoặc quay về trang chủ.
           </p>
 
-          {/* Error details (only in development) */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="mb-8 rounded-lg border-2 border-black bg-zinc-100 p-4 text-left">
-              <p className="text-sm font-mono text-red-600">
+          {/* Error details (dev only) */}
+          {process.env.NODE_ENV === "development" && error.message && (
+            <div className="mb-6 rounded-xl border-2 border-black bg-white p-4 text-left">
+              <p className="text-sm font-mono text-red-600 break-words">
                 {error.message}
               </p>
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* Actions */}
+          <div className="flex gap-3 justify-center">
             <button
               onClick={() => reset()}
-              className="btn-primary text-base sm:text-lg px-8 py-4"
+              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-white hover:bg-zinc-50 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
             >
+              <RotateCcw className="w-4 h-4" />
               Thử lại
             </button>
             <Link
               href="/"
-              className="btn-secondary text-base sm:text-lg px-8 py-4"
+              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-orange-300 hover:bg-orange-400 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
             >
+              <Home className="w-4 h-4" />
               Về trang chủ
             </Link>
-          </div>
-
-          {/* Fun illustration */}
-          <div className="mt-12 text-6xl opacity-50">
-            😵💫
           </div>
         </div>
       </main>

@@ -4,8 +4,8 @@ import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
 import Link from "next/link";
 import {
-  Shield, FileText, Settings, Wrench, ArrowRight,
-  Users, MessageSquare
+  Shield, FileText, Wrench, ArrowRight,
+  Users, MessageSquare, ShoppingBag
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -82,6 +82,20 @@ export default function AdminPage() {
                     <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
                   </div>
                 </Link>
+                <Link href="/admin/pass-do">
+                  <div className="group flex items-center justify-between p-4 hover:bg-amber-50 rounded-lg transition-all cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <ShoppingBag className="w-6 h-6 text-amber-700" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold">Pass đồ</h3>
+                        <p className="text-xs text-zinc-500">Duyệt bài pass đồ, mua bán</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-black group-hover:translate-x-1 transition-all" />
+                  </div>
+                </Link>
               </div>
             </div>
 
@@ -94,7 +108,7 @@ export default function AdminPage() {
                   <div className="space-y-3">
                     {[
                       { href: "/admin/blog", icon: FileText, title: "Blog", desc: "Tạo & chỉnh sửa bài viết", color: "text-emerald-700", hover: "hover:bg-emerald-50" },
-                      { href: "/admin/management", icon: Settings, title: "Cài đặt", desc: "Người dùng, thống kê", color: "text-zinc-700", hover: "hover:bg-zinc-50" },
+                      { href: "/admin/management", icon: Users, title: "Users", desc: "Quản lý người dùng, phân quyền", color: "text-zinc-700", hover: "hover:bg-zinc-50" },
                       { href: "/admin/maintenance", icon: Wrench, title: "Bảo dưỡng", desc: "Bảo trì, sao lưu", color: "text-orange-700", hover: "hover:bg-orange-50" },
                     ].map((item) => (
                       <Link key={item.href} href={item.href}>

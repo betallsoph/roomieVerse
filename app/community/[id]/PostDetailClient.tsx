@@ -263,6 +263,22 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
             {post.content}
           </div>
 
+          {/* Images */}
+          {post.images && post.images.length > 0 && (
+            <div className={`mb-8 ${post.images.length === 1 ? '' : 'grid grid-cols-2 gap-3'}`}>
+              {post.images.map((img, idx) => (
+                <a key={idx} href={img} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={img}
+                    alt={`Ảnh ${idx + 1}`}
+                    className="w-full rounded-lg border-2 border-black object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    style={{ maxHeight: post.images!.length === 1 ? '500px' : '250px' }}
+                  />
+                </a>
+              ))}
+            </div>
+          )}
+
           {/* Actions bar */}
           <div className="flex items-center gap-6 border-y border-zinc-100 py-4 mb-8">
             <button

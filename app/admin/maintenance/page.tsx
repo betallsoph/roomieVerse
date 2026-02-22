@@ -33,10 +33,10 @@ export default function MaintenancePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-blue-50">
       <MainHeader />
 
-      <section className="py-12 md:py-16 border-b-2 border-black">
+      <section className="py-12 md:py-16">
         <div className="wrapper max-w-5xl">
           {/* Header */}
           <div className="mb-10">
@@ -44,11 +44,8 @@ export default function MaintenancePage() {
               <ArrowLeft className="w-4 h-4" />
               Quay lại
             </Link>
-            <div className="flex items-center gap-3 mb-2">
-              <Wrench className="w-8 h-8" strokeWidth={1.5} />
-              <h1 className="text-3xl md:text-4xl font-black">Bảo Dưỡng Hệ Thống</h1>
-            </div>
-            <p className="text-zinc-600">Bảo trì, cập nhật và sao lưu hệ thống</p>
+            <h1 className="text-3xl md:text-4xl font-black">Bảo Dưỡng Hệ Thống</h1>
+            <p className="text-zinc-500 mt-1">Bảo trì, cập nhật và sao lưu hệ thống</p>
           </div>
 
           {/* System Health - Inline badges */}
@@ -60,7 +57,7 @@ export default function MaintenancePage() {
                 const isHealthy = status === "healthy";
                 const isWarning = status === "warning";
                 return (
-                  <div key={item.key} className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black ${isHealthy ? 'bg-blue-50' : isWarning ? 'bg-yellow-50' : 'bg-red-50'}`}>
+                  <div key={item.key} className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black ${isHealthy ? 'bg-white' : isWarning ? 'bg-yellow-50' : 'bg-red-50'}`}>
                     <item.icon className="w-5 h-5" strokeWidth={1.5} />
                     <span className="font-medium">{item.label}</span>
                     {isHealthy ? (
@@ -77,7 +74,7 @@ export default function MaintenancePage() {
           {/* Storage & Backup - Side by side, compact */}
           <div className="grid md:grid-cols-2 gap-6 mb-10">
             {/* Storage */}
-            <div className="p-5 border-2 border-black rounded-xl">
+            <div className="p-5 border-2 border-black rounded-xl bg-white">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <HardDrive className="w-5 h-5" /> Dung Lượng
               </h3>
@@ -96,7 +93,7 @@ export default function MaintenancePage() {
             </div>
 
             {/* Last Backup */}
-            <div className="p-5 border-2 border-black rounded-xl">
+            <div className="p-5 border-2 border-black rounded-xl bg-white">
               <h3 className="font-bold mb-3 flex items-center gap-2">
                 <Database className="w-5 h-5" /> Sao Lưu Gần Nhất
               </h3>
@@ -127,7 +124,7 @@ export default function MaintenancePage() {
             <h2 className="text-lg font-bold mb-3">Thao Tác Bảo Dưỡng</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {actions.map((action, idx) => (
-                <button key={idx} className="group flex items-center gap-3 p-4 border-2 border-black rounded-xl hover:bg-blue-50 transition-all text-left">
+                <button key={idx} className="group flex items-center gap-3 p-4 border-2 border-black rounded-xl bg-white hover:bg-blue-100/50 transition-all text-left">
                   <action.icon className="w-6 h-6 text-zinc-600 group-hover:text-black" strokeWidth={1.5} />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-sm truncate">{action.title}</h3>
@@ -146,7 +143,7 @@ export default function MaintenancePage() {
                 Xem tất cả →
               </button>
             </div>
-            <div className="border-2 border-black rounded-xl overflow-hidden">
+            <div className="border-2 border-black rounded-xl overflow-hidden bg-white">
               {maintenanceLogs.map((log, idx) => (
                 <div key={log.id} className={`flex items-center justify-between gap-4 p-4 ${idx !== maintenanceLogs.length - 1 ? 'border-b-2 border-black' : ''} hover:bg-zinc-50 transition-colors`}>
                   <div className="flex items-center gap-3">

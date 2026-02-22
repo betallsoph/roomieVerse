@@ -1,0 +1,87 @@
+"CODE","FUNCTION","DESCRIPTION","MODEL","TABLE NAME","DIAGRAM"
+"AUTH-101","LOGIN-REGISTER-EMAIL","1. Nhập thông tin (Email/Pass/Tên)
+2. Xác minh dữ liệu
+3. Tạo tài khoản hoặc Đăng nhập qua Firebase
+4. Ghi Data khởi tạo (nếu Register)
+5. Điều hướng","USER","users","SEQUENCE"
+"AUTH-102","LOGIN-GOOGLE","1. Trigger popup đăng nhập Google
+2. Firebase liên kết Provider
+3. Lấy thông tin cơ bản & Điều hướng","USER","users","SEQUENCE"
+"AUTH-103","RESET-PASSWORD","1. Xác nhận email
+2. Gọi API sendPasswordResetEmail
+3. Gửi link đặt lại Mật khẩu","USER","users","SEQUENCE"
+"AUTH-104","LOGOUT","1. Xóa session
+2. Xóa Token Local
+3. Chuyển hướng về trang chủ","USER","users","SEQUENCE"
+"PROF-201","UPDATE-PROFILE","1. Lấy thông tin user hiện tại
+2. Form cập nhật (Tên, SĐT, Sở thích)
+3. Xác minh sđt
+4. Patch dữ liệu lên database","USER_PROFILE","users","SEQUENCE"
+"PROF-202","UPDATE-AVATAR","1. Mở cửa sổ chọn ảnh
+2. Upload lên AWS S3
+3. Lấy link S3 cập nhật File Avatar Firestore","USER_PROFILE","users","SEQUENCE"
+"POST-301","VIEW-LISTINGS-FEED","1. Gọi API Get Posts State='active'
+2. Phân trang và Render UI Dạng lưới
+3. Hiển thị thông tin tóm tắt","POST","posts","SEQUENCE"
+"POST-302","SEARCH-AND-FILTER","1. Bắt các Input Search (Từ khóa, Giá, Vùng)
+2. Chạy Query Lọc dữ liệu trên Firebase
+3. Re-render List kết quả","POST","posts","SEQUENCE"
+"POST-303","VIEW-LISTING-DETAIL","1. Nhận truy vấn theo ID
+2. Get Full Data (Carousel Ảnh, Text, Thông tin)
+3. Load Component Chi Tiết","POST","posts","SEQUENCE"
+"POST-304","CREATE-ROOM-POST","1. Điền Form (Thông tin phòng/ Giá)
+2. Upload tối đa X tấm ảnh lên S3
+3. Tạo Document trạng thái 'pending' chờ duyệt","POST","posts","SEQUENCE"
+"POST-305","CREATE-ROOMMATE-POST","1. Điền Form (Tìm bạn/ Mức giá/ Yêu cầu)
+2. Tạo Document trạng thái 'pending' chờ duyệt","POST","posts","SEQUENCE"
+"POST-306","TOGGLE-POST-STATUS","1. Chọn Ẩn (Tìm được người) hoặc Hiện (Cần tìm lại)
+2. Sửa status = 'hidden'/'active'
+3. Cập nhật giao diện cá nhân","POST","posts","SEQUENCE"
+"POST-307","DELETE-POST","1. Chọn xóa tin
+2. Confirm
+3. Xóa Data Database & Hình ảnh trên AWS","POST","posts","SEQUENCE"
+"POST-308","MANAGE-FAVORITES","1. Icon tim Thêm/Bỏ bài viết
+2. Update Array Favorites của User lên Database
+3. View danh sách đã lưu","SAVED_POST","saved_posts","SEQUENCE"
+"COMM-401","VIEW-COMMUNITY","1. Lấy bài viết phân trang thảo luận
+2. Sắp xếp list Thời gian/Độ hot
+3. Render Feed","COMMUNITY","community_posts","SEQUENCE"
+"COMM-402","CREATE-TOPIC","1. Form nhập Title, Content, Gắn Tags
+2. Validation từ khóa tục tĩu
+3. Lưu lên bảng cộng đồng","COMMUNITY","community_posts","SEQUENCE"
+"COMM-403","MANAGE-COMMENTS","1. Thêm mới comment
+2. Xóa comment của chính mình
+3. Update số đếm Comment cho Topic tổng","COMMENT","comments","SEQUENCE"
+"COMM-404","TOGGLE-LIKE","1. Nhấn nút Like bài viết/Bình luận
+2. Transaction tăng/giảm số Like
+3. Cập nhật DB","COMMUNITY","community_posts","SEQUENCE"
+"REP-501","SUBMIT-REPORT","1. Chọn mục tiêu (User/Post)
+2. Điền Form lý do vi phạm
+3. Gửi Admin, Insert bảng ticket Report","REPORT","reports","SEQUENCE"
+"SYS-601","VIEW-LANDING","1. Load trang tĩnh / Responsive UI
+2. Trigger các Animation Intro / Call-to-action","SYSTEM","","SEQUENCE"
+"SYS-602","VIEW-GUIDELINES","1. Đọc hướng dẫn / Điều khoản / FAQ
+2. Chuyển hướng Navigation","SYSTEM","","SEQUENCE"
+"ADM-701","ADMIN-DASHBOARD-VIEW","1. Check Role (Mod/Admin)
+2. Lấy dữ liệu Tổng quan (Stats Report)
+3. Cấp quyền Truy cập Admin Layout","ADMIN","","SEQUENCE"
+"ADM-702","VIEW-PENDING-POSTS","1. Query posts chờ duyệt (pending)
+2. Phân trang / Xóa khỏi Feed user thường","POST","posts","SEQUENCE"
+"ADM-703","APPROVE-REJECT-POST","1. Mod nhấn Duyệt/Từ chối tin
+2. Điền Reason nếu Từ chối
+3. Đổi status và gửi thông báo","POST","posts","SEQUENCE"
+"ADM-704","MODERATE-COMMUNITY","1. Mod tuần tra tab Cộng đồng
+2. Cưỡng chế xóa Thảo luận/Comment Spam
+3. Khóa tương tác bài rác","COMMUNITY","community_posts","SEQUENCE"
+"ADM-705","RESOLVE-TICKET","1. Vào danh sách Report
+2. Xem ticket -> Hành động cấm
+3. Đóng trạng thái Report thành 'Resolved'","REPORT","reports","SEQUENCE"
+"ADM-706","BAN-USER","1. Nhận báo cáo User Scam
+2. Thay đổi trạng thái Tài khoản thành Banned
+3. Fire function xóa/ẩn toàn bộ Post của người đó","USER","users","SEQUENCE"
+"ADM-707","MANAGE-ROLES","1. Admin truy cập Cài đặt Nhân sự
+2. Nhanh chóng đưa User thành Mod/Tester
+3. Fire qua Admin SDK bypass Firewall","USER","users","SEQUENCE"
+"ADM-708","MANAGE-BLOG","1. CMS viết nội dung Bài viết SEO
+2. Quản lý bản Draft / Published
+3. Hiển thị ở Tab Blog Website","BLOG","blogs","SEQUENCE"

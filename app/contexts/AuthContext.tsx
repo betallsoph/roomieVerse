@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import {
   User,
   onAuthStateChanged,
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [profileChecked, setProfileChecked] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("user");
+  const signingUp = useRef(false);
 
   useEffect(() => {
     // If Firebase is disabled, use mock authentication
@@ -72,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           let profile = await getUserProfile(user.uid);
 
-          // Auto-create profile for new users
-          if (!profile) {
+          // Auto-create profile for new users (skip during signup — signUpWithEmail handles it)
+          if (!profile && !signingUp.current) {
             localStorage.removeItem('profileReminderDismissed');
             const newProfile = {
               uid: user.uid,
@@ -83,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             };
             await saveUserProfile(newProfile);
             profile = newProfile;
+          } else if (!profile && signingUp.current) {
+            // Signup in progress — wait briefly for signUpWithEmail to save the profile
+            await new Promise(r => setTimeout(r, 500));
+            profile = await getUserProfile(user.uid);
           }
 
           // Check role — auto-promote admin via server API if needed
@@ -168,9 +173,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     if (!FIREBASE_ENABLED || !auth) return;
     try {
+      signingUp.current = true;
       const result = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(result.user, { displayName });
+      // Save profile immediately with correct displayName
+      // (onAuthStateChanged fires before updateProfile, so it would save with empty name)
+      await saveUserProfile({
+        uid: result.user.uid,
+        email: result.user.email || "",
+        displayName,
+        photoURL: result.user.photoURL || undefined,
+      });
+      signingUp.current = false;
     } catch (error) {
+      signingUp.current = false;
       console.error("Error signing up with email:", error);
       throw error;
     }

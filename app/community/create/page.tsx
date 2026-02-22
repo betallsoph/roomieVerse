@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContext";
+import BypassModerationToggle from "../../components/BypassModerationToggle";
 import { createCommunityPost } from "../../data/community";
 import { CommunityCategory } from "../../data/types";
 import {
@@ -17,8 +18,7 @@ import {
   BookOpen,
   MapPin,
   Loader2,
-  ImagePlus,
-  X,
+  Camera,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -33,13 +33,25 @@ const categories: { key: CommunityCategory; label: string; icon: typeof Lightbul
 export default function CreateCommunityPostPage() {
   const router = useRouter();
   const { user, isTester } = useAuth();
+  const [bypassMod, setBypassMod] = useState(true);
 
   const [category, setCategory] = useState<CommunityCategory | null>(null);
+
+  // Pre-select category from URL param (e.g. /community/create?category=blog)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("category") as CommunityCategory | null;
+    if (cat && categories.some(c => c.key === cat)) {
+      setCategory(cat);
+    }
+  }, []);
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
   const [rating, setRating] = useState<number>(0);
+  const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const showLocation = category === "review" || category === "pass-do";
@@ -53,6 +65,13 @@ export default function CreateCommunityPostPage() {
 
     setIsSubmitting(true);
     try {
+      // Upload images to R2
+      const { uploadImages } = await import('../../lib/imageUpload');
+      const postIdPrefix = `cp-${Date.now()}`;
+      const uploadedImages = images.length > 0
+        ? await uploadImages(images, "community", postIdPrefix)
+        : [];
+
       const postId = await createCommunityPost({
         authorId: user.uid,
         authorName: user.displayName || "Ẩn danh",
@@ -63,7 +82,8 @@ export default function CreateCommunityPostPage() {
         location: location.trim() || undefined,
         price: price.trim() || undefined,
         rating: showRating && rating > 0 ? rating : undefined,
-      }, isTester);
+        images: uploadedImages.length > 0 ? uploadedImages : undefined,
+      }, isTester && bypassMod);
 
       router.push(`/community/${postId}`);
     } catch (error) {
@@ -206,7 +226,52 @@ export default function CreateCommunityPostPage() {
               </div>
             )}
 
+            {/* Images */}
+            <div className="mb-6">
+              <label className="block text-sm font-bold mb-2">Hình ảnh</label>
+              {images.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  {images.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-32 object-cover rounded-lg border-2 border-black" />
+                      <button
+                        type="button"
+                        onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm font-bold"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {images.length < 5 && (
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 rounded-xl cursor-pointer hover:border-black hover:bg-zinc-50 transition-all">
+                  <Camera className="w-8 h-8 mb-2 text-zinc-400" />
+                  <p className="text-sm text-zinc-500">Click để chọn ảnh ({images.length}/5)</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && images.length < 5) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setImages([...images, reader.result as string]);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+              )}
+            </div>
+
             {/* Submit */}
+            {isTester && (
+              <div className="mb-4">
+                <BypassModerationToggle enabled={bypassMod} onChange={setBypassMod} />
+              </div>
+            )}
             <div className="flex gap-3 pt-4 border-t-2 border-zinc-100">
               <Link
                 href="/community"

@@ -1,0 +1,61 @@
+@startuml roomieverse_overall
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle hollow
+
+actor "Khách viếng thăm (Guest)" as Guest
+actor "Người dùng thường (User)" as User
+actor "Kiểm duyệt viên (Mod)" as Mod
+actor "Người dùng nội bộ (Tester)" as Tester
+actor "Quản lý cấp cao (Admin)" as Admin
+
+User -up-|> Guest
+Mod -up-|> User
+Tester -up-|> Mod
+Admin -up-|> Tester
+
+rectangle "Hệ thống roomieVerse" {
+    usecase "Đăng ký / Đăng nhập" as UC_Auth
+    usecase "Xem danh sách tin đăng" as UC_ViewList
+    usecase "Tìm kiếm và Lọc tin" as UC_Search
+    usecase "Xem chi tiết tin đăng" as UC_ViewDetail
+    
+    usecase "Quản lý Hồ sơ" as UC_Profile
+    usecase "Đăng tin mới" as UC_Post
+    usecase "Quản lý tin cá nhân" as UC_ManageOwnPost
+    usecase "Báo cáo vi phạm" as UC_Report
+    usecase "Tương tác Cộng đồng" as UC_Community
+    
+    usecase "Duyệt tin đăng (Moderation)" as UC_AdminApprove
+    usecase "Duyệt bài Cộng đồng" as UC_AdminCommunity
+    
+    usecase "Truy cập không giới hạn / Bỏ qua kiểm duyệt" as UC_Bypass
+    
+    usecase "Thiết lập phân quyền User" as UC_SetRole
+    usecase "Quản lý Danh sách người dùng" as UC_ManageUser
+    usecase "Viết bài Blog" as UC_Blog
+    usecase "Thiết lập hệ thống & Bảo trì" as UC_Config
+}
+
+Guest --> UC_Auth
+Guest --> UC_ViewList
+Guest --> UC_Search
+Guest --> UC_ViewDetail
+
+User --> UC_Profile
+User --> UC_Post
+User --> UC_ManageOwnPost
+User --> UC_Report
+User --> UC_Community
+
+Mod --> UC_AdminApprove
+Mod --> UC_AdminCommunity
+
+Tester --> UC_Bypass
+
+Admin --> UC_SetRole
+Admin --> UC_ManageUser
+Admin --> UC_Blog
+Admin --> UC_Config
+
+@enduml

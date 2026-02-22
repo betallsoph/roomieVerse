@@ -85,7 +85,8 @@ export default function CommunityModerationPage() {
           getPendingCommunityPosts(),
           getPendingReports(),
         ]);
-        setPendingPosts(posts);
+        // Filter out pass-do — handled on separate /admin/pass-do page
+        setPendingPosts(posts.filter(p => p.category !== "pass-do"));
         setReports(rpts);
       } catch (error) {
         console.error("Error loading moderation data:", error);
@@ -159,19 +160,19 @@ export default function CommunityModerationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-blue-50">
       <MainHeader />
 
       <section className="py-12 md:py-16">
         <div className="wrapper max-w-5xl">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-10">
             <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-black transition-colors mb-6">
               <ArrowLeft className="w-4 h-4" />
-              Quay lại Dashboard
+              Quay lại
             </Link>
-            <h1 className="text-3xl md:text-4xl font-black mb-2">Kiểm Duyệt Cộng Đồng</h1>
-            <p className="text-zinc-600">Duyệt bài viết và xử lý báo cáo</p>
+            <h1 className="text-3xl md:text-4xl font-black">Kiểm Duyệt Cộng Đồng</h1>
+            <p className="text-zinc-500 mt-1">Duyệt bài viết và xử lý báo cáo</p>
           </div>
 
           {/* Stats */}
@@ -202,12 +203,12 @@ export default function CommunityModerationPage() {
               <div>
                 <h2 className="text-lg font-black mb-4">Bài viết chờ duyệt ({pendingPosts.length})</h2>
                 {pendingPosts.length === 0 ? (
-                  <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center">
+                  <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center bg-white">
                     <MessageSquare className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
                     <p className="text-sm text-zinc-400">Không có bài viết nào chờ duyệt</p>
                   </div>
                 ) : (
-                  <div className="border-2 border-black rounded-xl overflow-hidden">
+                  <div className="border-2 border-black rounded-xl overflow-hidden bg-white">
                     {pendingPosts.map((post, idx) => {
                       const postId = post.id!;
                       const isRejecting = rejectingId === postId;
@@ -228,6 +229,18 @@ export default function CommunityModerationPage() {
                               <h3 className="font-bold truncate mb-0.5">{post.title}</h3>
                               <p className="text-sm text-zinc-500">bởi {post.authorName}</p>
                               <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{post.preview}</p>
+                              {post.images && post.images.length > 0 && (
+                                <div className="flex gap-2 mt-2">
+                                  {post.images.slice(0, 3).map((img, i) => (
+                                    <img key={i} src={img} alt="" className="w-16 h-16 rounded-lg border border-zinc-200 object-cover" />
+                                  ))}
+                                  {post.images.length > 3 && (
+                                    <div className="w-16 h-16 rounded-lg border border-zinc-200 bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-500">
+                                      +{post.images.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
 
                             {/* Actions */}
@@ -294,12 +307,12 @@ export default function CommunityModerationPage() {
               <div>
                 <h2 className="text-lg font-black mb-4">Báo cáo chờ xử lý ({reports.length})</h2>
                 {reports.length === 0 ? (
-                  <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center">
+                  <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center bg-white">
                     <Flag className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
                     <p className="text-sm text-zinc-400">Không có báo cáo nào cần xử lý</p>
                   </div>
                 ) : (
-                  <div className="border-2 border-black rounded-xl overflow-hidden">
+                  <div className="border-2 border-black rounded-xl overflow-hidden bg-white">
                     {reports.map((report, idx) => (
                       <div
                         key={report.id}

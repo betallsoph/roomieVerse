@@ -1,0 +1,49 @@
+@startuml roomieverse_admin_dashboard
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Kiểm duyệt viên (Mod)" as Mod
+actor "Người dùng nội bộ (Tester)" as Tester
+actor "Quản lý cấp cao (Admin)" as Admin
+
+Tester -up-|> Mod
+Admin -up-|> Tester
+
+rectangle "Phân Hệ Quản Trị (Admin Dashboard)" {
+    usecase "Đăng nhập bộ phận Admin" as UC_AdminLogin
+    
+    usecase "Trang Duyệt tin đăng (Moderation)" as UC_PageMod
+    usecase "Trang Cộng đồng (Community)" as UC_PageComm
+    usecase "Trang Blog" as UC_PageBlog
+    usecase "Trang Cài đặt thống kê" as UC_PageConfig
+    usecase "Trang Bảo trì / System" as UC_PageMaint
+    
+    usecase "Duyệt / Từ chối / Xóa tin đăng" as UC_ActionMod
+    usecase "Xử lý bài rác Cộng đồng" as UC_ActionComm
+    usecase "Quản lý cấp Role (user/mod/tester/admin)" as UC_ActionRole
+    usecase "Block / Xóa tài khoản người dùng" as UC_ActionUsers
+
+    usecase "Truy cập tính năng Beta" as UC_Beta
+    usecase "Đăng bài không cần duyệt" as UC_BypassMod
+}
+
+Mod --> UC_AdminLogin
+
+Mod --> UC_PageMod
+Mod --> UC_PageComm
+Mod --> UC_ActionMod
+Mod --> UC_ActionComm
+
+Tester --> UC_Beta
+Tester --> UC_BypassMod
+
+Admin --> UC_PageBlog
+Admin --> UC_PageConfig
+Admin --> UC_PageMaint
+Admin --> UC_ActionRole
+Admin --> UC_ActionUsers
+
+UC_ActionMod .> UC_PageMod : <<extend>>
+UC_ActionComm .> UC_PageComm : <<extend>>
+UC_ActionRole .> UC_PageConfig : <<extend>>
+@enduml

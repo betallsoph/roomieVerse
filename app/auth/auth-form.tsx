@@ -62,6 +62,12 @@ export default function AuthForm({ bounceKey = 0, onModeChange }: AuthFormProps)
       return;
     }
 
+    if (mode === "signup" && !displayName) {
+      setError("Vui lòng nhập tên hiển thị.");
+      setIsLoading(false);
+      return;
+    }
+
     if (mode === "signup" && password.length < 6) {
       setError("Mật khẩu phải có ít nhất 6 ký tự.");
       setIsLoading(false);

@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import { useAuth } from "../../contexts/AuthContext";
+import BypassModerationToggle from "../../components/BypassModerationToggle";
 import { MapPin, DollarSign, Eye, Loader2, Camera, Users, Phone, Lightbulb } from "lucide-react";
 import { cities, getDistrictsByLabel } from "../../data/locations";
 import { useAdminRedirect } from "../../hooks/useAdminRedirect";
@@ -13,6 +14,7 @@ function CreateRoomshareContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { user, isAuthenticated, isTester } = useAuth();
+    const [bypassMod, setBypassMod] = useState(true);
 
     // Step management via URL
     const step = searchParams.get("step") || "1";
@@ -78,6 +80,7 @@ function CreateRoomshareContent() {
     const [showImagesValidation, setShowImagesValidation] = useState(false);
     const [showPreferencesValidation, setShowPreferencesValidation] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
 
     // Sync Zalo with Phone
@@ -624,13 +627,21 @@ function CreateRoomshareContent() {
                                         </div>
                                     </div>
 
+                                    {/* Bypass moderation toggle for tester */}
+                                    {isTester && (
+                                        <div className="mb-4">
+                                            <BypassModerationToggle enabled={bypassMod} onChange={setBypassMod} />
+                                        </div>
+                                    )}
                                     {/* Submit Buttons */}
                                     <div className="flex gap-4">
                                         <button type="button" onClick={() => router.push('/roomshare/create?step=4')} className="btn-secondary flex-1">Trở lại</button>
                                         <button
                                             type="button"
-                                            disabled={contactPhone.trim() === ""}
+                                            disabled={contactPhone.trim() === "" || isSubmitting}
                                             onClick={async () => {
+                                                if (isSubmitting) return;
+                                                setIsSubmitting(true);
                                                 try {
                                                     const { uploadImages } = await import('../../lib/imageUpload');
                                                     const listingId = `rs-${Date.now()}`;
@@ -690,17 +701,28 @@ function CreateRoomshareContent() {
                                                         facebook: contactFacebook,
                                                         instagram: contactInstagram,
                                                         userId: user?.uid || "",
-                                                    }, isTester);
+                                                    }, isTester && bypassMod);
 
                                                     localStorage.removeItem('roomshare_draft');
                                                     setShowSuccessModal(true);
                                                 } catch (error) {
                                                     console.error("Error creating listing:", error);
                                                     alert("Có lỗi khi đăng tin. Vui lòng thử lại.");
+                                                } finally {
+                                                    setIsSubmitting(false);
                                                 }
                                             }}
-                                            className={`flex-1 ${contactPhone.trim() === "" ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-pink'}`}
-                                        >Đăng tin</button>
+                                            className={`flex-1 flex items-center justify-center gap-2 ${contactPhone.trim() === "" || isSubmitting ? 'btn-start opacity-50 cursor-not-allowed' : 'btn-pink'}`}
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Đang đăng...
+                                                </>
+                                            ) : (
+                                                "Đăng tin"
+                                            )}
+                                        </button>
                                     </div>
                                 </>
                             )}
