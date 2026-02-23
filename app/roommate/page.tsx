@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getListingsByCategory } from "../data/listings";
 import { RoomListing } from "../data/types";
@@ -18,6 +18,12 @@ import { motion } from "framer-motion";
 
 type FilterMode = "have-room" | "find-partner";
 
+// Parse price string to number (in VND)
+function parsePrice(price: string): number {
+  const num = parseInt(price.replace(/\D/g, ""));
+  return isNaN(num) ? 0 : num;
+}
+
 export default function RoommatePage() {
   useAdminRedirect();
   const [mode, setMode] = useState<FilterMode>("have-room");
@@ -30,6 +36,13 @@ export default function RoommatePage() {
   const [showPrice, setShowPrice] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [bounceKey, setBounceKey] = useState(0);
+
+  // Filter states
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
 
   // Helper to close all filter panels and trigger bounce
   const closeAllFilters = () => {
@@ -53,10 +66,59 @@ export default function RoommatePage() {
     fetchData();
   }, []);
 
-  // Filter listings based on mode
-  const allFilteredListings = listings.filter((listing) => {
-    return listing.roommateType === mode;
-  });
+  // Dynamic city & district options from actual data
+  const cityOptions = useMemo(() => {
+    const cities = new Set<string>();
+    listings.forEach(l => { if (l.city) cities.add(l.city); });
+    return Array.from(cities).sort();
+  }, [listings]);
+
+  const districtOptions = useMemo(() => {
+    const districts = new Set<string>();
+    const source = selectedCity
+      ? listings.filter(l => l.city === selectedCity)
+      : listings;
+    source.forEach(l => { if (l.district) districts.add(l.district); });
+    return Array.from(districts).sort();
+  }, [listings, selectedCity]);
+
+  // Filter listings based on mode + filters
+  const allFilteredListings = useMemo(() => {
+    return listings.filter((listing) => {
+      // Mode filter
+      if (listing.roommateType !== mode) return false;
+      // City filter
+      if (selectedCity && listing.city !== selectedCity) return false;
+      // District filter
+      if (selectedDistrict && listing.district !== selectedDistrict) return false;
+      // Price filter
+      if (selectedPrice) {
+        const p = parsePrice(listing.price);
+        if (selectedPrice === "under3" && p >= 3000000) return false;
+        if (selectedPrice === "3to5" && (p < 3000000 || p > 5000000)) return false;
+        if (selectedPrice === "5to7" && (p < 5000000 || p > 7000000)) return false;
+        if (selectedPrice === "over7" && p <= 7000000) return false;
+      }
+      // Search filter
+      if (activeSearch) {
+        const q = activeSearch.toLowerCase();
+        const searchable = [listing.title, listing.description, listing.location, listing.city, listing.district, listing.buildingName, listing.specificAddress].filter(Boolean).join(" ").toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [listings, mode, selectedCity, selectedDistrict, selectedPrice, activeSearch]);
+
+  // Check if any filter is active
+  const hasActiveFilters = selectedCity || selectedDistrict || selectedPrice || activeSearch;
+
+  const clearAllFilters = () => {
+    setSelectedCity(null);
+    setSelectedDistrict(null);
+    setSelectedPrice(null);
+    setSearchQuery("");
+    setActiveSearch("");
+  };
 
   // Limit to 9 cards
   const displayedListings = allFilteredListings.slice(0, 9);
@@ -98,39 +160,50 @@ export default function RoommatePage() {
                   onClick={() => { closeAllFilters(); setShowFilter(!showFilter); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showFilter ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showFilter || selectedCity ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
                     }`}
                 >
-                  Khu vực
+                  Khu vực{selectedCity && `: ${selectedCity}`}
                 </motion.button>
                 <motion.button
                   onClick={() => { closeAllFilters(); setShowDistrict(!showDistrict); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showDistrict ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showDistrict || selectedDistrict ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
                     }`}
                 >
-                  Quận
+                  Quận{selectedDistrict && `: ${selectedDistrict}`}
                 </motion.button>
                 <motion.button
                   onClick={() => { closeAllFilters(); setShowPrice(!showPrice); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showPrice ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showPrice || selectedPrice ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
                     }`}
                 >
-                  Giá
+                  Giá{selectedPrice && selectedPrice === "under3" ? ": < 3tr" : selectedPrice === "3to5" ? ": 3-5tr" : selectedPrice === "5to7" ? ": 5-7tr" : selectedPrice === "over7" ? ": > 7tr" : ""}
                 </motion.button>
                 <motion.button
                   onClick={() => { closeAllFilters(); setShowSearch(!showSearch); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ duration: 0.1 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showSearch ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showSearch || activeSearch ? "bg-blue-300" : "bg-white hover:bg-zinc-50"
                     }`}
                 >
                   <Search className="h-4 w-4" />
-                  Tìm kiếm
+                  {activeSearch ? `"${activeSearch}"` : "Tìm kiếm"}
                 </motion.button>
+                {hasActiveFilters && (
+                  <motion.button
+                    onClick={clearAllFilters}
+                    whileTap={{ scale: 0.85 }}
+                    transition={{ duration: 0.1 }}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-red-300 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-all"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Xóa lọc
+                  </motion.button>
+                )}
               </div>
 
               {/* Expanded Filter - Khu vực */}
@@ -150,26 +223,24 @@ export default function RoommatePage() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <motion.button
+                      onClick={() => { setSelectedCity(null); setSelectedDistrict(null); }}
                       whileTap={{ scale: 0.90 }}
                       transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-blue-300 text-sm font-bold"
+                      className={`px-4 py-2 rounded-full border-2 border-black text-sm font-bold ${!selectedCity ? "bg-blue-300" : "bg-white hover:bg-zinc-50"}`}
                     >
                       Tất cả
                     </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      TP. Hồ Chí Minh
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Đà Lạt
-                    </motion.button>
+                    {cityOptions.map(city => (
+                      <motion.button
+                        key={city}
+                        onClick={() => { setSelectedCity(city); setSelectedDistrict(null); }}
+                        whileTap={{ scale: 0.90 }}
+                        transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                        className={`px-4 py-2 rounded-full border-2 border-black text-sm font-medium transition-colors ${selectedCity === city ? "bg-blue-300 font-bold" : "bg-white hover:bg-zinc-50"}`}
+                      >
+                        {city}
+                      </motion.button>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -191,47 +262,24 @@ export default function RoommatePage() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <motion.button
+                      onClick={() => setSelectedDistrict(null)}
                       whileTap={{ scale: 0.90 }}
                       transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-blue-300 text-sm font-bold"
+                      className={`px-4 py-2 rounded-full border-2 border-black text-sm font-bold ${!selectedDistrict ? "bg-blue-300" : "bg-white hover:bg-zinc-50"}`}
                     >
                       Tất cả
                     </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Quận 1
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Quận 3
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Quận 7
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Bình Thạnh
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Thủ Đức
-                    </motion.button>
+                    {districtOptions.map(district => (
+                      <motion.button
+                        key={district}
+                        onClick={() => setSelectedDistrict(district)}
+                        whileTap={{ scale: 0.90 }}
+                        transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                        className={`px-4 py-2 rounded-full border-2 border-black text-sm font-medium transition-colors ${selectedDistrict === district ? "bg-blue-300 font-bold" : "bg-white hover:bg-zinc-50"}`}
+                      >
+                        {district}
+                      </motion.button>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -252,41 +300,23 @@ export default function RoommatePage() {
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-blue-300 text-sm font-bold"
-                    >
-                      Tất cả
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Dưới 3 triệu
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      3 - 5 triệu
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      5 - 7 triệu
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                      className="px-4 py-2 rounded-full border-2 border-black bg-white text-sm font-medium hover:bg-zinc-50 transition-colors"
-                    >
-                      Trên 7 triệu
-                    </motion.button>
+                    {([
+                      { key: null, label: "Tất cả" },
+                      { key: "under3", label: "Dưới 3 triệu" },
+                      { key: "3to5", label: "3 - 5 triệu" },
+                      { key: "5to7", label: "5 - 7 triệu" },
+                      { key: "over7", label: "Trên 7 triệu" },
+                    ] as const).map(opt => (
+                      <motion.button
+                        key={opt.label}
+                        onClick={() => setSelectedPrice(opt.key)}
+                        whileTap={{ scale: 0.90 }}
+                        transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                        className={`px-4 py-2 rounded-full border-2 border-black text-sm font-medium transition-colors ${selectedPrice === opt.key ? "bg-blue-300 font-bold" : "bg-white hover:bg-zinc-50"}`}
+                      >
+                        {opt.label}
+                      </motion.button>
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -303,10 +333,14 @@ export default function RoommatePage() {
                   <input
                     autoComplete="off" type="text"
                     placeholder="Nhập từ khóa..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") setActiveSearch(searchQuery.trim()); }}
                     className="flex-1 px-4 rounded-lg border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
 
                   <motion.button
+                    onClick={() => setActiveSearch(searchQuery.trim())}
                     whileTap={{ scale: 0.90 }}
                     transition={{ type: "spring", stiffness: 700, damping: 30 }}
                     className="px-6 rounded-lg border-2 border-black bg-blue-300 font-bold hover:bg-blue-400 transition-colors"

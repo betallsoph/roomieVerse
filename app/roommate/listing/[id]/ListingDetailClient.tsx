@@ -315,6 +315,25 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
         </div>
       )}
 
+      {/* Rejected Banner */}
+      {listing.status === "rejected" && isOwner && (
+        <div className="bg-red-50 border-b-2 border-red-300">
+          <div className="mx-auto max-w-7xl px-6 py-3 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-red-800">
+                Bài đăng đã bị từ chối.
+              </p>
+              {listing.rejectionReason && (
+                <p className="text-sm text-red-600 mt-0.5">
+                  Lý do: {listing.rejectionReason}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content - Different layouts for have-room vs find-partner */}
       {isHaveRoom ? (
         /* ========== HAVE-ROOM LAYOUT ========== */
