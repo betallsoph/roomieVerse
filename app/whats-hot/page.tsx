@@ -2,7 +2,7 @@
 
 import MainHeader from "../components/MainHeader";
 import ShareFooter from "../components/ShareFooter";
-import { Sparkles, Rocket, Calendar, Bell, Gift, Star, Users, MessageSquare, TrendingUp, Zap, Heart, Flame, Video, Shield, PartyPopper } from "lucide-react";
+import { Sparkles, Rocket, Calendar, Bell, Gift, Star, Users, MessageSquare, TrendingUp, Zap, Heart, Flame, Video, Shield, PartyPopper, Pin } from "lucide-react";
 import Link from "next/link";
 import { useAdminRedirect } from "../hooks/useAdminRedirect";
 
@@ -12,32 +12,150 @@ export default function WhatsHotPage() {
         <div className="min-h-screen bg-white">
             <MainHeader />
 
-            {/* Hero Section */}
-            <section className="py-8 sm:py-12 md:py-16 bg-blue-50 relative border-b-2 border-black">
+            {/* Bảng tin - Bulletin Board Style */}
+            <section className="bg-purple-50 py-10 sm:py-16 md:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6">
-                    {/* Breadcrumb */}
-                    <div className="mb-4 sm:mb-6 flex items-center gap-2 text-xs sm:text-sm text-zinc-600">
-                        <Link href="/" className="hover:text-black transition-colors">Trang chủ</Link>
-                        <span>/</span>
-                        <span className="text-black font-medium">What&apos;s Hot</span>
+                    <div className="text-center mb-8 sm:mb-12">
+                        <h2 className="text-2xl font-bold uppercase sm:text-4xl md:text-5xl">
+                            Bảng tin
+                        </h2>
+                        <p className="mt-2 text-sm sm:text-base text-zinc-600">Bảng tin tổ dân phố roomieVerse</p>
                     </div>
 
-                    <h1 className="mb-3 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-                        Những điều thú vị<br />
-                        <span className="text-blue-600">đang tới!</span>
-                    </h1>
+                    <div className="max-w-5xl mx-auto">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                            {/* Note 1 */}
+                            <div className="relative -rotate-2 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-red-400 border-2 border-red-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">24/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-red-700">Nội quy cộng đồng</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Vui lòng đăng tin chân thực, không spam. Tôn trọng lẫn nhau. Vi phạm sẽ bị khoá tài khoản!
+                                    </p>
+                                </div>
+                            </div>
 
-                    <p className="text-sm sm:text-base text-zinc-600 max-w-2xl">
-                        Updates mới nhất, tính năng sắp ra mắt, và những điều bạn không thể bỏ lỡ tại roomieVerse!
-                    </p>
+                            {/* Note 2 */}
+                            <div className="relative rotate-1 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-blue-400 border-2 border-blue-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">20/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-blue-700">Mẹo tìm phòng hiệu quả</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Điền đầy đủ thông tin, upload ảnh rõ ràng, và mô tả chi tiết lối sống để tìm bạn ở phù hợp nhanh hơn!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 3 */}
+                            <div className="relative -rotate-1 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-green-400 border-2 border-green-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">15/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-green-700">Cẩn thận lừa đảo!</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Không chuyển cọc khi chưa xem phòng. Gặp mặt trực tiếp trước khi quyết định. Báo cáo tin đáng ngờ cho admin!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 4 */}
+                            <div className="relative rotate-2 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-pink-400 border-2 border-pink-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">10/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-pink-700">Tuyển Mod cộng đồng</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        roomieVerse đang tìm các bạn mod nhiệt tình, yêu cộng đồng. Inbox fanpage để ứng tuyển nhé!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 5 */}
+                            <div className="relative -rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-purple-400 border-2 border-purple-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">05/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-purple-700">Cập nhật hệ thống</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Đã thêm tính năng lọc theo quận, tìm kiếm nâng cao, và cải thiện tốc độ tải trang. Trải nghiệm mượt hơn!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 6 */}
+                            <div className="relative rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-orange-400 border-2 border-orange-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">01/02/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-orange-700">Feedback & Góp ý</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Bạn có ý tưởng hay? Gặp lỗi? Hãy góp ý tại mục Cộng đồng hoặc inbox trực tiếp. Mọi ý kiến đều quý giá!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 7 */}
+                            <div className="relative rotate-1 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-teal-400 border-2 border-teal-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">28/01/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-teal-700">Xác minh danh tính</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Tài khoản đã xác minh sẽ được ưu tiên hiển thị. Xác minh CCCD để tăng độ tin cậy cho hồ sơ của bạn!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 8 */}
+                            <div className="relative -rotate-2 hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-amber-400 border-2 border-amber-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">20/01/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-amber-700">Sắp có: Chat trực tiếp</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Tính năng nhắn tin trực tiếp giữa các user sắp ra mắt. Không cần trao đổi qua app khác nữa!
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Note 9 */}
+                            <div className="relative rotate-[1.5deg] hover:rotate-0 transition-transform duration-300">
+                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                                    <div className="w-6 h-6 rounded-full bg-rose-400 border-2 border-rose-600 shadow-md" />
+                                </div>
+                                <div className="bg-white border border-zinc-200 rounded-sm p-5 pt-6 shadow-[4px_4px_8px_rgba(0,0,0,0.1)] min-h-[180px]">
+                                    <p className="text-xs font-bold text-zinc-500 mb-2">15/01/2026</p>
+                                    <h3 className="text-base font-bold mb-2 text-rose-700">Chào mừng 1000 users!</h3>
+                                    <p className="text-sm text-zinc-700 leading-relaxed">
+                                        Cảm ơn cộng đồng đã đồng hành! roomieVerse đã cán mốc 1000 người dùng đăng ký. Cùng phát triển nhé!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                {/* Blur gradient transition */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-white" />
             </section>
 
-            {/* Upcoming Features - Bento Style */}
-            <section className="py-8 sm:py-12 md:py-16 bg-blue-50 relative">
+            {/* Tính năng mới */}
+            <section className="py-8 sm:py-12 md:py-16 bg-white border-t-2 border-black">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6">
                     <div className="mb-8 sm:mb-12">
                         <h2 className="text-2xl font-extrabold sm:text-4xl md:text-5xl">
@@ -48,116 +166,8 @@ export default function WhatsHotPage() {
                         </p>
                     </div>
 
-                    {/* Grid Layout */}
-                    <div className="grid md:grid-cols-12 gap-4 sm:gap-6">
-                        {/* Feature 1 - Large */}
-                        <div className="md:col-span-7 rounded-xl border-2 border-black bg-white p-5 sm:p-8 shadow-[var(--shadow-secondary)]">
-                            <div className="flex items-start gap-3 sm:gap-4">
-                                <div className="flex-shrink-0 p-3 rounded-lg border-2 border-black bg-purple-100">
-                                    <Sparkles className="w-7 h-7 text-purple-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <span className="inline-block mb-3 px-3 py-1 rounded-full border-2 border-black bg-yellow-200 text-xs font-bold">
-                                        Q2 2026
-                                    </span>
-                                    <h3 className="text-2xl font-bold mb-3">
-                                        Smart Matching Algorithm
-                                    </h3>
-                                    <p className="text-base text-zinc-700">
-                                        AI-powered roommate matching dựa trên lifestyle preferences và personality traits.
-                                        Tìm người phù hợp chưa bao giờ dễ dàng đến thế!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Feature 2 - Tall */}
-                        <div className="md:col-span-5 md:row-span-2 rounded-xl border-2 border-black bg-white p-5 sm:p-8 shadow-[var(--shadow-secondary)]">
-                            <div className="flex-shrink-0 p-3 rounded-lg border-2 border-black bg-blue-100 inline-block mb-4">
-                                <Video className="w-9 h-9 text-blue-600" />
-                            </div>
-                            <span className="inline-block mb-3 px-3 py-1 rounded-full border-2 border-black bg-green-200 text-xs font-bold">
-                                COMING Q1 2026
-                            </span>
-                            <h3 className="text-2xl font-bold mb-4">
-                                Video Tours 360°
-                            </h3>
-                            <p className="text-base text-zinc-700 mb-6">
-                                Upload video 360° của phòng để người thuê có trải nghiệm xem phòng trực quan nhất.
-                                Như đi xem phòng thật!
-                            </p>
-                            <div className="pt-4 border-t-2 border-zinc-200">
-                                <div className="flex items-center gap-2 text-sm font-bold text-blue-600">
-                                    <Zap className="w-4 h-4" />
-                                    Virtual Reality Ready
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Feature 3 - Wide */}
-                        <div className="md:col-span-7 rounded-xl border-2 border-black bg-white p-6 shadow-[var(--shadow-secondary)]">
-                            <div className="flex items-center gap-4">
-                                <div className="flex-shrink-0 p-3 rounded-lg border-2 border-black bg-pink-100">
-                                    <Users className="w-7 h-7 text-pink-600" />
-                                </div>
-                                <div className="flex-1">
-                                    <span className="inline-block mb-2 px-3 py-1 rounded-full border-2 border-black bg-purple-200 text-xs font-bold">
-                                        PLANNING - Q3 2026
-                                    </span>
-                                    <h3 className="text-xl font-bold mb-1">
-                                        Community Events
-                                    </h3>
-                                    <p className="text-sm text-zinc-700">
-                                        Meetup, networking events để gặp gỡ ngoài đời thực!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Feature 4 & 5 - Small */}
-                        <div className="md:col-span-6 rounded-xl border-2 border-black bg-white p-6 shadow-[var(--shadow-secondary)]">
-                            <div className="flex items-start gap-3">
-                                <MessageSquare className="w-7 h-7 text-green-600 flex-shrink-0" />
-                                <div>
-                                    <span className="inline-block mb-2 px-3 py-1 rounded-full border-2 border-black bg-green-100 text-xs font-bold">
-                                        Q1 2026
-                                    </span>
-                                    <h3 className="text-lg font-bold mb-2">In-App Messaging</h3>
-                                    <p className="text-sm text-zinc-700">Chat ngay trong app!</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="md:col-span-6 rounded-xl border-2 border-black bg-white p-6 shadow-[var(--shadow-secondary)]">
-                            <div className="flex items-start gap-3">
-                                <Shield className="w-7 h-7 text-yellow-600 flex-shrink-0" />
-                                <div>
-                                    <span className="inline-block mb-2 px-3 py-1 rounded-full border-2 border-black bg-yellow-100 text-xs font-bold">
-                                        Q2 2026
-                                    </span>
-                                    <h3 className="text-lg font-bold mb-2">Verified Profiles</h3>
-                                    <p className="text-sm text-zinc-700">Xác minh CCCD/CMND</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Gradient transition */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-white" />
-            </section>
-
-            {/* Hot News - Timeline Style */}
-            <section className="section border-t-2 border-black bg-white py-10 sm:py-16 md:py-20">
-                <div className="wrapper">
-                    <div className="text-center mb-8 sm:mb-12">
-                        <h2 className="text-2xl font-bold uppercase sm:text-4xl md:text-5xl">
-                            Tin tức nổi bật
-                        </h2>
-                    </div>
-
                     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-                        {/* News 1 */}
+                        {/* News 1 - Left */}
                         <div className="flex gap-4 md:gap-6">
                             <div className="flex-shrink-0 text-center">
                                 <div className="inline-block px-4 py-2 bg-green-300 border-2 border-black rounded-lg font-bold text-sm mb-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
@@ -178,7 +188,7 @@ export default function WhatsHotPage() {
                             </div>
                         </div>
 
-                        {/* News 2 */}
+                        {/* News 2 - Right */}
                         <div className="flex gap-4 md:gap-6 md:flex-row-reverse">
                             <div className="flex-shrink-0 text-center">
                                 <div className="inline-block px-4 py-2 bg-blue-300 border-2 border-black rounded-lg font-bold text-sm mb-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
@@ -199,7 +209,7 @@ export default function WhatsHotPage() {
                             </div>
                         </div>
 
-                        {/* News 3 */}
+                        {/* News 3 - Left */}
                         <div className="flex gap-4 md:gap-6">
                             <div className="flex-shrink-0 text-center">
                                 <div className="inline-block px-4 py-2 bg-purple-300 border-2 border-black rounded-lg font-bold text-sm mb-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
