@@ -1,0 +1,16 @@
+[debug] [2026-02-24T05:31:04.420Z] ----------------------------------------------------------------------
+[debug] [2026-02-24T05:31:04.421Z] Command:       /opt/homebrew/Cellar/node/24.8.0/bin/node /Users/antt/.local/bin/firebase deploy --only firestore:rules --project roomieverse-antt
+[debug] [2026-02-24T05:31:04.421Z] CLI Version:   15.6.0
+[debug] [2026-02-24T05:31:04.421Z] Platform:      darwin
+[debug] [2026-02-24T05:31:04.421Z] Node Version:  v24.8.0
+[debug] [2026-02-24T05:31:04.421Z] Time:          Tue Feb 24 2026 12:31:04 GMT+0700 (Indochina Time)
+[debug] [2026-02-24T05:31:04.421Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-24T05:31:04.994Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-24T05:31:04.994Z] > authorizing via signed-in user (roomieversebyantt@gmail.com)
+[debug] [2026-02-24T05:31:04.994Z] [iam] checking project roomieverse-antt for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-02-24T05:31:04.995Z] Checked if tokens are valid: true, expires at: 1771914547609
+[debug] [2026-02-24T05:31:04.995Z] Checked if tokens are valid: true, expires at: 1771914547609
+[debug] [2026-02-24T05:31:04.995Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/roomieverse-antt:testIamPermissions [none]
+[debug] [2026-02-24T05:31:04.995Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/roomieverse-antt:testIamPermissions  x-goog-user-project=roomieverse-antt
+[debug] [2026-02-24T05:31:04.995Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/roomieverse-antt:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}

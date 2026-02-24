@@ -1,287 +1,224 @@
-import { NextResponse } from "next/server";
-import { getAdminDb } from "../../lib/firebase-admin";
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminDb, getAdminAuth } from "../../lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 
-const mockListings = [
-  {
-    id: "rm-seed-have-room",
-    category: "roommate",
-    roommateType: "have-room",
-    title: "Cần tìm 1 bạn nam ở ghép chung cư Vinhomes Grand Park Q9",
-    authorName: "Minh Tuấn",
-    description: "Phòng rộng 25m², đầy đủ nội thất, view sông thoáng mát. Hiện tại có 2 bạn nam đang ở, cần thêm 1 bạn nữa.",
-    introduction: "Mình là dân IT, 25 tuổi, sống gọn gàng, ít nhậu. Tìm bạn cùng phòng hợp tính.",
-    price: "3.500.000đ/tháng",
-    location: "Vinhomes Grand Park, Quận 9, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Quận 9",
-    specificAddress: "Tòa S5.03",
-    buildingName: "Vinhomes Grand Park",
-    moveInDate: "01/03/2026",
-    propertyTypes: ["apartment"],
-    amenities: ["ac", "wifi", "washing", "fridge", "parking"],
-    costs: {
-      rent: "3.500.000",
-      deposit: "3.500.000",
-      electricity: "Theo số điện",
-      water: "200.000",
-      internet: "Miễn phí",
-      service: "400.000",
-      parking: "100.000",
+// 5 listings: 1 per flow (have-room, find-partner, roomshare, short-term, sublease)
+// userId & authorName are injected at runtime from the authenticated user
+function getMockListings(userId: string, authorName: string) {
+  return [
+    {
+      id: "rm-seed-have-room",
+      category: "roommate",
+      roommateType: "have-room",
+      title: "Cần tìm 1 bạn ở ghép chung cư Vinhomes Grand Park Q9",
+      authorName,
+      description:
+        "Phòng rộng 25m², đầy đủ nội thất, view sông thoáng mát. Hiện tại có 2 bạn đang ở, cần thêm 1 bạn nữa.",
+      introduction:
+        "Mình làm IT, 25 tuổi, sống gọn gàng, ít nhậu. Tìm bạn cùng phòng hợp tính.",
+      price: "3.500.000đ/tháng",
+      location: "Vinhomes Grand Park, Quận 9, TP.HCM",
+      city: "Hồ Chí Minh",
+      district: "Quận 9",
+      specificAddress: "Tòa S5.03",
+      buildingName: "Vinhomes Grand Park",
+      moveInDate: "01/04/2026",
+      propertyTypes: ["apartment"],
+      amenities: ["ac", "wifi", "washing", "fridge", "parking"],
+      costs: {
+        rent: "3.500.000",
+        deposit: "3.500.000",
+        electricity: "Theo số điện",
+        water: "200.000",
+        internet: "Miễn phí",
+        service: "400.000",
+        parking: "100.000",
+      },
+      roomSize: "25",
+      currentOccupants: "2",
+      totalRooms: "2",
+      othersIntro:
+        "2 bạn nam, 1 bạn làm IT, 1 bạn làm marketing. Sống gọn gàng.",
+      minContractDuration: "6 tháng",
+      preferences: {
+        gender: ["male"],
+        status: ["worker"],
+        schedule: ["flexible"],
+        cleanliness: ["normal", "very-clean"],
+        habits: ["no-smoke"],
+        pets: ["no-pets"],
+        moveInTime: ["early-month"],
+      },
+      contact: { phone: "0901234567", zalo: "0901234567" },
+      userId,
+      status: "active",
     },
-    roomSize: "25",
-    currentOccupants: "2",
-    totalRooms: "2",
-    othersIntro: "2 bạn nam, 1 bạn làm IT, 1 bạn làm marketing. Sống gọn gàng, ít nhậu.",
-    minContractDuration: "6 tháng",
-    preferences: {
-      gender: ["male"],
-      status: ["worker"],
-      schedule: ["flexible"],
-      cleanliness: ["normal", "very-clean"],
-      habits: ["no-smoke"],
-      pets: ["no-pets"],
-      moveInTime: ["early-month"],
+    {
+      id: "rm-seed-find-partner",
+      category: "roommate",
+      roommateType: "find-partner",
+      title: "Tìm bạn cùng thuê chung cư Masteri Thảo Điền, ngân sách 4-5tr",
+      authorName,
+      description:
+        "Đang tìm 1 bạn để cùng thuê căn 2PN tại Masteri Thảo Điền. Ngân sách mỗi người khoảng 4-5 triệu.",
+      introduction:
+        "Mình 23 tuổi, làm designer, thích nấu ăn. Tìm bạn hợp tính để ở cùng.",
+      price: "4.500.000đ/tháng",
+      location: "Thảo Điền, TP. Thủ Đức, TP.HCM",
+      city: "Hồ Chí Minh",
+      district: "Thành phố Thủ Đức",
+      moveInDate: "15/04/2026",
+      timeNegotiable: true,
+      propertyTypes: ["apartment"],
+      preferences: {
+        gender: ["female"],
+        status: ["worker", "student"],
+        schedule: ["late", "flexible"],
+        cleanliness: ["normal"],
+        habits: ["no-smoke", "flexible"],
+        pets: ["cats-ok"],
+        moveInTime: ["early-month", "end-month"],
+      },
+      contact: { phone: "0912345678", zalo: "0912345678" },
+      userId,
+      status: "active",
     },
-    contact: {
-      phone: "0901234567",
-      zalo: "0901234567",
+    {
+      id: "rs-seed-roomshare",
+      category: "roomshare",
+      title: "Cho thuê phòng trọ mới xây gần ĐH Bách Khoa, full nội thất",
+      authorName,
+      description:
+        "Phòng trọ mới xây, sạch sẽ, an ninh tốt. Gần ĐH Bách Khoa, ĐH Kinh tế. Phòng có ban công thoáng mát.",
+      introduction:
+        "Nhà mới xây xong, cho thuê phòng trọ cao cấp. Ưu tiên sinh viên và người đi làm.",
+      price: "3.200.000đ/tháng",
+      location: "268 Lý Thường Kiệt, Quận 10, TP.HCM",
+      city: "Hồ Chí Minh",
+      district: "Quận 10",
+      specificAddress: "268 Lý Thường Kiệt",
+      moveInDate: "Dọn vào ngay",
+      propertyTypes: ["house"],
+      amenities: ["ac", "wifi", "fridge", "parking", "security"],
+      costs: {
+        rent: "3.200.000",
+        deposit: "3.200.000",
+        electricity: "3.500đ/kWh",
+        water: "150.000",
+        internet: "100.000",
+        parking: "Miễn phí",
+      },
+      roomSize: "20",
+      minContractDuration: "3 tháng",
+      contact: { phone: "0923456789", zalo: "0923456789" },
+      userId,
+      status: "active",
     },
-    userId: "seed-user-1",
-    status: "active",
-  },
-  {
-    id: "rm-seed-find-partner",
-    category: "roommate",
-    roommateType: "find-partner",
-    title: "Tìm bạn cùng thuê chung cư Masteri Thảo Điền, ngân sách 4-5tr",
-    authorName: "Thanh Hà",
-    description: "Mình đang tìm 1 bạn nữ để cùng thuê căn 2PN tại Masteri Thảo Điền. Ngân sách mỗi người khoảng 4-5 triệu.",
-    introduction: "Mình 23 tuổi, làm designer, thích nấu ăn và nuôi mèo. Tìm bạn nữ hợp tính để ở cùng.",
-    price: "4.000.000 - 5.000.000đ/tháng",
-    location: "Thảo Điền, Quận 2, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Thành phố Thủ Đức",
-    moveInDate: "15/03/2026",
-    timeNegotiable: true,
-    propertyTypes: ["apartment"],
-    preferences: {
-      gender: ["female"],
-      status: ["worker", "student"],
-      schedule: ["late", "flexible"],
-      cleanliness: ["normal"],
-      habits: ["no-smoke", "flexible"],
-      pets: ["cats-ok"],
-      moveInTime: ["early-month", "end-month"],
+    {
+      id: "st-seed-studio-q1",
+      category: "short-term",
+      title: "Studio full nội thất trung tâm Q1 - Cho thuê ngắn ngày/tuần",
+      authorName,
+      description:
+        "Studio 30m² full nội thất cao cấp ngay trung tâm Quận 1. Phù hợp dân công tác, du lịch ngắn ngày. Gần chợ Bến Thành, phố đi bộ Nguyễn Huệ.\n\nGiá bao gồm điện nước, wifi, dọn phòng 1 lần/tuần.",
+      price: "500.000đ/đêm",
+      location: "Quận 1, TP.HCM",
+      city: "Hồ Chí Minh",
+      district: "Quận 1",
+      specificAddress: "Đường Lý Tự Trọng",
+      moveInDate: "Linh hoạt",
+      amenities: ["ac", "wifi", "washing", "fridge", "elevator", "security"],
+      contact: { phone: "0945678901", zalo: "0945678901" },
+      userId,
+      status: "active",
     },
-    contact: {
-      phone: "0912345678",
-      zalo: "0912345678",
-      facebook: "thanhha.design",
+    {
+      id: "sl-seed-apartment-q7",
+      category: "sublease",
+      title: "Sang lại căn hộ 1PN Sunrise City Q7 - HĐ còn 8 tháng",
+      authorName,
+      description:
+        "Lý do sang lại: Được công ty chuyển ra Hà Nội công tác dài hạn nên cần sang lại phòng gấp.\n\nCăn 1PN 50m² tại Sunrise City, Quận 7. Full nội thất. View hồ bơi đẹp.\n\nHợp đồng còn 8 tháng, giá thuê 8.5tr/tháng (giá gốc 9.5tr). Đã đóng cọc 2 tháng.",
+      price: "8.500.000đ/tháng",
+      location: "Quận 7, TP.HCM",
+      city: "Hồ Chí Minh",
+      district: "Quận 7",
+      specificAddress: "Sunrise City, Nguyễn Hữu Thọ",
+      buildingName: "Sunrise City",
+      moveInDate: "01/04/2026",
+      minContractDuration: "8 tháng",
+      amenities: ["ac", "wifi", "washing", "fridge", "elevator", "security", "parking"],
+      costs: {
+        rent: "8.500.000",
+        deposit: "17.000.000",
+        electricity: "Theo số điện",
+        water: "300.000",
+        internet: "Miễn phí",
+        service: "600.000",
+        parking: "1.200.000",
+      },
+      roomSize: "50",
+      contact: { phone: "0967890123", zalo: "0967890123" },
+      userId,
+      status: "active",
     },
-    userId: "seed-user-2",
-    status: "active",
-  },
-  {
-    id: "rs-seed-roomshare",
-    category: "roomshare",
-    title: "Cho thuê phòng trọ mới xây gần ĐH Bách Khoa, full nội thất",
-    authorName: "Anh Khoa",
-    description: "Phòng trọ mới xây, sạch sẽ, an ninh tốt. Gần ĐH Bách Khoa, ĐH Kinh tế, chợ Thủ Đức. Phòng có ban công thoáng mát.",
-    introduction: "Nhà mình mới xây xong, cho thuê phòng trọ cao cấp. Ưu tiên sinh viên và người đi làm.",
-    price: "3.200.000đ/tháng",
-    location: "268 Lý Thường Kiệt, Quận 10, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Quận 10",
-    specificAddress: "268 Lý Thường Kiệt",
-    moveInDate: "Dọn vào ngay",
-    propertyTypes: ["house"],
-    amenities: ["ac", "wifi", "fridge", "parking", "security"],
-    costs: {
-      rent: "3.200.000",
-      deposit: "3.200.000",
-      electricity: "3.500đ/kWh",
-      water: "150.000",
-      internet: "100.000",
-      parking: "Miễn phí",
-    },
-    roomSize: "20",
-    minContractDuration: "3 tháng",
-    contact: {
-      phone: "0923456789",
-      zalo: "0923456789",
-    },
-    userId: "seed-user-3",
-    status: "active",
-  },
-  // ==========================================
-  // SHORT-TERM - Phòng ngắn ngày
-  // ==========================================
-  {
-    id: "st-seed-homestay-dalat",
-    category: "short-term",
-    title: "Homestay view đồi thông Đà Lạt - 2 phòng ngủ, bếp đầy đủ",
-    authorName: "Ngọc Mai",
-    description: "Homestay nằm trên đồi thông, view cực đẹp, yên tĩnh. Phù hợp nhóm bạn 4-6 người hoặc gia đình nhỏ. Có bếp nấu ăn đầy đủ, lò sưởi, sân vườn BBQ. Cách trung tâm Đà Lạt 5km, có chỗ đậu xe rộng rãi.\n\nNhà có 2 phòng ngủ, 1 phòng khách rộng, 2 WC. Chăn ga gối nệm sạch sẽ, thay mới mỗi lượt khách.",
-    price: "800.000đ/đêm",
-    location: "Phường 10, Đà Lạt",
-    city: "Lâm Đồng",
-    district: "Đà Lạt",
-    specificAddress: "Đường Khe Sanh",
-    moveInDate: "Linh hoạt",
-    amenities: ["ac", "wifi", "kitchen", "parking", "fridge", "washing"],
-    contact: {
-      phone: "0934567890",
-      zalo: "0934567890",
-    },
-    userId: "seed-user-4",
-    status: "active",
-  },
-  {
-    id: "st-seed-studio-q1",
-    category: "short-term",
-    title: "Studio full nội thất trung tâm Q1 - Cho thuê ngắn ngày/tuần",
-    authorName: "Phương Linh",
-    description: "Studio 30m² full nội thất cao cấp ngay trung tâm Quận 1. Phù hợp dân công tác, du lịch ngắn ngày. Gần chợ Bến Thành, phố đi bộ Nguyễn Huệ.\n\nPhòng có giường Queen, bếp mini, máy giặt, ban công nhỏ view thành phố. Tòa nhà có bảo vệ 24/7, thang máy.\n\nGiá bao gồm điện nước, wifi, dọn phòng 1 lần/tuần.",
-    price: "500.000đ/đêm",
-    location: "Quận 1, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Quận 1",
-    specificAddress: "Đường Lý Tự Trọng",
-    moveInDate: "Linh hoạt",
-    amenities: ["ac", "wifi", "washing", "fridge", "elevator", "security"],
-    contact: {
-      phone: "0945678901",
-      zalo: "0945678901",
-    },
-    userId: "seed-user-5",
-    status: "active",
-  },
-  {
-    id: "st-seed-room-hanoi",
-    category: "short-term",
-    title: "Phòng trọ sạch đẹp Cầu Giấy, Hà Nội - Cho thuê theo tháng/tuần",
-    authorName: "Văn Hùng",
-    description: "Phòng trọ khép kín 22m² tại Cầu Giấy, gần ĐH Quốc Gia Hà Nội. Phù hợp sinh viên thực tập, người đi công tác ngắn hạn.\n\nPhòng mới sơn sửa, sạch sẽ, có điều hòa, nóng lạnh, giường tủ. Khu vực an ninh, gần siêu thị, quán ăn.\n\nCho thuê linh hoạt: 150k/đêm hoặc 3tr/tháng.",
-    price: "3.000.000đ/tháng",
-    location: "Cầu Giấy, Hà Nội",
-    city: "Hà Nội",
-    district: "Cầu Giấy",
-    specificAddress: "Ngõ 68 Xuân Thủy",
-    moveInDate: "Linh hoạt",
-    amenities: ["ac", "wifi", "fridge"],
-    contact: {
-      phone: "0956789012",
-      zalo: "0956789012",
-    },
-    userId: "seed-user-6",
-    status: "active",
-  },
-  // ==========================================
-  // SUBLEASE - Phòng sang lại
-  // ==========================================
-  {
-    id: "sl-seed-apartment-q7",
-    category: "sublease",
-    title: "Sang lại căn hộ 1PN Sunrise City Q7 - HĐ còn 8 tháng",
-    authorName: "Hoàng Nam",
-    description: "Lý do sang lại: Mình được công ty chuyển ra Hà Nội công tác dài hạn nên cần sang lại phòng gấp.\n\nCăn 1PN 50m² tại Sunrise City, Quận 7. Full nội thất xịn: sofa da, TV 55 inch, máy giặt Electrolux, tủ lạnh Panasonic. View hồ bơi đẹp.\n\nHợp đồng còn 8 tháng, giá thuê 8.5tr/tháng (giá gốc 9.5tr). Đã đóng cọc 2 tháng, mình sẽ chuyển cọc cho người nhận.",
-    price: "8.500.000đ/tháng",
-    location: "Quận 7, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Quận 7",
-    specificAddress: "Sunrise City, Nguyễn Hữu Thọ",
-    buildingName: "Sunrise City",
-    moveInDate: "01/03/2026",
-    minContractDuration: "8 tháng",
-    amenities: ["ac", "wifi", "washing", "fridge", "elevator", "security", "parking"],
-    costs: {
-      rent: "8.500.000",
-      deposit: "17.000.000",
-      electricity: "Theo số điện",
-      water: "300.000",
-      internet: "Miễn phí",
-      service: "600.000",
-      parking: "1.200.000",
-    },
-    roomSize: "50",
-    contact: {
-      phone: "0967890123",
-      zalo: "0967890123",
-    },
-    userId: "seed-user-7",
-    status: "active",
-  },
-  {
-    id: "sl-seed-room-binhtan",
-    category: "sublease",
-    title: "Sang lại phòng trọ cao cấp Bình Tân - Mới ở 2 tháng",
-    authorName: "Thảo Nguyên",
-    description: "Lý do sang lại: Mình vừa đổi chỗ làm sang Thủ Đức nên di chuyển xa quá, cần sang lại phòng.\n\nPhòng trọ cao cấp 25m², mới xây 2024, sạch sẽ. Có ban công, cửa sổ thoáng. Gần Aeon Mall Bình Tân, nhiều quán ăn.\n\nHĐ còn 10 tháng, giá 3.2tr/tháng. Đã đóng cọc 1 tháng. Nội thất mình để lại gồm: giường, tủ quần áo, bàn làm việc (miễn phí).",
-    price: "3.200.000đ/tháng",
-    location: "Bình Tân, TP.HCM",
-    city: "Hồ Chí Minh",
-    district: "Bình Tân",
-    specificAddress: "Đường Số 7, Bình Trị Đông B",
-    moveInDate: "15/03/2026",
-    minContractDuration: "10 tháng",
-    amenities: ["ac", "wifi", "parking"],
-    costs: {
-      rent: "3.200.000",
-      deposit: "3.200.000",
-      electricity: "3.500đ/kWh",
-      water: "100.000",
-      internet: "100.000",
-      parking: "Miễn phí",
-    },
-    roomSize: "25",
-    contact: {
-      phone: "0978901234",
-      zalo: "0978901234",
-    },
-    userId: "seed-user-8",
-    status: "active",
-  },
-  {
-    id: "sl-seed-studio-hanoi",
-    category: "sublease",
-    title: "Sang nhượng studio Vinhomes Smart City Hà Nội - HĐ còn 5 tháng",
-    authorName: "Đức Minh",
-    description: "Lý do sang lại: Mình sắp về quê lập nghiệp nên cần sang lại studio.\n\nStudio 30m² tại Vinhomes Smart City, Nam Từ Liêm. Full nội thất của chủ đầu tư. Tiện ích: hồ bơi, gym, công viên, trường học.\n\nHĐ còn 5 tháng, giá 5tr/tháng. Cọc 2 tháng sẽ chuyển lại cho người nhận. Liên hệ mình xem phòng bất cứ lúc nào.",
-    price: "5.000.000đ/tháng",
-    location: "Nam Từ Liêm, Hà Nội",
-    city: "Hà Nội",
-    district: "Nam Từ Liêm",
-    specificAddress: "Tòa S1.05, Vinhomes Smart City",
-    buildingName: "Vinhomes Smart City",
-    moveInDate: "Dọn vào ngay",
-    minContractDuration: "5 tháng",
-    amenities: ["ac", "wifi", "washing", "fridge", "elevator", "security", "parking"],
-    costs: {
-      rent: "5.000.000",
-      deposit: "10.000.000",
-      electricity: "Theo số điện",
-      water: "200.000",
-      internet: "Miễn phí",
-      service: "500.000",
-      parking: "1.000.000",
-    },
-    roomSize: "30",
-    contact: {
-      phone: "0989012345",
-      zalo: "0989012345",
-    },
-    userId: "seed-user-9",
-    status: "active",
-  },
-];
+  ];
+}
 
-export async function POST() {
+// Clear all listings
+export async function DELETE() {
   try {
     const db = getAdminDb();
+    const snapshot = await db.collection("listings").get();
+
+    if (snapshot.empty) {
+      return NextResponse.json({ success: true, message: "No listings to delete" });
+    }
+
+    const batches: FirebaseFirestore.WriteBatch[] = [];
+    let batch = db.batch();
+    let count = 0;
+
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+      count++;
+      if (count % 500 === 0) {
+        batches.push(batch);
+        batch = db.batch();
+      }
+    });
+    batches.push(batch);
+
+    await Promise.all(batches.map((b) => b.commit()));
+
+    return NextResponse.json({ success: true, message: `Deleted ${count} listings` });
+  } catch (error) {
+    console.error("Clear listings error:", error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+  }
+}
+
+// Seed listings — requires auth so userId & authorName come from the caller
+export async function POST(request: NextRequest) {
+  try {
+    const authHeader = request.headers.get("Authorization");
+    let userId = "demo-user";
+    let authorName = "Demo User";
+
+    // If authenticated, use the caller's info
+    if (authHeader?.startsWith("Bearer ")) {
+      const idToken = authHeader.split("Bearer ")[1];
+      const adminAuth = getAdminAuth();
+      const decoded = await adminAuth.verifyIdToken(idToken);
+      userId = decoded.uid;
+      authorName = decoded.name || decoded.email || "Demo User";
+    }
+
+    const db = getAdminDb();
+    const listings = getMockListings(userId, authorName);
     const batch = db.batch();
 
-    for (const listing of mockListings) {
+    for (const listing of listings) {
       const docRef = db.collection("listings").doc(listing.id);
       batch.set(docRef, {
         ...listing,
@@ -296,8 +233,8 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Seeded ${mockListings.length} listings`,
-      ids: mockListings.map((l) => l.id),
+      message: `Seeded ${listings.length} listings for ${authorName}`,
+      ids: listings.map((l) => l.id),
     });
   } catch (error) {
     console.error("Seed error:", error);

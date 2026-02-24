@@ -25,7 +25,11 @@ const googleSans = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://roomieverse.app"),
+  icons: {
+    icon: "/logo/logo11.jpeg",
+    apple: "/logo/logo11.jpeg",
+  },
+  metadataBase: new URL("https://roomieverse.blog"),
   title: {
     default: "roomieVerse | Find your next roommate",
     template: "%s | roomieVerse",

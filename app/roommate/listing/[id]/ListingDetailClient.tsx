@@ -45,7 +45,6 @@ import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
 import { createReport } from "../../../data/reports";
 import { getUserProfile } from "../../../data/users";
-import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
 import { formatPrice } from "../../../lib/format";
 
 // Helper function to get category badge
@@ -88,7 +87,6 @@ interface Props {
 }
 
 export default function RoommateListingDetailPage({ initialListing }: Props) {
-  useAdminRedirect();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -105,15 +103,18 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
   useEffect(() => {
     if (authLoading) return;
     async function fetchData() {
-      setIsLoading(true);
-      const data = await getListingById(id);
-      // Verify this is a roommate listing
-      if (data && data.category !== "roommate") {
-        // Redirect to correct route
-        router.replace(`/roomshare/listing/${id}`);
-        return;
+      // If we already have initialListing from server, use it directly
+      let data = listing;
+      if (!data) {
+        setIsLoading(true);
+        data = await getListingById(id);
+        // Verify this is a roommate listing
+        if (data && data.category !== "roommate") {
+          router.replace(`/roomshare/listing/${id}`);
+          return;
+        }
+        setListing(data);
       }
-      setListing(data);
 
       // Fetch similar listings (same roommateType, prioritize same city)
       if (data) {
@@ -121,7 +122,6 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
         const similar = allListings
           .filter(l => l.id !== data.id && l.roommateType === data.roommateType)
           .sort((a, b) => {
-            // Prioritize same city
             const aMatch = a.city === data.city ? 1 : 0;
             const bMatch = b.city === data.city ? 1 : 0;
             return bMatch - aMatch;
@@ -143,6 +143,7 @@ export default function RoommateListingDetailPage({ initialListing }: Props) {
       }
     }
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router, authLoading]);
 
   // Check if listing is favorited

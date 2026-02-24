@@ -46,8 +46,6 @@ import { toggleFavorite as toggleFav, isFavorited as checkFav } from "../../../d
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
 import { createReport } from "../../../data/reports";
-import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
-
 // Helper to map amenity value to label
 const amenityLabels: Record<string, string> = {
   ac: "Điều hòa",
@@ -81,7 +79,6 @@ interface Props {
 }
 
 export default function RoomshareListingDetailPage({ initialListing }: Props) {
-  useAdminRedirect();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -96,13 +93,16 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
   // Fetch listing data
   useEffect(() => {
     async function fetchData() {
-      setIsLoading(true);
-      const data = await getListingById(id);
-      if (data && data.category !== "roomshare") {
-        router.replace(`/roommate/listing/${id}`);
-        return;
+      let data = listing;
+      if (!data) {
+        setIsLoading(true);
+        data = await getListingById(id);
+        if (data && data.category !== "roomshare") {
+          router.replace(`/roommate/listing/${id}`);
+          return;
+        }
+        setListing(data);
       }
-      setListing(data);
 
       // Fetch similar listings
       const allListings = await getListingsByCategory("roomshare");
@@ -114,11 +114,12 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
       setIsLoading(false);
 
       // Track view
-      if (data) {
-        incrementViewCount(String(data.id));
+      if (data && data.status === "active") {
+        incrementViewCount(String(data.id)).catch(() => {});
       }
     }
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router]);
 
   // Check if listing is favorited

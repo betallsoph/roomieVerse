@@ -34,8 +34,6 @@ import { toggleFavorite as toggleFav, isFavorited as checkFav } from "../../../d
 import { RoomListing } from "../../../data/types";
 import { useAuth } from "../../../contexts/AuthContext";
 import { createReport } from "../../../data/reports";
-import { useAdminRedirect } from "../../../hooks/useAdminRedirect";
-
 const amenityLabels: Record<string, string> = {
   ac: "Điều hòa",
   wifi: "Wifi",
@@ -57,7 +55,6 @@ interface Props {
 }
 
 export default function SubleaseListingDetailPage({ initialListing }: Props) {
-  useAdminRedirect();
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -71,14 +68,17 @@ export default function SubleaseListingDetailPage({ initialListing }: Props) {
 
   useEffect(() => {
     async function fetchData() {
-      setIsLoading(true);
-      const data = await getListingById(id);
-      if (data && data.category !== "sublease") {
-        const route = data.category === "short-term" ? "short-term" : data.category === "roomshare" ? "roomshare" : "roommate";
-        router.replace(`/${route}/listing/${id}`);
-        return;
+      let data = listing;
+      if (!data) {
+        setIsLoading(true);
+        data = await getListingById(id);
+        if (data && data.category !== "sublease") {
+          const route = data.category === "short-term" ? "short-term" : data.category === "roomshare" ? "roomshare" : "roommate";
+          router.replace(`/${route}/listing/${id}`);
+          return;
+        }
+        setListing(data);
       }
-      setListing(data);
 
       const allListings = await getListingsByCategory("sublease");
       const similar = allListings
@@ -88,11 +88,12 @@ export default function SubleaseListingDetailPage({ initialListing }: Props) {
 
       setIsLoading(false);
 
-      if (data) {
-        incrementViewCount(String(data.id));
+      if (data && data.status === "active") {
+        incrementViewCount(String(data.id)).catch(() => {});
       }
     }
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router]);
 
   useEffect(() => {
