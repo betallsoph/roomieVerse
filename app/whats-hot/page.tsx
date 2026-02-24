@@ -255,7 +255,7 @@ export default function WhatsHotPage() {
                                 </div>
                             </div>
 
-                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-black bg-yellow-200 font-bold shadow-[var(--shadow-secondary)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all">
+                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-black bg-yellow-200 font-bold shadow-[var(--shadow-secondary)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all">
                                 <Star className="w-5 h-5 text-yellow-600 fill-yellow-600" />
                                 <span>Đăng ký ngay để nhận ưu đãi</span>
                             </div>

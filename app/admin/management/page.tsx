@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import MainHeader from "../../components/MainHeader";
 import ShareFooter from "../../components/ShareFooter";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Shield } from "lucide-react";
-import { getAllUsers, setUserRole } from "../../data/users";
+import { ArrowLeft, Loader2, Shield, Trash2, X, AlertTriangle } from "lucide-react";
+import { getAllUsers, setUserRole, deleteUser } from "../../data/users";
 import { UserProfile, UserRole } from "../../data/types";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -21,6 +21,24 @@ export default function ManagementPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteUser(deleteTarget.uid);
+      setUsers(prev => prev.filter(u => u.uid !== deleteTarget.uid));
+      setDeleteTarget(null);
+      setDeleteConfirmName("");
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Xoá user thất bại.");
+    }
+    setDeleting(false);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -90,7 +108,7 @@ export default function ManagementPage() {
             </span>
           )}
           {showDetail && user.createdAt && (
-            <span className="text-xs text-zinc-400 hidden md:block">{user.createdAt.slice(0, 10)}</span>
+            <span className="text-xs text-zinc-400 hidden md:block">{typeof user.createdAt === "string" ? user.createdAt.slice(0, 10) : (user.createdAt as unknown as { toDate?: () => Date })?.toDate?.()?.toISOString().slice(0, 10) ?? ""}</span>
           )}
           {showDetail && (
             <Link
@@ -99,6 +117,15 @@ export default function ManagementPage() {
             >
               Chi tiết
             </Link>
+          )}
+          {isAdmin && role !== "admin" && (
+            <button
+              onClick={() => { setDeleteTarget(user); setDeleteConfirmName(""); }}
+              className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              title="Xoá user"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
         </div>
       </div>
@@ -179,6 +206,77 @@ export default function ManagementPage() {
           </div>
         </div>
       </section>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-black rounded-xl shadow-[4px_4px_0_0_#000] max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="w-5 h-5" />
+                <h3 className="font-bold text-lg">Xoá User</h3>
+              </div>
+              <button onClick={() => setDeleteTarget(null)} className="p-1 hover:bg-zinc-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200 mb-4">
+              {deleteTarget.photoURL ? (
+                <img src={deleteTarget.photoURL} alt="" className="w-10 h-10 border-2 border-black rounded-full object-cover" />
+              ) : (
+                <div className="w-10 h-10 bg-blue-100 border-2 border-black rounded-full flex items-center justify-center font-bold text-sm">
+                  {deleteTarget.displayName?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
+              <div>
+                <p className="font-bold">{deleteTarget.displayName || "Ẩn danh"}</p>
+                <p className="text-sm text-zinc-500">{deleteTarget.email}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-zinc-600 mb-4">
+              Tất cả dữ liệu của user này sẽ bị xoá vĩnh viễn: tài khoản, tin đăng, bài viết, bình luận, yêu thích, báo cáo.
+            </p>
+
+            <div className="mb-4">
+              <label className="text-sm font-semibold text-zinc-700 block mb-1">
+                Nhập <span className="text-red-600">{deleteTarget.displayName || deleteTarget.email}</span> để xác nhận
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                placeholder="Nhập tên để xác nhận..."
+                className="w-full px-3 py-2 border-2 border-black rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 px-4 py-2 text-sm font-semibold border-2 border-black rounded-lg hover:bg-zinc-100 transition-colors"
+              >
+                Huỷ
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteConfirmName !== (deleteTarget.displayName || deleteTarget.email) || deleting}
+                className="flex-1 px-4 py-2 text-sm font-bold text-white bg-red-600 border-2 border-black rounded-lg shadow-[2px_2px_0_0_#000] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[2px_2px_0_0_#000]"
+              >
+                {deleting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Đang xoá...
+                  </span>
+                ) : (
+                  "Xoá vĩnh viễn"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ShareFooter />
     </div>

@@ -46,14 +46,14 @@ export default function Error({
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => reset()}
-              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-white hover:bg-zinc-50 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-white hover:bg-zinc-50 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               <RotateCcw className="w-4 h-4" />
               Thử lại
             </button>
             <Link
               href="/"
-              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-orange-300 hover:bg-orange-400 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="flex items-center gap-2 px-6 py-3 font-bold border-2 border-black rounded-xl bg-orange-300 hover:bg-orange-400 transition-colors shadow-[2px_2px_0_0_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               <Home className="w-4 h-4" />
               Về trang chủ

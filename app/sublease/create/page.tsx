@@ -334,7 +334,7 @@ export default function CreateSubleasePage() {
               <button
                 onClick={handleSubmit}
                 disabled={!canSubmit || isSubmitting}
-                className="flex-1 px-6 py-3 font-bold border-2 border-black rounded-xl bg-emerald-300 shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[2px_2px_0_0_#000] flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3 font-bold border-2 border-black rounded-xl bg-emerald-300 shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[2px_2px_0_0_#000] flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>

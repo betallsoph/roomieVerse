@@ -131,7 +131,7 @@ export default function CommunityPage() {
               </span>
               <Link
                 href="/community/create"
-                className="flex items-center gap-2 rounded-lg border-2 border-black bg-orange-300 px-5 py-2.5 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                className="flex items-center gap-2 rounded-lg border-2 border-black bg-orange-300 px-5 py-2.5 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
               >
                 Viết bài mới
               </Link>

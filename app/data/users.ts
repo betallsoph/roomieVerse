@@ -169,6 +169,31 @@ export async function setUserRole(uid: string, role: string): Promise<void> {
   }
 }
 
+// Delete user completely (admin only, via server API)
+export async function deleteUser(uid: string): Promise<void> {
+  if (!FIREBASE_ENABLED) return;
+
+  const { getAuth } = await import("firebase/auth");
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const idToken = await user.getIdToken();
+  const res = await fetch("/api/admin/delete-user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ uid }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Failed to delete user");
+  }
+}
+
 // Get all users (for admin management)
 export async function getAllUsers(): Promise<UserProfile[]> {
   if (!FIREBASE_ENABLED || !db) return [];

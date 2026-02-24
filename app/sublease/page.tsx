@@ -105,7 +105,7 @@ export default function SubleasePage() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/sublease/create"
-              className="flex items-center gap-2 rounded-lg border-2 border-black bg-emerald-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="flex items-center gap-2 rounded-lg border-2 border-black bg-emerald-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               <ArrowRightLeft className="w-4 h-4" />
               Đăng sang lại phòng
@@ -250,7 +250,7 @@ export default function SubleasePage() {
             </p>
             <Link
               href="/sublease/create"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-emerald-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-emerald-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Đăng tin sang lại
             </Link>
@@ -262,7 +262,7 @@ export default function SubleasePage() {
             </p>
             <Link
               href="/roomshare"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-blue-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-blue-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Tìm phòng share
             </Link>

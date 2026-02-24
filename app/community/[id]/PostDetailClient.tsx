@@ -350,7 +350,7 @@ export default function CommunityPostDetailPage({ initialPost }: Props) {
                   <button
                     onClick={handleComment}
                     disabled={!commentText.trim() || isSubmittingComment}
-                    className="px-4 py-2.5 border-2 border-black rounded-xl bg-orange-300 font-bold text-sm disabled:opacity-50 transition-all hover:shadow-[2px_2px_0_0_#000]"
+                    className="px-4 py-2.5 border-2 border-black rounded-xl bg-orange-300 font-bold text-sm disabled:opacity-50 transition-all hover:shadow-[2px_2px_0_0_#000] active:scale-95"
                   >
                     {isSubmittingComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </button>

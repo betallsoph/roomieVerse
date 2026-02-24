@@ -107,7 +107,7 @@ export default function ShortTermPage() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/short-term/create"
-              className="flex items-center gap-2 rounded-lg border-2 border-black bg-yellow-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="flex items-center gap-2 rounded-lg border-2 border-black bg-yellow-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Đăng cho thuê
             </Link>
@@ -251,7 +251,7 @@ export default function ShortTermPage() {
             </p>
             <Link
               href="/short-term/create"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-yellow-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-yellow-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Đăng tin cho thuê
             </Link>
@@ -263,7 +263,7 @@ export default function ShortTermPage() {
             </p>
             <Link
               href="/roommate"
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-blue-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-black bg-blue-300 px-6 py-3 text-sm font-bold shadow-[2px_2px_0_0_#000] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Tìm bạn ở chung
             </Link>

@@ -162,7 +162,7 @@ export default function ReportModal({
                       className={`rounded-xl border-2 border-black p-4 text-left transition-all ${
                         selectedReason === reason.id
                           ? "bg-red-100 shadow-[var(--shadow-secondary)]"
-                          : "bg-white hover:bg-gray-50"
+                          : "bg-white hover:bg-gray-50 active:scale-[0.97]"
                       }`}
                     >
                       <div className="mb-2 flex items-center gap-2">
@@ -235,7 +235,7 @@ export default function ReportModal({
               <button
                 type="submit"
                 disabled={isSubmitting || !selectedReason}
-                className="flex-1 rounded-xl border-2 border-black bg-red-500 px-6 py-3 font-bold text-white shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[var(--shadow-secondary)]"
+                className="flex-1 rounded-xl border-2 border-black bg-red-500 px-6 py-3 font-bold text-white shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[var(--shadow-secondary)]"
               >
                 {isSubmitting ? "Đang gửi..." : "Gửi báo cáo"}
               </button>

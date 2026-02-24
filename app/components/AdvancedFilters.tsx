@@ -192,7 +192,7 @@ export default function AdvancedFilters({
               className={`rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
                 localFilters.gender === "all"
                   ? "bg-blue-300 shadow-[var(--shadow-secondary)]"
-                  : "bg-white hover:bg-gray-50"
+                  : "bg-white hover:bg-gray-50 active:scale-95"
               }`}
             >
               Tất cả
@@ -202,7 +202,7 @@ export default function AdvancedFilters({
               className={`rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
                 localFilters.gender === "male"
                   ? "bg-blue-300 shadow-[var(--shadow-secondary)]"
-                  : "bg-white hover:bg-gray-50"
+                  : "bg-white hover:bg-gray-50 active:scale-95"
               }`}
             >
               Nam
@@ -212,7 +212,7 @@ export default function AdvancedFilters({
               className={`rounded-xl border-2 border-black px-4 py-3 text-sm font-bold transition-all ${
                 localFilters.gender === "female"
                   ? "bg-pink-300 shadow-[var(--shadow-secondary)]"
-                  : "bg-white hover:bg-gray-50"
+                  : "bg-white hover:bg-gray-50 active:scale-95"
               }`}
             >
               Nữ
@@ -240,13 +240,13 @@ export default function AdvancedFilters({
         <div className="flex gap-3">
           <button
             onClick={handleReset}
-            className="flex-1 rounded-xl border-2 border-black bg-white px-6 py-3 font-bold transition-all hover:bg-gray-50"
+            className="flex-1 rounded-xl border-2 border-black bg-white px-6 py-3 font-bold transition-all hover:bg-gray-50 active:scale-95"
           >
             Đặt lại
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 rounded-xl border-2 border-black bg-blue-300 px-6 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+            className="flex-1 rounded-xl border-2 border-black bg-blue-300 px-6 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
           >
             Áp dụng
           </button>

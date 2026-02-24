@@ -82,7 +82,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
                 onClick={() => setFormData({ ...formData, gender: 'Nam' })}
                 className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Nam'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-                    : 'bg-white hover:bg-gray-50'
+                    : 'bg-white hover:bg-gray-50 active:scale-95'
                   }`}
               >
                 Nam
@@ -92,7 +92,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
                 onClick={() => setFormData({ ...formData, gender: 'Nữ' })}
                 className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Nữ'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-                    : 'bg-white hover:bg-gray-50'
+                    : 'bg-white hover:bg-gray-50 active:scale-95'
                   }`}
               >
                 Nữ
@@ -102,7 +102,7 @@ export default function CompleteProfileModal({ isOpen, onClose, onComplete, init
                 onClick={() => setFormData({ ...formData, gender: 'Khác' })}
                 className={`flex-1 rounded-lg border-2 border-black px-4 py-3 text-sm font-bold transition-all ${formData.gender === 'Khác'
                     ? 'bg-blue-300 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-                    : 'bg-white hover:bg-gray-50'
+                    : 'bg-white hover:bg-gray-50 active:scale-95'
                   }`}
               >
                 Khác

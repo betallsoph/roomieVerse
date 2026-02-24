@@ -651,7 +651,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
                 <>
                   <a
                     href={`tel:${listing.phone.replace(/\s/g, "")}`}
-                    className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 text-lg font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                    className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 text-lg font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                   >
                     <Phone className="h-5 w-5" /> {listing.phone}
                   </a>
@@ -661,7 +661,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
                       href={`https://zalo.me/${listing.zalo.replace(/\s/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                      className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                     >
                       <MessageCircle className="h-5 w-5" /> Zalo
                     </a>
@@ -677,7 +677,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
                         href={listing.facebook.startsWith('http') ? listing.facebook : `https://facebook.com/${listing.facebook}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                       >
                         <Facebook className="h-5 w-5" /> Facebook
                       </a>
@@ -692,7 +692,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
                         href={listing.instagram.startsWith('http') ? listing.instagram : `https://instagram.com/${listing.instagram}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                       >
                         <Instagram className="h-5 w-5" /> Instagram
                       </a>
@@ -706,7 +706,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
               ) : (
                 <Link
                   href={`/auth?returnUrl=/roomshare/listing/${id}`}
-                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-black bg-white px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                 >
                   <Lock className="h-5 w-5" /> Đăng nhập để xem SĐT
                 </Link>
@@ -720,7 +720,7 @@ export default function RoomshareListingDetailPage({ initialListing }: Props) {
               {listing.userId && (
                 <Link
                   href={`/user/${listing.userId}`}
-                  className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-purple-100 px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                  className="mt-4 flex items-center justify-center gap-2 w-full rounded-lg border-2 border-black bg-purple-100 px-5 py-3 font-bold shadow-[var(--shadow-secondary)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
                 >
                   <User className="h-5 w-5" /> Xem hồ sơ người đăng
                 </Link>

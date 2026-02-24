@@ -26,7 +26,7 @@ export default function ShareHeader({ variant = "blue" }: ShareHeaderProps) {
           <nav className="flex items-center gap-4">
             <Link
               href="/"
-              className="rounded-lg border-2 border-black bg-white px-6 py-2.5 font-medium transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              className="rounded-lg border-2 border-black bg-white px-6 py-2.5 font-medium transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               Trang chủ
             </Link>
