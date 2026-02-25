@@ -13,7 +13,7 @@ import ProfileReminderModal from "../components/ProfileReminderModal";
 import PostTypeModal from "../components/PostTypeModal";
 import { useProfileReminder } from "../hooks/useProfileReminder";
 import { useAdminRedirect } from "../hooks/useAdminRedirect";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
 type FilterMode = "have-room" | "find-partner";
@@ -43,6 +43,7 @@ export default function RoommatePage() {
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Helper to close all filter panels and trigger bounce
   const closeAllFilters = () => {
@@ -138,9 +139,9 @@ export default function RoommatePage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="bg-blue-50 pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8">
+      <section className="bg-blue-50 pt-4 sm:pt-12 md:pt-16 pb-4 sm:pb-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h1 className="mb-4 sm:mb-6 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+          <h1 className="mb-3 sm:mb-6 text-2xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
             Tìm bạn ở cùng hoặc cùng đi thuê
           </h1>
 
@@ -150,12 +151,18 @@ export default function RoommatePage() {
           />
 
           {/* Filter & Search Section */}
-          <div className="mt-6 sm:mt-10 grid gap-6 md:grid-cols-2 items-stretch">
+          <div className="mt-3 sm:mt-10 grid gap-2 sm:gap-6 md:grid-cols-2 items-stretch">
             {/* Left: Filter & Search Buttons */}
-            <div className="space-y-3">
-              <p className="text-base font-bold text-blue-800">Bộ lọc nâng cao</p>
-              {/* Buttons Row */}
-              <div className="flex flex-wrap gap-3">
+            <div>
+              <button onClick={() => setShowMobileFilters(!showMobileFilters)} className={`sm:hidden flex items-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-black text-sm font-bold transition-all ${hasActiveFilters ? "bg-blue-300" : "bg-white"}`}>
+                Bộ lọc nâng cao
+                {hasActiveFilters && <span className="ml-1 text-xs font-normal">(đang lọc)</span>}
+                <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${showMobileFilters ? "rotate-180" : ""}`} />
+              </button>
+              <div className={`${showMobileFilters ? "block" : "hidden"} sm:block space-y-2 sm:space-y-3 mt-2 sm:mt-0`}>
+                <p className="hidden sm:block text-base font-bold text-blue-800">Bộ lọc nâng cao</p>
+                {/* Buttons Row */}
+                <div className="flex flex-wrap gap-3">
                 <motion.button
                   onClick={() => { closeAllFilters(); setShowFilter(!showFilter); triggerBounce(); }}
                   whileTap={{ scale: 0.85 }}
@@ -349,6 +356,7 @@ export default function RoommatePage() {
                   </motion.button>
                 </motion.div>
               )}
+              </div>
             </div>
 
             {/* Right: Placeholder for Ads/CTA */}
@@ -360,7 +368,7 @@ export default function RoommatePage() {
       </section>
 
       {/* Blur transition from hero to listing */}
-      <div className="h-6 sm:h-8 bg-gradient-to-b from-blue-50 to-white" />
+      <div className="h-3 sm:h-8 bg-gradient-to-b from-blue-50 to-white" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-16">
 

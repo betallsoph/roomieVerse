@@ -16,7 +16,7 @@ export default function FilterTabs({
   description,
 }: FilterTabsProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {/* Pill-style Tabs */}
       <motion.div
         className="inline-flex rounded-xl border-2 border-black bg-white p-1 sm:p-1.5 text-sm sm:text-base font-bold tracking-wide shadow-[3px_3px_0_0_#000]"
@@ -49,8 +49,8 @@ export default function FilterTabs({
         </motion.button>
       </motion.div>
 
-      {/* Tab Description */}
-      <div className="text-sm text-zinc-600">
+      {/* Tab Description - hidden on mobile */}
+      <div className="hidden sm:block text-sm text-zinc-600">
         {description ? description : (
           activeType === "house"
             ? "Tìm phòng trống trong nhà mặt đất (share phòng trống)"

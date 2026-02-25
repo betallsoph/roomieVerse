@@ -11,7 +11,7 @@ import ListingCard from "../components/ListingCard";
 import ProfileReminderModal from "../components/ProfileReminderModal";
 import { useProfileReminder } from "../hooks/useProfileReminder";
 import { useAdminRedirect } from "../hooks/useAdminRedirect";
-import { Home, MapPin, Calendar, Loader2, Clock, Search, X } from "lucide-react";
+import { Home, MapPin, Calendar, Loader2, Clock, Search, X, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
 function parsePrice(price: string): number {
@@ -37,6 +37,7 @@ export default function ShortTermPage() {
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const closeAllFilters = () => { setShowFilter(false); setShowDistrict(false); setShowPrice(false); setShowSearch(false); };
   const triggerBounce = () => setBounceKey(prev => prev + 1);
@@ -95,12 +96,12 @@ export default function ShortTermPage() {
       <ProfileReminderModal isOpen={showReminder} onClose={dismissReminder} />
 
       {/* Hero Section */}
-      <section className="bg-yellow-50 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-6">
-          <h1 className="mb-4 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl text-amber-800">
+      <section className="bg-yellow-50 py-4 sm:py-12 md:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h1 className="mb-2 sm:mb-4 text-2xl font-extrabold leading-tight sm:text-4xl md:text-5xl text-amber-800">
             Phòng ngắn ngày
           </h1>
-          <p className="mb-8 max-w-3xl text-sm sm:text-base text-zinc-700">
+          <p className="hidden sm:block mb-8 max-w-3xl text-sm sm:text-base text-zinc-700">
             Cho thuê phòng theo ngày, tuần cho người cần chỗ ở tạm thời — công tác, du lịch, chờ tìm phòng dài hạn
           </p>
 
@@ -114,9 +115,15 @@ export default function ShortTermPage() {
           </div>
 
           {/* Advanced Filters */}
-          <div className="mt-6 sm:mt-10 space-y-3">
-            <p className="text-base font-bold text-amber-800">Bộ lọc nâng cao</p>
-            <div className="flex flex-wrap gap-3">
+          <div className="mt-3 sm:mt-10">
+            <button onClick={() => setShowMobileFilters(!showMobileFilters)} className={`sm:hidden flex items-center gap-2 w-full px-4 py-2.5 rounded-lg border-2 border-black text-sm font-bold transition-all ${hasActiveFilters ? "bg-yellow-300" : "bg-white"}`}>
+              Bộ lọc nâng cao
+              {hasActiveFilters && <span className="ml-1 text-xs font-normal">(đang lọc)</span>}
+              <ChevronDown className={`h-4 w-4 ml-auto transition-transform duration-200 ${showMobileFilters ? "rotate-180" : ""}`} />
+            </button>
+            <div className={`${showMobileFilters ? "block" : "hidden"} sm:block space-y-2 sm:space-y-3 mt-2 sm:mt-0`}>
+              <p className="hidden sm:block text-base font-bold text-amber-800">Bộ lọc nâng cao</p>
+              <div className="flex flex-wrap gap-3">
               <motion.button onClick={() => { closeAllFilters(); setShowFilter(!showFilter); triggerBounce(); }} whileTap={{ scale: 0.85 }} transition={{ duration: 0.1 }} className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-black text-sm font-bold transition-all ${showFilter || selectedCity ? "bg-yellow-300" : "bg-white hover:bg-zinc-50"}`}>
                 Khu vực{selectedCity && `: ${selectedCity}`}
               </motion.button>
@@ -187,21 +194,22 @@ export default function ShortTermPage() {
                 <motion.button onClick={() => setActiveSearch(searchQuery.trim())} whileTap={{ scale: 0.90 }} className="px-6 rounded-lg border-2 border-black bg-yellow-300 font-bold hover:bg-yellow-400 transition-colors">Tìm</motion.button>
               </motion.div>
             )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Blur transition */}
-      <div className="h-8 bg-gradient-to-b from-yellow-50 to-white" />
+      <div className="h-3 sm:h-8 bg-gradient-to-b from-yellow-50 to-white" />
 
-      <div className="mx-auto max-w-7xl px-6 pb-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-16">
         {/* Listings */}
         <div>
-          <div className="mb-8 space-y-2">
+          <div className="mb-4 sm:mb-8 space-y-1">
             <span className="text-sm font-medium text-zinc-600">
               {filteredListings.length} tin đăng
             </span>
-            <h2 className="text-2xl font-bold">Phòng cho thuê ngắn ngày</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Phòng cho thuê ngắn ngày</h2>
           </div>
 
           {/* Loading */}

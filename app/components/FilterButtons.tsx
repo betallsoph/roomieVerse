@@ -14,7 +14,7 @@ export default function FilterButtons({
   onModeChange,
 }: FilterButtonsProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {/* Mode Tabs */}
       <motion.div
         className="inline-flex rounded-xl border-2 border-black bg-white p-1 sm:p-1.5 text-sm sm:text-base font-bold tracking-wide shadow-[3px_3px_0_0_#000]"
@@ -47,8 +47,8 @@ export default function FilterButtons({
         </motion.button>
       </motion.div>
 
-      {/* Mode Description */}
-      <p className="text-sm text-zinc-600">
+      {/* Mode Description - hidden on mobile */}
+      <p className="hidden sm:block text-sm text-zinc-600">
         {mode === "have-room"
           ? "Người đăng tin có phòng/căn hộ sẵn, tìm người ở cùng và chỉ việc dọn vào"
           : "Chưa ai có phòng sẵn, tìm bạn ghép rồi cùng nhau đi thuê sau"}

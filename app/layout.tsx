@@ -26,8 +26,8 @@ const googleSans = localFont({
 
 export const metadata: Metadata = {
   icons: {
-    icon: "/logo/logo11.jpeg",
-    apple: "/logo/logo11.jpeg",
+    icon: "/logo/favicon.ico",
+    apple: "/logo/favicon.ico",
   },
   metadataBase: new URL("https://roomieverse.blog"),
   title: {
