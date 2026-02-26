@@ -24,10 +24,14 @@ function getListingRoute(listing: RoomListing) {
 
 function getCategoryInfo(listing: RoomListing) {
   if (listing.category === "roomshare")
-    return { label: "Tìm phòng", pill: "bg-pink-100 text-pink-700", price: "text-pink-700" };
+    return { label: "Tìm phòng", pill: "bg-pink-100 text-pink-700", price: "text-pink-700", accent: "bg-pink-400" };
+  if (listing.category === "sublease")
+    return { label: "Sang lại", pill: "bg-orange-100 text-orange-700", price: "text-orange-700", accent: "bg-orange-400" };
+  if (listing.category === "short-term")
+    return { label: "Ngắn ngày", pill: "bg-yellow-100 text-yellow-700", price: "text-yellow-700", accent: "bg-yellow-400" };
   if (listing.roommateType === "find-partner")
-    return { label: "Tìm bạn ở ghép", pill: "bg-purple-100 text-purple-700", price: "text-blue-700" };
-  return { label: "Có phòng sẵn", pill: "bg-blue-100 text-blue-700", price: "text-blue-700" };
+    return { label: "Tìm bạn ở ghép", pill: "bg-purple-100 text-purple-700", price: "text-purple-700", accent: "bg-purple-400" };
+  return { label: "Có phòng sẵn", pill: "bg-blue-100 text-blue-700", price: "text-blue-700", accent: "bg-blue-400" };
 }
 
 export default function LandingPage() {
@@ -181,7 +185,7 @@ export default function LandingPage() {
                     href={getListingRoute(listing)}
                     className="flex-shrink-0 w-[220px] sm:w-[280px] snap-start group"
                   >
-                    <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden shadow-[var(--shadow-secondary)] card-bounce flex flex-col">
+                    <div className="h-[220px] sm:h-[240px] rounded-xl border-2 border-black bg-white overflow-hidden card-bounce flex flex-col">
                       <div className="flex-1 p-4 flex flex-col">
                         <span className={`self-start text-[11px] font-bold px-2.5 py-0.5 rounded-full ${cat.pill} mb-2`}>
                           {cat.label}
