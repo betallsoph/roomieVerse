@@ -155,7 +155,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      console.error("Error signing in with Google:", error);
+      const fbError = error as { code?: string };
+      const userCancelled = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
+      if (userCancelled.includes(fbError.code || '')) {
+        console.warn("Google login cancelled by user");
+      } else {
+        console.error("Error signing in with Google:", error);
+      }
       throw error;
     }
   };
